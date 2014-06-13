@@ -1,0 +1,10 @@
+name: drag_detector
+version: 0.0.1
+author: Marco Jakob <majakob@gmx.ch>
+description: Tracks mouse and touch dragging.
+homepage: https://github.com/marcojakob/dart-drag-detector
+dependencies:
+  browser: any
+  logging: any
+dev_dependencies:
+  intl: any
