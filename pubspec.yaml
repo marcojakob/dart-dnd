@@ -1,8 +1,8 @@
-name: drag_detector
+name: dnd
 version: 0.0.1
 author: Marco Jakob <majakob@gmx.ch>
-description: Tracks mouse and touch dragging.
-homepage: https://github.com/marcojakob/dart-drag-detector
+description: Tracks mouse and touch dragging and dropping.
+homepage: https://github.com/marcojakob/dart-dnd
 dependencies:
   browser: any
   logging: any

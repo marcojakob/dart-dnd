@@ -1,13 +1,19 @@
-library drag_detector;
+library dnd.drag_detector;
 
 import 'dart:html';
 import 'dart:async';
 import 'package:logging/logging.dart';
 
-final _log = new Logger('drag_detector');
+final _log = new Logger('dnd.drag_detector');
 
 /**
+ * The [DragDetector] detects drag operations for touch and mouse interactions. 
+ * Event streams are provided to track touch or mouse dragging:
+ * * [onDragStart]
+ * * [onDrag]
+ * * [onDragEnd]
  * 
+ * A [DragDetector] can be created for one [Element] or an [ElementList].
  */
 class DragDetector {
   
@@ -38,7 +44,11 @@ class DragDetector {
   StreamController<DragEvent> _onDragEnd;
   
   /**
-   * Fired when the user starts dragging.
+   * Fired when the user starts dragging. 
+   * 
+   * Note: The [onDragStart] is fired not on touchStart or mouseDown but as 
+   * soon as there is a drag movement. When a drag is started an [onDrag] event 
+   * will also be fired.
    */
   Stream<DragEvent> get onDragStart {
     if (_onDragStart == null) {
@@ -95,13 +105,25 @@ class DragDetector {
   bool _dragging = false;
   
   /**
-   * Creates a new [DragDetector]. The [_elementOrElementList] is either one 
-   * [Element] or an [ElementList] on which a drag can be started.
+   * Creates a new [DragDetector]. The [element] is where a drag can be 
+   * started.
    */
-  DragDetector(elementOrElementList) 
-      : this._elementOrElementList = elementOrElementList {
+  DragDetector.forElement(Element element) 
+      : this._elementOrElementList = element {
     
-    _log.fine('Initializing DragDetector.');
+    _log.fine('Initializing DragDetector for an Element.');
+    
+    _installDragStartListeners();
+  }
+  
+  /**
+   * Creates a new [DragDetector]. The [elementList] is where a drag can be 
+   * started.
+   */
+  DragDetector.forElements(ElementList elementList) 
+      : this._elementOrElementList = elementList {
+    
+    _log.fine('Initializing DragDetector for an ElementList.');
     
     _installDragStartListeners();
   }
@@ -323,8 +345,8 @@ class DragDetector {
   }
   
   /**
-   * Unistalls all listeners. This will return the [element] back to its 
-   * pre-init state.
+   * Unistalls all listeners. This will return the [Element] or [ElementList]
+   * back to its pre-init state.
    */
   void destroy() {
     _cancelStartSubs();

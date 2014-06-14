@@ -1,14 +1,16 @@
+library dnd_example;
+
 import 'dart:html';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
-import 'package:drag_detector/drag_detector.dart';
+import 'package:dnd/drag_detector.dart';
 
-final _log = new Logger('swiper_example');
+final _log = new Logger('dnd_example');
 
 main() {
   initLogging();
   
-  DragDetector dragDetector = new DragDetector(querySelector('#image'));
+  DragDetector dragDetector = new DragDetector.forElement(querySelector('#image'));
 }
 
 initLogging() {
