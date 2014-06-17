@@ -9,6 +9,7 @@ final _log = new Logger('dnd.drag_detector');
 /**
  * The [DragDetector] detects drag operations for touch and mouse interactions. 
  * Event streams are provided to track touch or mouse dragging:
+ * 
  * * [onDragStart]
  * * [onDrag]
  * * [onDragEnd]
@@ -20,14 +21,6 @@ class DragDetector {
   // --------------
   // Options
   // --------------
-  /// When set to true detecting touch events by [DragDetector] will be 
-  /// disabled.
-  bool disableTouch = false;
-
-  /// When set to true, detecting mouse events by [DragDetector] will be 
-  /// disabled.
-  bool disableMouse = false;
-  
   /// When set to true, only horizontal dragging is tracked. This enables 
   /// vertical touch dragging to be used for scrolling.
   bool horizontalOnly = false;
@@ -98,6 +91,10 @@ class DragDetector {
   /// Coordinates where the drag started.
   Point _startCoords;
   
+  /// Current coordinates of the drag. Used for events that do not have 
+  /// coordinates like keyboard events and blur events.
+  Point _currentCoords;
+  
   /// Flag indicating if the drag is already beeing handled.
   bool _dragHandled = false;
   
@@ -107,25 +104,33 @@ class DragDetector {
   /**
    * Creates a new [DragDetector]. The [element] is where a drag can be 
    * started.
+   * 
+   * When [disableTouch] is set to true, touch events will be ignored.
+   * When [disableMouse] is set to true, mouse events will be ignored.
    */
-  DragDetector.forElement(Element element) 
+  DragDetector.forElement(Element element, {bool disableTouch: false, 
+                                            bool disableMouse: false}) 
       : this._elementOrElementList = element {
     
     _log.fine('Initializing DragDetector for an Element.');
     
-    _installDragStartListeners();
+    _installDragStartListeners(disableTouch, disableMouse);
   }
   
   /**
    * Creates a new [DragDetector]. The [elementList] is where a drag can be 
    * started.
+   * 
+   * When [disableTouch] is set to true, touch events will be ignored.
+   * When [disableMouse] is set to true, mouse events will be ignored.
    */
-  DragDetector.forElements(ElementList elementList) 
+  DragDetector.forElements(ElementList elementList, {bool disableTouch: false, 
+                                                     bool disableMouse: false}) 
       : this._elementOrElementList = elementList {
     
     _log.fine('Initializing DragDetector for an ElementList.');
     
-    _installDragStartListeners();
+    _installDragStartListeners(disableTouch, disableMouse);
   }
   
   /**
@@ -133,7 +138,7 @@ class DragDetector {
    * The [elementOrElementList] is either one [Element] or an [ElementList] 
    * on which a drag can be started.
    */
-  void _installDragStartListeners() {
+  void _installDragStartListeners(bool disableTouch, bool disableMouse) {
     _log.finest('Installing drag start listeners (touchStart and mouseDown).');
     
     // Install listeners for touch. Ignore browsers without touch support.
@@ -165,6 +170,7 @@ class DragDetector {
     
     // Set the start coords.
     _startCoords = touchEvent.touches[0].page;
+    _currentCoords = _startCoords;
     
     _log.fine('TouchStart event: $_startCoords');
 
@@ -197,6 +203,9 @@ class DragDetector {
     _dragSubs.add(document.onTouchEnd.listen((TouchEvent event) {
       _handleDragEnd(event, event.changedTouches[0].page);
     }));
+    
+    // Install esc-key and blur listeners.
+    _installEscAndBlurListeners();
   }
   
   /**
@@ -239,6 +248,7 @@ class DragDetector {
     
     // Set the start coords.
     _startCoords = mouseEvent.page;
+    _currentCoords = _startCoords;
     
     _log.fine('MouseDown event: $_startCoords');
     
@@ -251,6 +261,9 @@ class DragDetector {
     _dragSubs.add(document.onMouseUp.listen((MouseEvent event) {
       _handleDragEnd(event, event.page);
     }));
+    
+    // Install esc-key and blur listeners.
+    _installEscAndBlurListeners();
     
     // Prevent default on mouseDown. Reasons:
     // * Disables image dragging handled by the browser.
@@ -269,6 +282,24 @@ class DragDetector {
   }
   
   /**
+   * Installs listeners for esc-key and blur (window loses focus). Those two
+   * events will end the drag operation.
+   */
+  void _installEscAndBlurListeners() {
+    // Drag ends when escape key is hit.
+    _dragSubs.add(window.onKeyDown.listen((keyboardEvent) {
+      if (keyboardEvent.keyCode == KeyCode.ESC) {
+        _handleDragEnd(keyboardEvent, _currentCoords, cancelled: true);
+      }
+    }));
+    
+    // Drag ends when focus is lost.
+    _dragSubs.add(window.onBlur.listen((event) {
+      _handleDragEnd(event, _currentCoords, cancelled: true);
+    }));
+  }
+  
+  /**
    * Handles the drag movement (mouseMove or touchMove). The [moveEvent] might
    * either be a [TouchEvent] or a [MouseEvent]. The [coords] are the page
    * coordinates of the event.
@@ -283,30 +314,38 @@ class DragDetector {
       
       // Fire the drag start event with start coordinates.
       if (_onDragStart != null) {
-        _onDragStart.add(new DragEvent._internal(moveEvent, _startCoords));
+        _onDragStart.add(new DragEvent._internal(moveEvent, _startCoords, 
+            _startCoords));
       }
       _dragging = true;
     }
     
+    // Save the current coordinates.
+    _currentCoords = coords;
+    
     // Fire the drag event.
-    _log.finest('Drag: $coords');
+    _log.finest('Drag: $_currentCoords');
     if (_onDrag != null) {
-      _onDrag.add(new DragEvent._internal(moveEvent, coords)); 
+      _onDrag.add(new DragEvent._internal(moveEvent, _startCoords, _currentCoords)); 
     }
   }
   
   /**
    * Handles the drag end (mouseUp or touchEnd) event. The [event] might either
-   * be a [TouchEvent] or a [MouseEvent]. The [coords] are the page
-   * coordinates of the event.
+   * be a [TouchEvent], a [MouseEvent], a [KeyboardEvent], or a [Event] (when 
+   * focus is lost). The [coords] are the page coordinates of the event.
+   * 
+   * Set [cancelled] to true if the user cancelled the event (e.g. with 
+   * esc-key).
    */
-  void _handleDragEnd(UIEvent event, Point coords) {
+  void _handleDragEnd(Event event, Point coords, {bool cancelled: false}) {
     // Only handle drag end if the user actually did drag and not just clicked.
     if (_dragging) {
       _log.fine('DragEnd: $coords');
       
       if (_onDragEnd != null) {
-        _onDragEnd.add(new DragEvent._internal(event, coords));
+        _onDragEnd.add(new DragEvent._internal(event, _startCoords, coords, 
+            cancelled: cancelled));
       }
       
       // Prevent TouchEvent from emulating a click after touchEnd event.
@@ -369,6 +408,8 @@ class DragDetector {
     _dragSubs.clear();
     
     // Reset.
+    _startCoords = null;
+    _currentCoords = null;
     _dragHandled = false;
     _dragging = false;
   }
@@ -378,12 +419,22 @@ class DragDetector {
  * Events used when a drag is detected.
  */
 class DragEvent {
-  /// The original event which is either a [MouseEvent] or [TouchEvent].
-  UIEvent originalEvent;
+  /// The original event which is either a [MouseEvent] or a [TouchEvent]. When
+  /// the drag is cancelled (user clicks esc-key or window loses focus) the 
+  /// event can be a [KeyboardEvent] or a normal [Event] (blur event).
+  final Event originalEvent;
+  
+  /// Coordinates where the drag started, relative to the top left content
+  /// area of the browser (page coordinates).
+  final Point startCoords;
   
   /// The coordinates of the event, relative to the top left content area of
   /// the browser (page coordinates).
-  Point coords;
+  final Point coords;
   
-  DragEvent._internal(this.originalEvent, this.coords);
+  /// True if the user cancelled the drag operation.
+  final bool cancelled;
+  
+  DragEvent._internal(this.originalEvent, this.startCoords, this.coords,
+      {this.cancelled: false});
 }
