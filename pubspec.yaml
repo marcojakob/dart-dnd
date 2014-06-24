@@ -8,3 +8,4 @@ dependencies:
   logging: any
 dev_dependencies:
   intl: any
+  bootstrap_for_pub: any

@@ -1,0 +1,54 @@
+.alert {
+  max-width: 400px;
+}
+
+.dragme-image, dragme-handle .handle, .dragme-cancel {
+  cursor: url(../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
+  cursor: url(../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+} 
+
+.dnd-dragging {
+  opacity: 0.5;
+}
+
+.dnd-drag-occurring {
+  background-color: #fcf8e3;
+}
+
+.dragme-handle li {
+  border: 1px solid #CCC;
+  background-color: #F6F6F6;
+  color: #1C94C4;
+  font-size: 16px;
+  margin: 5px;
+  padding: 5px;
+  max-width: 400px;
+}
+
+.dragme-handle .dnd-dragging {
+  opacity: 0.5;
+}
+
+.dragme-handle .handle {
+  cursor: url(../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
+  cursor: url(../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+}
+
+.dragme-cancel {
+  padding: 5px;
+  border: 1px solid #CCC;
+  background-color: #F6F6F6;
+  max-width: 400px;
+}
+
+.dragme-cancel .nodrag {
+  background-color: #868686;
+  padding: 10px;
+  cursor: default;
+}
+
+.dnd-dragging, .dnd-drag-occurring {
+  cursor: url(../packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
+  cursor: url(../packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+}
+
