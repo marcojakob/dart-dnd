@@ -1,4 +1,3 @@
-dart-pointer-drag
-=================
+# Dart Drag-and-Drop
 
 Tracks mouse and touch dragging.
