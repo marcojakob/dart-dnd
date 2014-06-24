@@ -1,7 +1,7 @@
 name: dnd
 version: 0.0.1
 author: Marco Jakob <majakob@gmx.ch>
-description: Tracks mouse and touch dragging and dropping.
+description: Drag and Drop for Mouse and Touch.
 homepage: https://github.com/marcojakob/dart-dnd
 dependencies:
   browser: any
