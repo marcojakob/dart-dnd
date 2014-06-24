@@ -310,6 +310,15 @@ class DragDetector {
   void _handleDrag(UIEvent moveEvent, Point coords) {
     // If no previous move has been detected, this is the start of the drag.
     if (!_dragging) {
+      
+      // The drag must be at least 1px in any direction. It's strange, but 
+      // Chrome will sometimes fire a mouseMove event when the user clicked, 
+      // even when there was no movement. This test prevents such an event from 
+      // beeing handled as a drag.
+      if (_startCoords.distanceTo(coords) < 1) {
+        return;
+      }
+      
       _log.fine('DragStart: $_startCoords');
       
       // Fire the drag start event with start coordinates.
