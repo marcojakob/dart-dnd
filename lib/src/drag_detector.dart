@@ -1,22 +1,20 @@
-library dnd.drag_detector;
+part of dnd.draggable;
 
-import 'dart:html';
-import 'dart:async';
-import 'package:logging/logging.dart';
-
-final _log = new Logger('dnd.drag_detector');
+/// The currently dragged element. Must be a top-level variable so that all
+/// [_DragDetector]s know when a drag operation is already handled.
+Element _currentDragElement;
 
 /**
- * The [DragDetector] detects drag operations for touch and mouse interactions. 
+ * The [_DragDetector] detects drag operations for touch and mouse interactions. 
  * Event streams are provided to track touch or mouse dragging:
  * 
  * * [onDragStart]
  * * [onDrag]
  * * [onDragEnd]
  * 
- * A [DragDetector] can be created for one [Element] or an [ElementList].
+ * A [_DragDetector] can be created for one [Element] or an [ElementList].
  */
-class DragDetector {
+class _DragDetector {
   
   // --------------
   // Options
@@ -30,19 +28,19 @@ class DragDetector {
   bool verticalOnly;
 
   /// Restricts dragging from starting to the [handle]. 
-  /// See [DragDetector.forElement].
+  /// See [_DragDetector].
   String handle;
   
   /// Prevents dragging from starting on specified elements. 
-  /// See [DragDetector.forElement].
+  /// See [_DragDetector].
   String cancel;
   
   /// CSS class set to the dragged element during a drag.
-  /// See [DragDetector.forElement].
-  String draggingClassElement;
+  /// See [_DragDetector].
+  String draggingClass;
   
   /// CSS class set to the html body tag during a drag. 
-  /// See [DragDetector.forElement].
+  /// See [_DragDetector].
   String draggingClassBody;
   
   // -------------------
@@ -81,7 +79,6 @@ class DragDetector {
   /**
    * Fired when the user ends the dragging. 
    * Is also fired when the user clicks the 'esc'-key or the window loses focus. 
-   * For those two cases, the mouse positions of [DragEvent] will be null.
    */
   Stream<DragEvent> get onDragEnd {
     if (_onDragEnd == null) {
@@ -101,28 +98,22 @@ class DragDetector {
   List<StreamSubscription> _startSubs = [];
   
   /// Tracks subscriptions for all other events (mouseMove, touchMove, mouseUp,
-  /// touchEnd).
+  /// touchEnd, and more).
   List<StreamSubscription> _dragSubs = [];
   
-  /// Coordinates where the drag started.
-  Point _startCoords;
+  /// Position where the drag started.
+  Point _startPosition;
   
-  /// Current coordinates of the drag. Used for events that do not have 
+  /// Current position of the drag. Used for events that do not have 
   /// coordinates like keyboard events and blur events.
-  Point _currentCoords;
-  
-  /// The element of the current drag operation (one of 
-  /// [_elementOrElementList]). If [_currentDragElement] is NOT null, it 
-  /// inicates that a drag is currently beeing handled. 
-  Element _currentDragElement;
+  Point _currentPosition;
   
   /// Flag indicating if a drag movement is going on.
-  bool _dragging = false;
+  bool _dragMoved = false;
   
   /**
-   * Creates a new [DragDetector]. The [elementOrElementList] is where a drag 
-   * can be started. The [elementOrElementList] must be of type [Element] or
-   * [ElementList].
+   * Creates a new [_DragDetector] for [elementOrElementList]. The 
+   * [elementOrElementList] must be of type [Element] or [ElementList].
    * 
    * 
    * ## Options
@@ -144,20 +135,20 @@ class DragDetector {
    * If [cancel] query String is specified, drag starting is prevented on 
    * specified elements.
    * 
-   * The [draggingClassElement] is the css class set to the dragged element 
-   * during a drag.
+   * The [draggingClass] is the css class set to the dragged element 
+   * during a drag. If set to null, no such css class is added.
    * 
    * The [draggingClassBody] is the css class set to the html body tag
-   * during a drag.
+   * during a drag. If set to null, no such css class is added.
    */
-  DragDetector(elementOrElementList, 
+  _DragDetector(elementOrElementList, 
       { this.horizontalOnly: false, 
         this.verticalOnly: false, 
         bool disableTouch: false, 
         bool disableMouse: false,
         this.handle: null, 
         this.cancel: 'input, textarea, button, select, option',
-        this.draggingClassElement: 'dnd-dragging',
+        this.draggingClass: 'dnd-dragging',
         this.draggingClassBody: 'dnd-drag-occurring'}) 
         
       : this._elementOrElementList = elementOrElementList {
@@ -172,7 +163,12 @@ class DragDetector {
    */
   void _installDragStartListeners(bool disableTouch, bool disableMouse) {
     // Install listeners for touch. Ignore browsers without touch support.
-    if (!disableTouch && TouchEvent.supported) {
+    bool touchSupport = false;
+    try {
+      touchSupport = TouchEvent.supported;
+    } catch (_) {}
+    
+    if (!disableTouch && touchSupport) {
       _log.fine('Installing drag start listener (touchStart).');
       _startSubs.add(_elementOrElementList.onTouchStart.listen(_handleTouchStart));
     }
@@ -200,7 +196,7 @@ class DragDetector {
       return;
     }
     
-    _log.fine('TouchStart event: $_startCoords');
+    _log.fine('TouchStart event: $_startPosition');
 
     // Install the touchMove listener.
     _dragSubs.add(document.onTouchMove.listen((TouchEvent event) {
@@ -210,10 +206,10 @@ class DragDetector {
         _handleDragEnd(event, event.touches[0].page);
         
       } else {
-        Point coords = event.changedTouches[0].page;
+        Point position = event.changedTouches[0].page;
         
         // If this is the first touchMove event, do scrolling test.
-        if (!_dragging && _isScrolling(coords)) {
+        if (!_dragMoved && _isScrolling(position)) {
           // The user is scrolling --> Stop tracking current drag.
           _log.fine('User is scrolling, canceling drag.');
           _cancelDragSubsAndReset();
@@ -224,12 +220,17 @@ class DragDetector {
         event.preventDefault();
         
         // Handle the drag.
-        _handleDragStartAndDrag(event, coords);
+        _handleMove(event, position);
       }
     }));
     
     // Install the touchEnd listener.
     _dragSubs.add(document.onTouchEnd.listen((TouchEvent event) {
+      _handleDragEnd(event, event.changedTouches[0].page);
+    }));
+    
+    // Install the touchCancel listener.
+    _dragSubs.add(document.onTouchCancel.listen((TouchEvent event) {
       _handleDragEnd(event, event.changedTouches[0].page);
     }));
     
@@ -240,8 +241,8 @@ class DragDetector {
   /**
    * Returns true if there was scrolling activity instead of dragging.
    */
-  bool _isScrolling(Point coords) {
-    Point delta = coords - _startCoords;
+  bool _isScrolling(Point position) {
+    Point delta = position - _startPosition;
     
     // If horizontalOnly test for vertical movement.
     if (horizontalOnly && delta.y.abs() > delta.x.abs()) {
@@ -275,11 +276,11 @@ class DragDetector {
       return;
     }
     
-    _log.fine('MouseDown event: $_startCoords');
+    _log.fine('MouseDown event: $_startPosition');
     
     // Install mouseMove listener.
     _dragSubs.add(document.onMouseMove.listen((MouseEvent event) {
-      _handleDragStartAndDrag(event, event.page);
+      _handleMove(event, event.page);
     }));
     
     // Install mouseUp listener.
@@ -309,8 +310,8 @@ class DragDetector {
   /**
    * Initializes the necessary variables to prepare for the drag. It is not 
    * certain at this point if there will actually be a valid drag operation.
-   * Only after the user actually moved the mouse and the 
-   * [_handleDragStartAndDrag] method is called, a drag occured.
+   * Only after the user actually moved the mouse and the [_handleMove] method 
+   * is called, a drag occured.
    * 
    * The [dragElement] is the element the event handler has been attached to
    * which is one of [_elementOrElementList].
@@ -319,7 +320,7 @@ class DragDetector {
    * dispatched on. This method tests if the drag starts on a valid 
    * [eventTarget]. If not, false is returned. 
    */
-  bool _prepareDrag(Element dragElement, Element eventTarget, Point startCoords) {
+  bool _prepareDrag(Element dragElement, Element eventTarget, Point startPosition) {
     // Ignore if drag is already beeing handled.
     if (_currentDragElement != null) {
       return false;
@@ -334,9 +335,9 @@ class DragDetector {
     // Set the drag target to prevent other widgets from inheriting the event.
     _currentDragElement = dragElement;
     
-    // Set the start coords.
-    _startCoords = startCoords;
-    _currentCoords = startCoords;
+    // Set the start position.
+    this._startPosition = startPosition;
+    this._currentPosition = startPosition;
     
     return true;
   }
@@ -397,83 +398,105 @@ class DragDetector {
     _dragSubs.add(window.onKeyDown.listen((keyboardEvent) {
       if (keyboardEvent.keyCode == KeyCode.ESC) {
         _log.fine('Esc-key pressed, ending drag.');
-        _handleDragEnd(keyboardEvent, _currentCoords, cancelled: true);
+        _handleDragEnd(keyboardEvent, _currentPosition, cancelled: true);
       }
     }));
     
     // Drag ends when focus is lost.
     _dragSubs.add(window.onBlur.listen((event) {
       _log.fine('Window focus lost, ending drag.');
-      _handleDragEnd(event, _currentCoords, cancelled: true);
+      _handleDragEnd(event, _currentPosition, cancelled: true);
     }));
   }
   
   /**
    * Handles the drag movement (mouseMove or touchMove). The [moveEvent] might
-   * either be a [TouchEvent] or a [MouseEvent]. The [coords] are the page
-   * coordinates of the event.
+   * either be a [TouchEvent] or a [MouseEvent]. The [position] is the page
+   * position of the event.
    * 
-   * Fires an [onDrag] event. If this is the first drag event, an [onDragStart]
+   * Fires an [onDrag] event. If this is the first move, an [onDragStart]
    * event is fired first, followed by the [onDrag] event.
    */
-  void _handleDragStartAndDrag(UIEvent moveEvent, Point coords) {
+  void _handleMove(UIEvent moveEvent, Point position) {
     // If no previous move has been detected, this is the start of the drag.
-    if (!_dragging) {
-      
+    if (!_dragMoved) {
       // The drag must be at least 1px in any direction. It's strange, but 
       // Chrome will sometimes fire a mouseMove event when the user clicked, 
       // even when there was no movement. This test prevents such an event from 
       // beeing handled as a drag.
-      if (_startCoords.distanceTo(coords) < 1) {
+      if (_startPosition.distanceTo(position) < 1) {
         return;
       }
       
-      // Drag started.
-      _log.fine('DragStart: $_startCoords');
-      
-      // Add the css classes during the drag operation.
-      if (draggingClassElement != null) {
-        _currentDragElement.classes.add(draggingClassElement);
-      }
-      if (draggingClassBody != null) {
-        document.body.classes.add(draggingClassBody);
-      }
-      
-      // Fire the drag start event with start coordinates.
-      if (_onDragStart != null) {
-        _onDragStart.add(new DragEvent._internal(_currentDragElement, moveEvent, 
-            _startCoords, _startCoords));
-      }
-      _dragging = true;
+      _handleDragStart(moveEvent, position);
     }
     
-    // Save the current coordinates.
-    _currentCoords = coords;
+    _handleDrag(moveEvent, position);
+  }
+  
+  /**
+   * Handles the drag start start. The [moveEvent] might either be a 
+   * [TouchEvent] or a [MouseEvent]. The [position] are the page position of 
+   * the event.
+   */
+  void _handleDragStart(UIEvent moveEvent, Point position) {
+    _log.fine('DragStart: $_startPosition');
+          
+    // Set the drag moved flag.
+    _dragMoved = true;
+    
+    // Fire the drag start event with start position.
+    if (_onDragStart != null) {
+      // The dragStart has the same for startPosition and current position.
+      _onDragStart.add(new DragEvent._(_currentDragElement, moveEvent, 
+          _startPosition, _startPosition));
+    }
+    
+    // Add the css classes during the drag operation.
+    if (draggingClass != null) {
+      _currentDragElement.classes.add(draggingClass);
+    }
+    if (draggingClassBody != null) {
+      document.body.classes.add(draggingClassBody);
+    }
+    
+    // Text selections should not be a problem, but it seems better usability 
+    // to remove text selection when dragging something.
+    _clearTextSelections();
+  }
+  
+  /**
+   * Handles the drag. The [moveEvent] might either be a [TouchEvent] or a 
+   * [MouseEvent]. The [position] is the page position of the event.
+   */
+  void _handleDrag(UIEvent moveEvent, Point position) {
+    // Save the current position.
+    _currentPosition = position;
     
     // Fire the drag event.
-    _log.finest('Drag: $_currentCoords');
+    _log.finest('Drag: $_currentPosition');
     if (_onDrag != null) {
-      _onDrag.add(new DragEvent._internal(_currentDragElement, moveEvent, _startCoords,
-          _currentCoords)); 
+      _onDrag.add(new DragEvent._(_currentDragElement, moveEvent, _startPosition,
+          _currentPosition)); 
     }
   }
   
   /**
    * Handles the drag end (mouseUp or touchEnd) event. The [event] might either
    * be a [TouchEvent], a [MouseEvent], a [KeyboardEvent], or a [Event] (when 
-   * focus is lost). The [coords] are the page coordinates of the event.
+   * focus is lost). The [position] is the page position of the event.
    * 
    * Set [cancelled] to true if the user cancelled the event (e.g. with 
    * esc-key).
    */
-  void _handleDragEnd(Event event, Point coords, {bool cancelled: false}) {
+  void _handleDragEnd(Event event, Point position, {bool cancelled: false}) {
     // Only handle drag end if the user actually did drag and not just clicked.
-    if (_dragging) {
-      _log.fine('DragEnd: $coords');
+    if (_dragMoved) {
+      _log.fine('DragEnd: $position');
       
       if (_onDragEnd != null) {
-        _onDragEnd.add(new DragEvent._internal(_currentDragElement, event, _startCoords, 
-            coords, cancelled: cancelled));
+        _onDragEnd.add(new DragEvent._(_currentDragElement, event, _startPosition, 
+            position, cancelled: cancelled));
       }
       
       // Prevent TouchEvent from emulating a click after touchEnd event.
@@ -488,8 +511,8 @@ class DragDetector {
     }
     
     // Remove the css classes.
-    if (draggingClassElement != null) {
-      _currentDragElement.classes.remove(draggingClassElement);
+    if (draggingClass != null) {
+      _currentDragElement.classes.remove(draggingClass);
     }
     if (draggingClassBody != null) {
       document.body.classes.remove(draggingClassBody);
@@ -544,36 +567,26 @@ class DragDetector {
     _dragSubs.clear();
     
     // Reset.
-    _startCoords = null;
-    _currentCoords = null;
+    _startPosition = null;
+    _currentPosition = null;
     _currentDragElement = null;
-    _dragging = false;
+    _dragMoved = false;
   }
-}
-
-/**
- * Events used when a drag is detected.
- */
-class DragEvent {
-  /// The [Element] that is beeing dragged. 
-  final Element dragElement;
   
-  /// The original event which is either a [MouseEvent] or a [TouchEvent]. When
-  /// the drag is cancelled (user clicks esc-key or window loses focus) the 
-  /// event can be a [KeyboardEvent] or a normal [Event] (blur event).
-  final Event originalEvent;
-  
-  /// Coordinates where the drag started, relative to the top left content
-  /// area of the browser (page coordinates).
-  final Point startCoords;
-  
-  /// The coordinates of the event, relative to the top left content area of
-  /// the browser (page coordinates).
-  final Point coords;
-  
-  /// True if the user cancelled the drag operation.
-  final bool cancelled;
-  
-  DragEvent._internal(this.dragElement, this.originalEvent, this.startCoords, 
-      this.coords, {this.cancelled: false});
+  /**
+   * Removes all text selections from the HTML document, including selections
+   * in active textarea or active input element.
+   */
+  void _clearTextSelections() {
+    // Remove selection.
+    window.getSelection().removeAllRanges();
+    
+    // Remove selection from textarea or input.
+    var activeElement = document.activeElement;
+    if (activeElement is TextAreaElement) {
+      activeElement.setSelectionRange(0, 0);
+    } else if (activeElement is InputElement) {
+      activeElement.setSelectionRange(0, 0);
+    }
+  }
 }

@@ -3,7 +3,7 @@ library dnd_example;
 import 'dart:html';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
-import 'package:dnd/drag_detector.dart';
+import 'package:dnd/dnd.dart';
 
 final _log = new Logger('dnd_example');
 
@@ -14,31 +14,36 @@ main() {
   
   dragAlert = querySelector('.alert span');
   
-  // Set up a DragDetector on the image element.
-  DragDetector dragDetectorImage = new DragDetector(querySelector('.dragme-image'));
+  // Set up a Draggable on the image element.
+  Draggable dragDetectorImage = new Draggable(querySelector('.dragme-image'), 
+      avatarHandler: new AvatarHandler.clone());
   dragDetectorImage.onDrag.listen(showDragAlert);
   dragDetectorImage.onDragEnd.listen(showDragEndAlert);
   
-  // Set up a DragDetector with handles.
-  DragDetector dragDetectorHandle = new DragDetector(
-      querySelectorAll('.dragme-handle > li'), handle: '.handle');
+  // Set up a Draggable with handles.
+  Draggable dragDetectorHandle = new Draggable(
+      querySelectorAll('.dragme-handle > li'), 
+      handle: '.handle',
+      avatarHandler: new AvatarHandler.clone());
   dragDetectorHandle.onDrag.listen(showDragAlert);
   dragDetectorHandle.onDragEnd.listen(showDragEndAlert);
   
-  // Set up a DragDetector with cancel.
-  DragDetector dragDetectorCancel = new DragDetector(
-      querySelectorAll('.dragme-cancel'), cancel: 'textarea, button, .nodrag');
+  // Set up a Draggable with cancel.
+  Draggable dragDetectorCancel = new Draggable(
+      querySelectorAll('.dragme-cancel'), 
+      cancel: 'textarea, button, .nodrag',
+      avatarHandler: new AvatarHandler.clone());
   dragDetectorCancel.onDrag.listen(showDragAlert);
   dragDetectorCancel.onDragEnd.listen(showDragEndAlert);
 }
 
 showDragAlert(DragEvent event) {
-  Point dist = event.startCoords - event.coords;
+  Point dist = event.position - event.startPosition;
   dragAlert.text =  'You are dragging: element=${event.dragElement}, distance=(${dist.x},${dist.y})';
 }
 
 showDragEndAlert(DragEvent event) {
-  dragAlert.text =  'You stopped dragging. Why would you do that? :-(';
+  dragAlert.text =  'You stopped dragging. Why would you do that? :-)';
 }
 
 initLogging() {
