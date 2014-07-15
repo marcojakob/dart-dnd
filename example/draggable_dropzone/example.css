@@ -1,5 +1,5 @@
 .trash {
-  background: url(../icons/trash.png) top left no-repeat;
+  background: url(../images/trash.png) top left no-repeat;
   height: 128px;
   width: 128px;
   margin-top: 60px;
@@ -8,7 +8,7 @@
 }
 
 .trash.full {
-  background: url(../icons/trash.png) top right no-repeat;
+  background: url(../images/trash.png) top right no-repeat;
 }
 
 .document {
