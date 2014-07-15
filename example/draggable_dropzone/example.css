@@ -1,0 +1,37 @@
+.trash {
+  background: url(../icons/trash.png) top left no-repeat;
+  height: 128px;
+  width: 128px;
+  margin-top: 60px;
+  float: right;
+  opacity: 0.7;
+}
+
+.trash.full {
+  background: url(../icons/trash.png) top right no-repeat;
+}
+
+.document {
+  margin: 10px 0 0 5px;
+  display: block;
+  cursor: url(../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
+  cursor: url(../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+}
+
+.dnd-over {
+  opacity: 1;
+}
+
+.dnd-dragging {
+  opacity: 0.5;
+}
+
+.dnd-drag-occurring {
+  background-color: #fcf8e3;
+}
+
+.dnd-dragging, .dnd-drag-occurring, .dnd-avatar {
+  cursor: url(../packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
+  cursor: url(../packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+}
+
