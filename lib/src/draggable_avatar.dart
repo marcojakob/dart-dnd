@@ -1,4 +1,4 @@
-part of dnd.draggable;
+part of dnd;
 
 /**
  * The [AvatarHandler] is responsible for creating, position, and removing 
@@ -7,18 +7,28 @@ part of dnd.draggable;
  */
 abstract class AvatarHandler {
   
-  AvatarHandler() {
-  }
+  AvatarHandler();
   
   /**
-   * Creates an [OriginalAvatarHandler].
+   * Returns the [avatar] element.
+   */
+  Element get avatar;
+  
+  /**
+   * Creates an [AvatarHelper] that uses the draggable element itself as 
+   * drag avatar.
+   * 
+   * See [OriginalAvatarHandler].
    */
   factory AvatarHandler.original() {
     return new OriginalAvatarHandler();
   }
   
   /**
-   * Creates a [CloneAvatarHandler].
+   * Creates an [AvatarHelper] that creates a clone of the draggable element
+   * as drag avatar. The avatar is removed at the end of the drag operation.
+   * 
+   * See [CloneAvatarHandler].
    */
   factory AvatarHandler.clone() {
     return new CloneAvatarHandler();
@@ -103,7 +113,7 @@ abstract class AvatarHandler {
 
 /**
  * The [OriginalAvatarHandler] uses the draggable element itself as drag 
- * avatar. It uses absolute or fixed positioning 
+ * avatar. It uses absolute positioning of the avatar.
  */
 class OriginalAvatarHandler extends AvatarHandler {
   
@@ -169,6 +179,7 @@ class CloneAvatarHandler extends AvatarHandler {
     
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
+    avatar.style.zIndex = '100';
     
     // Add the drag avatar to the parent element.
     draggable.parentNode.append(avatar);

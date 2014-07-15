@@ -1,15 +1,9 @@
-library dnd.draggable;
-
-import 'dart:html';
-import 'dart:async';
-import 'package:logging/logging.dart';
-
-part 'drag_avatar.dart';
-
-final _log = new Logger('dnd.draggable');
+part of dnd;
 
 /// The currently dragged element. Must be a top-level variable so that all
 /// [Draggable]s know when a drag operation is already handled.
+/// Is also used by the [Dropzone] because we can't pass an [Element] through
+/// the [CustomEvent]s.
 Element _currentDragElement;
 
 /**
@@ -25,9 +19,19 @@ Element _currentDragElement;
  */
 class Draggable {
   
+  /// Counter to generate a unique id for each instance.
+  static int idCounter = 0;
+  
+  /// An auto-generated [id] used to identify this [Draggable].
+  final int id = idCounter++;
+  
   // --------------
   // Options
   // --------------
+  /// [avatarHandler] is a function to create a [DragAvatar] for this [Draggable].
+  /// See [Draggable] constructor.
+  AvatarHandler avatarHandler;
+
   /// When set to true, only horizontal dragging is tracked. This enables 
   /// vertical touch dragging to be used for scrolling.
   bool horizontalOnly;
@@ -37,26 +41,20 @@ class Draggable {
   bool verticalOnly;
 
   /// Restricts dragging from starting to the [handle]. 
-  /// See [Draggable].
+  /// See [Draggable] constructor.
   String handle;
   
   /// Prevents dragging from starting on specified elements. 
-  /// See [Draggable].
+  /// See [Draggable] constructor.
   String cancel;
   
   /// CSS class set to the dragged element during a drag.
-  /// See [Draggable].
+  /// See [Draggable] constructor.
   String draggingClass;
   
   /// CSS class set to the html body tag during a drag. 
-  /// See [Draggable].
+  /// See [Draggable] constructor.
   String draggingClassBody;
-  
-  /**
-   * [avatarHandler] is a function to create a [DragAvatar] for this 
-   * [Draggable].
-   */
-  final AvatarHandler avatarHandler;
   
   // -------------------
   // Events
@@ -211,15 +209,15 @@ class Draggable {
   /**
    * Handles the touch start event.
    */
-  void _handleTouchStart(TouchEvent touchEvent) {
+  void _handleTouchStart(TouchEvent startEvent) {
     // Ignore multi-touch events.
-    if (touchEvent.touches.length > 1) {
+    if (startEvent.touches.length > 1) {
       return;
     }
     
     // Prepare the drag and test if the drag is valid.
-    bool dragPrepareOk = _prepareDrag(touchEvent.currentTarget, 
-        touchEvent.touches[0].target, touchEvent.touches[0].page);
+    bool dragPrepareOk = _prepareDrag(startEvent.currentTarget, 
+        startEvent.touches[0].target, startEvent.touches[0].page);
     if (!dragPrepareOk) {
       return;
     }
@@ -248,12 +246,18 @@ class Draggable {
         event.preventDefault();
         
         // Handle the drag.
-        _handleMove(event, position);
+        Element realTarget = _getRealTouchTarget(event.changedTouches[0].client);
+        _handleMove(event, realTarget, position);
       }
     }));
     
     // Install the touchEnd listener.
     _dragSubs.add(document.onTouchEnd.listen((TouchEvent event) {
+      // Dispatch a drop event.
+      EventTarget realTarget = _getRealTouchTarget(event.changedTouches[0].client);
+      _DragEventDispatcher.dispatchDrop(this, realTarget, event.changedTouches[0].page);
+
+      // Drag end.
       _handleDragEnd(event, event.changedTouches[0].page);
     }));
     
@@ -291,15 +295,15 @@ class Draggable {
   /**
    * Handles mouse down event.
    */
-  void _handleMouseDown(MouseEvent mouseEvent) {
+  void _handleMouseDown(MouseEvent startEvent) {
     // Ignore clicks from right or middle buttons.
-    if (mouseEvent.button != 0) {
+    if (startEvent.button != 0) {
       return;
     }
     
     // Prepare the drag and test if the drag is valid.
-    bool dragPrepareOk = _prepareDrag(mouseEvent.currentTarget, 
-        mouseEvent.target, mouseEvent.page);
+    bool dragPrepareOk = _prepareDrag(startEvent.currentTarget, 
+        startEvent.target, startEvent.page);
     if (!dragPrepareOk) {
       return;
     }
@@ -308,11 +312,18 @@ class Draggable {
     
     // Install mouseMove listener.
     _dragSubs.add(document.onMouseMove.listen((MouseEvent event) {
-      _handleMove(event, event.page);
+      // Determine the actual target that should receive the event because 
+      // mouse event might have occurred on a drag avatar.
+      EventTarget realTarget = _getRealMouseTarget(event.target, event.client);
+      _handleMove(event, realTarget, event.page);
     }));
     
     // Install mouseUp listener.
     _dragSubs.add(document.onMouseUp.listen((MouseEvent event) {
+      // Dispatch a drop event.
+      EventTarget realTarget = _getRealMouseTarget(event.target, event.client);
+      _DragEventDispatcher.dispatchDrop(this, realTarget, event.page);
+      
       _handleDragEnd(event, event.page);
     }));
     
@@ -327,11 +338,11 @@ class Draggable {
     // * SelectElement would not show a dropdown.
     // * InputElement and TextAreaElement would not get focus.
     // * ButtonElement and OptionElement - don't know if this is needed??
-    Element target = mouseEvent.target;
+    Element target = startEvent.target;
     if (!(target is SelectElement || target is InputElement || 
           target is TextAreaElement || target is ButtonElement || 
           target is OptionElement)) {
-      mouseEvent.preventDefault();
+      startEvent.preventDefault();
     }
   }
 
@@ -426,26 +437,30 @@ class Draggable {
     _dragSubs.add(window.onKeyDown.listen((keyboardEvent) {
       if (keyboardEvent.keyCode == KeyCode.ESC) {
         _log.fine('Esc-key pressed, ending drag.');
-        _handleDragEnd(keyboardEvent, _currentPosition, cancelled: true);
+        _handleDragEnd(keyboardEvent, _currentPosition);
       }
     }));
     
     // Drag ends when focus is lost.
     _dragSubs.add(window.onBlur.listen((event) {
       _log.fine('Window focus lost, ending drag.');
-      _handleDragEnd(event, _currentPosition, cancelled: true);
+      _handleDragEnd(event, _currentPosition);
     }));
   }
   
   /**
    * Handles the drag movement (mouseMove or touchMove). The [moveEvent] might
-   * either be a [TouchEvent] or a [MouseEvent]. The [position] is the page
-   * position of the event.
+   * either be a [TouchEvent] or a [MouseEvent]. 
+   * 
+   * The [target] is the actual target receiving the event.
+   * 
+   * The [position] is the page position of the event. The [clientPosition] is 
+   * the position relative to the client area.
    * 
    * Fires an [onDrag] event. If this is the first move, an [onDragStart]
    * event is fired first, followed by the [onDrag] event.
    */
-  void _handleMove(UIEvent moveEvent, Point position) {
+  void _handleMove(UIEvent moveEvent, EventTarget target, Point position) {
     // If no previous move has been detected, this is the start of the drag.
     if (!_dragMoved) {
       // The drag must be at least 1px in any direction. It's strange, but 
@@ -459,7 +474,7 @@ class Draggable {
       _handleDragStart(moveEvent, _startPosition);
     }
     
-    _handleDrag(moveEvent, position);
+    _handleDrag(moveEvent, target, position);
   }
   
   /**
@@ -500,9 +515,13 @@ class Draggable {
   
   /**
    * Handles the drag. The [moveEvent] might either be a [TouchEvent] or a 
-   * [MouseEvent]. The [position] is the page position of the event.
+   * [MouseEvent]. 
+   * 
+   * The [target] is the actual target receiving the event.
+   * 
+   * The [position] is the page position of the event. 
    */
-  void _handleDrag(UIEvent moveEvent, Point position) {
+  void _handleDrag(UIEvent moveEvent, EventTarget target, Point position) {
     _log.finest('Drag: $position');
     
     // Save the current position.
@@ -512,6 +531,9 @@ class Draggable {
     if (avatarHandler != null) {
       avatarHandler.drag(_startPosition, _currentPosition);
     }
+    
+    // Dispatch a drag over event.
+    _DragEventDispatcher.dispatchEnterOverLeave(this, target, position);
     
     // Fire the drag event.
     if (_onDrag != null) {
@@ -523,25 +545,27 @@ class Draggable {
   /**
    * Handles the drag end (mouseUp or touchEnd) event. The [event] might either
    * be a [TouchEvent], a [MouseEvent], a [KeyboardEvent], or a [Event] (when 
-   * focus is lost). The [position] is the page position of the event.
+   * focus is lost). 
    * 
-   * Set [cancelled] to true if the user cancelled the event (e.g. with 
-   * esc-key).
+   * The [target] is the actual target receiving the event.
+   * 
+   * The [position] is the page position of the event. 
    */
-  void _handleDragEnd(Event event, Point position, {bool cancelled: false}) {
+  void _handleDragEnd(Event event, Point position) {
     // Only handle drag end if the user actually did drag and not just clicked.
     if (_dragMoved) {
-      _log.fine('DragEnd: $position');
       
       // Pass event to AvatarHandler.
       if (avatarHandler != null) {
         avatarHandler.dragEnd(_startPosition, _currentPosition);
       }
       
+      _log.fine('DragEnd: $position');
+      
       // Fire dragEnd event.
       if (_onDragEnd != null) {
-        _onDragEnd.add(new DraggableEvent._(_currentDragElement, event, _startPosition, 
-            position, cancelled: cancelled));
+        _onDragEnd.add(new DraggableEvent._(_currentDragElement, event, 
+            _startPosition, position));
       }
       
       // Prevent TouchEvent from emulating a click after touchEnd event.
@@ -588,8 +612,7 @@ class Draggable {
   }
   
   /**
-   * Unistalls all listeners. This will return the [Element] or [ElementList]
-   * back to its pre-init state.
+   * Unistalls all listeners. 
    */
   void destroy() {
     _cancelStartSubs();
@@ -612,6 +635,7 @@ class Draggable {
     _dragSubs.clear();
     
     // Reset.
+    _DragEventDispatcher.reset(this, _currentPosition);
     _startPosition = null;
     _currentPosition = null;
     _currentDragElement = null;
@@ -634,6 +658,48 @@ class Draggable {
       activeElement.setSelectionRange(0, 0);
     }
   }
+  
+  /**
+   * Determine the actual target that should receive the event because 
+   * mouse event might have occurred on a drag avatar.
+   * If the mouse is over the drag avatar, the element below is returned, 
+   * otherwise, the [target] itself is returend.
+   */
+  EventTarget _getRealMouseTarget(EventTarget target, Point clientPosition) {
+    EventTarget realTarget = target;
+    
+    if (avatarHandler != null && avatarHandler.avatar != null 
+        && avatarHandler.avatar.contains(target)) {
+      // Mouse or touch is over drag avatar. Get element underneath.
+      avatarHandler.avatar.style.visibility = 'hidden';
+      realTarget = document.elementFromPoint(clientPosition.x, 
+          clientPosition.y);
+      avatarHandler.avatar.style.visibility = 'visible';
+    }
+    
+    return realTarget;
+  }
+  
+  /**
+   * Determine the actual target that should receive the event because the 
+   * touch might have occurred on a drag avatar.
+   * Hides the avatar (if there is one) and returns the [Element] from point 
+   * [clientPosition].
+   */
+  Element _getRealTouchTarget(Point clientPosition) {
+    Element result;
+    
+    if (avatarHandler != null && avatarHandler.avatar != null) {
+      // Mouse or touch is over drag avatar. Get element underneath.
+      avatarHandler.avatar.style.visibility = 'hidden';
+      result = document.elementFromPoint(clientPosition.x, clientPosition.y);
+      avatarHandler.avatar.style.visibility = 'visible';
+    } else {
+      result = document.elementFromPoint(clientPosition.x, clientPosition.y);
+    }
+    
+    return result;
+  }
 }
 
 /**
@@ -641,7 +707,7 @@ class Draggable {
  */
 class DraggableEvent {
   /// The [Element] that is beeing dragged. 
-  final Element dragElement;
+  final Element draggableElement;
   
   /// The original event which is either ...
   /// * a [MouseEvent], 
@@ -658,12 +724,9 @@ class DraggableEvent {
   /// position).
   final Point position;
   
-  /// True if the user cancelled the drag operation.
-  final bool cancelled;
-  
   /**
    * Private constructor for [DraggableEvent].
    */
-  DraggableEvent._(this.dragElement, this.originalEvent, this.startPosition, 
-      this.position, {this.cancelled: false});
+  DraggableEvent._(this.draggableElement, this.originalEvent, this.startPosition, 
+      this.position);
 }
