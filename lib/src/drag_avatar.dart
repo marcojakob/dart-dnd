@@ -157,7 +157,9 @@ class CloneAvatarHandler extends AvatarHandler {
   @override
   void dragStart(Element draggable, Point mousePosition) {
     // Clone the draggable to create the avatar.
-    avatar = (draggable.clone(true) as Element)..attributes.remove('id');
+    avatar = (draggable.clone(true) as Element)
+        ..attributes.remove('id')
+        ..style.cursor = 'inherit';
     
     // Calc the position of the draggable.
     Point draggablePosition = pageOffset(draggable);

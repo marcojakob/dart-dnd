@@ -37,12 +37,12 @@ main() {
   dragDetectorCancel.onDragEnd.listen(showDragEndAlert);
 }
 
-showDragAlert(DragEvent event) {
+showDragAlert(DraggableEvent event) {
   Point dist = event.position - event.startPosition;
   dragAlert.text =  'You are dragging: element=${event.dragElement}, distance=(${dist.x},${dist.y})';
 }
 
-showDragEndAlert(DragEvent event) {
+showDragEndAlert(DraggableEvent event) {
   dragAlert.text =  'You stopped dragging. Why would you do that? :-)';
 }
 
