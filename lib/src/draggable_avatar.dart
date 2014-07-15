@@ -14,6 +14,9 @@ abstract class AvatarHandler {
    */
   Element get avatar;
   
+  /// Save the pointer event value to later be able to restore it.
+  String _pointerEventsOldValue;
+  
   /**
    * Creates an [AvatarHelper] that uses the draggable element itself as 
    * drag avatar.
@@ -72,7 +75,7 @@ abstract class AvatarHandler {
    * Sets the CSS transform translate of [avatar]. Uses requestAnimationFrame
    * to speed up animation.
    */
-  void setTranslate(Element avatar, Point position) {
+  void setTranslate(Point position) {
     Function updateFunction = () {
       // Unsing `translate3d` to activate GPU hardware-acceleration (a bit of a hack).
       avatar.style.transform = 'translate3d(${position.x}px, ${position.y}px, 0)';
@@ -86,7 +89,7 @@ abstract class AvatarHandler {
    * Removes the CSS transform of [avatar]. Also stops the requested animation
    * from [setTranslate].
    */
-  void removeTranslate(Element avatar) {
+  void removeTranslate() {
     AnimationHelper.stop();
     avatar.style.transform = null;
   }
@@ -94,7 +97,7 @@ abstract class AvatarHandler {
   /**
    * Sets the CSS left/top of [avatar].
    */
-  void setLeftTop(Element avatar, Point position) {
+  void setLeftTop(Point position) {
     avatar.style.left = '${position.x}px';
     avatar.style.top = '${position.y}px';
   }
@@ -108,6 +111,22 @@ abstract class AvatarHandler {
         (rect.left + window.pageXOffset - document.documentElement.client.left).round(), 
         (rect.top + window.pageYOffset - document.documentElement.client.top).round());
   }
+  
+  /**
+   * Sets the pointer-events CSS property of [avatar] to 'none' which enables 
+   * mouse and touch events to go trough to the element under the [avatar].
+   */
+  void setPointerEventsNone() {
+    _pointerEventsOldValue = avatar.style.pointerEvents;
+    avatar.style.pointerEvents = 'none';
+  }
+  
+  /**
+   * Resets the pointer-events CSS property of [avatar] to its old value.
+   */
+  void resetPointerEvents() {
+    avatar.style.pointerEvents = _pointerEventsOldValue;
+  }
 }
 
 
@@ -120,7 +139,7 @@ class OriginalAvatarHandler extends AvatarHandler {
   /// The avatar element which is created in [dragStart].
   Element avatar;
   
-  Point dragStartOffset;
+  Point _dragStartOffset;
   
   @override
   void dragStart(Element draggable, Point mousePosition) {
@@ -128,19 +147,22 @@ class OriginalAvatarHandler extends AvatarHandler {
     avatar = draggable;
     
     // Calc the start offset of the mouse relative to the draggable.
-    dragStartOffset = pageOffset(draggable);
-    Point mouseOffset = mousePosition - dragStartOffset;
+    _dragStartOffset = pageOffset(draggable);
+    Point mouseOffset = mousePosition - _dragStartOffset;
     
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
     
+    // Set pointer-events to none.
+    setPointerEventsNone();
+    
     // Set the initial position.
-    setLeftTop(avatar, mousePosition - mouseOffset);
+    setLeftTop(mousePosition - mouseOffset);
   }
   
   @override
   void drag(Point mousePositionStart, Point mousePosition) {
-    setTranslate(avatar, mousePosition - mousePositionStart);
+    setTranslate(mousePosition - mousePositionStart);
   }
   
   /**
@@ -149,8 +171,10 @@ class OriginalAvatarHandler extends AvatarHandler {
   @override
   void dragEnd(Point mousePositionStart, Point mousePosition) {
     // Remove the translate and set the new position as left/top.
-    removeTranslate(avatar);
-    setLeftTop(avatar, mousePosition - mousePositionStart + dragStartOffset);
+    removeTranslate();
+    setLeftTop(mousePosition - mousePositionStart + _dragStartOffset);
+    
+    resetPointerEvents();
   }
 }
 
@@ -175,11 +199,14 @@ class CloneAvatarHandler extends AvatarHandler {
     Point draggablePosition = pageOffset(draggable);
     
     // Set the initial position of avatar.
-    setLeftTop(avatar, draggablePosition);
+    setLeftTop(draggablePosition);
     
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
     avatar.style.zIndex = '100';
+    
+    // Set pointer-events to none.
+    setPointerEventsNone();
     
     // Add the drag avatar to the parent element.
     draggable.parentNode.append(avatar);
@@ -187,7 +214,7 @@ class CloneAvatarHandler extends AvatarHandler {
   
   @override
   void drag(Point mousePositionStart, Point mousePosition) {
-    setTranslate(avatar, mousePosition - mousePositionStart);
+    setTranslate(mousePosition - mousePositionStart);
   }
   
   /**

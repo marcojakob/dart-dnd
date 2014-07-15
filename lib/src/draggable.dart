@@ -246,7 +246,7 @@ class Draggable {
         event.preventDefault();
         
         // Handle the drag.
-        Element realTarget = _getRealTouchTarget(event.changedTouches[0].client);
+        Element realTarget = _getRealTarget(event.changedTouches[0].client);
         _handleMove(event, realTarget, position);
       }
     }));
@@ -254,7 +254,7 @@ class Draggable {
     // Install the touchEnd listener.
     _dragSubs.add(document.onTouchEnd.listen((TouchEvent event) {
       // Dispatch a drop event.
-      EventTarget realTarget = _getRealTouchTarget(event.changedTouches[0].client);
+      EventTarget realTarget = _getRealTarget(event.changedTouches[0].client);
       _DragEventDispatcher.dispatchDrop(this, realTarget, event.changedTouches[0].page);
 
       // Drag end.
@@ -314,14 +314,14 @@ class Draggable {
     _dragSubs.add(document.onMouseMove.listen((MouseEvent event) {
       // Determine the actual target that should receive the event because 
       // mouse event might have occurred on a drag avatar.
-      EventTarget realTarget = _getRealMouseTarget(event.target, event.client);
+      EventTarget realTarget = _getRealTarget(event.client, target: event.target);
       _handleMove(event, realTarget, event.page);
     }));
     
     // Install mouseUp listener.
     _dragSubs.add(document.onMouseUp.listen((MouseEvent event) {
       // Dispatch a drop event.
-      EventTarget realTarget = _getRealMouseTarget(event.target, event.client);
+      EventTarget realTarget = _getRealTarget(event.client, target: event.target);
       _DragEventDispatcher.dispatchDrop(this, realTarget, event.page);
       
       _handleDragEnd(event, event.page);
@@ -661,44 +661,29 @@ class Draggable {
   
   /**
    * Determine the actual target that should receive the event because 
-   * mouse event might have occurred on a drag avatar.
-   * If the mouse is over the drag avatar, the element below is returned, 
-   * otherwise, the [target] itself is returend.
+   * mouse or touch event might have occurred on a drag avatar.
+   * 
+   * If a [target] is provided it is tested to see if is already the correct
+   * target or if it is the drag avatar and thus must be replaced by the 
+   * element underneath.
    */
-  EventTarget _getRealMouseTarget(EventTarget target, Point clientPosition) {
-    EventTarget realTarget = target;
+  EventTarget _getRealTarget(Point clientPosition, {EventTarget target}) {
+    // If no target was provided get it.
+    if (target == null) {
+      target = document.elementFromPoint(clientPosition.x, clientPosition.y);
+    }
     
+    // Test if target is the drag avatar.
     if (avatarHandler != null && avatarHandler.avatar != null 
         && avatarHandler.avatar.contains(target)) {
-      // Mouse or touch is over drag avatar. Get element underneath.
+      
+      // Target is the drag avatar, get element underneath. 
       avatarHandler.avatar.style.visibility = 'hidden';
-      realTarget = document.elementFromPoint(clientPosition.x, 
-          clientPosition.y);
+      target = document.elementFromPoint(clientPosition.x, clientPosition.y);
       avatarHandler.avatar.style.visibility = 'visible';
     }
     
-    return realTarget;
-  }
-  
-  /**
-   * Determine the actual target that should receive the event because the 
-   * touch might have occurred on a drag avatar.
-   * Hides the avatar (if there is one) and returns the [Element] from point 
-   * [clientPosition].
-   */
-  Element _getRealTouchTarget(Point clientPosition) {
-    Element result;
-    
-    if (avatarHandler != null && avatarHandler.avatar != null) {
-      // Mouse or touch is over drag avatar. Get element underneath.
-      avatarHandler.avatar.style.visibility = 'hidden';
-      result = document.elementFromPoint(clientPosition.x, clientPosition.y);
-      avatarHandler.avatar.style.visibility = 'visible';
-    } else {
-      result = document.elementFromPoint(clientPosition.x, clientPosition.y);
-    }
-    
-    return result;
+    return target;
   }
 }
 
