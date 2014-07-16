@@ -74,9 +74,6 @@ class Dropzone {
   /// Tracks subscriptions.
   List<StreamSubscription> _subs = [];
   
-  /// The (accepted) dropzone element the user is currently dragging over.
-  Element _currentOverElement;
-  
   /// Flag indicating that a child of the [_currentOverElement] is entered.
   /// This means that a dragLeave event for the parent will be fired. So, if 
   /// this flag is true we must ignore the next dragLeave event.
@@ -127,28 +124,26 @@ class Dropzone {
   /**
    * Handles dragEnter events.
    */
-  void _handleDragEnter(CustomEvent event) {
-    _DragEventInfo info = new _DragEventInfo.fromJson(event.detail);
+  void _handleDragEnter(MouseEvent event) {
+    // Only handle dragEnter if user moved from outside of element into the 
+    // element. That means we ignore it if user is coming from a child element.
+    if (event.relatedTarget != null 
+        && (event.currentTarget as Element).contains(event.relatedTarget)) {
+      return;
+    }
     
     // Test if the current draggable is accepted by this dropzone. If there is
     // no accepter all are accepted.
     if (acceptor == null || 
-        acceptor.accepts(_currentDragElement, info.draggableId, event.currentTarget)) {
+        acceptor.accepts(_currentDrag.element, _currentDrag.draggableId, 
+            event.currentTarget)) {
       
       _log.fine('DragEnter');
 
-      if (_currentOverElement == event.currentTarget) {
-        // The same element receives a dragEnter event AGAIN. This means that 
-        // a child element is entered. After this dragEnter event there will
-        // be a dragLeave event for the parent element which we must ignore.
-        _childOfCurrentOverElementEntered = true;
-      }
-      _currentOverElement = event.currentTarget;
-      
       // Fire dragEnter event.
       if (_onDragEnter != null) {
-        _onDragEnter.add(new DropzoneEvent._(_currentDragElement, 
-            event.currentTarget, info.position));
+        _onDragEnter.add(new DropzoneEvent._(_currentDrag.element, 
+            event.currentTarget, _currentDrag.position));
       }
       
       // Add the css class to indicate drag over.
@@ -161,20 +156,18 @@ class Dropzone {
   /**
    * Handles dragOver events.
    */
-  void _handleDragOver(CustomEvent event) {
-    _DragEventInfo info = new _DragEventInfo.fromJson(event.detail);
-    
+  void _handleDragOver(MouseEvent event) {
     // Test if the current draggable is accepted by this dropzone. If there is
     // no accepter all are accepted.
     if (acceptor == null || 
-        acceptor.accepts(_currentDragElement, info.draggableId, event.currentTarget)) {
+        acceptor.accepts(_currentDrag.element, _currentDrag.draggableId, event.currentTarget)) {
       
       _log.finest('DragOver');
       
       // Fire dragOver event.
       if (_onDragOver != null) {
-        _onDragOver.add(new DropzoneEvent._(_currentDragElement, 
-            event.currentTarget, info.position));
+        _onDragOver.add(new DropzoneEvent._(_currentDrag.element, 
+            event.currentTarget, _currentDrag.position));
       }
     }
   }
@@ -182,28 +175,26 @@ class Dropzone {
   /**
    * Handles dragLeave events.
    */
-  void _handleDragLeave(CustomEvent event) {
-    if (_childOfCurrentOverElementEntered) {
-      // Must ignore because user didn't really leave but only entered a child.
-      _childOfCurrentOverElementEntered = false;
+  void _handleDragLeave(MouseEvent event) {
+    // Only handle dragLeave if user moved from inside of element to the 
+    // outside. That means we ignore it if user is moving to a child element.
+    if (event.relatedTarget != null 
+        && (event.currentTarget as Element).contains(event.relatedTarget)) {
       return;
     }
-    
-    _currentOverElement = null;
-    
-    _DragEventInfo info = new _DragEventInfo.fromJson(event.detail);
     
     // Test if the current draggable is accepted by this dropzone. If there is
     // no accepter all are accepted.
     if (acceptor == null || 
-        acceptor.accepts(_currentDragElement, info.draggableId, event.currentTarget)) {
+        acceptor.accepts(_currentDrag.element, _currentDrag.draggableId, 
+            event.currentTarget)) {
       
       _log.fine('DragLeave');
       
       // Fire dragLeave event.
       if (_onDragLeave != null) {
-        _onDragLeave.add(new DropzoneEvent._(_currentDragElement, 
-            event.currentTarget, info.position));
+        _onDragLeave.add(new DropzoneEvent._(_currentDrag.element, 
+            event.currentTarget, _currentDrag.position));
       }
       
       // Remove the css class.
@@ -217,20 +208,19 @@ class Dropzone {
   /**
    * Handles drop events.
    */
-  void _handleDrop(CustomEvent event) {
-    _DragEventInfo info = new _DragEventInfo.fromJson(event.detail);
-    
+  void _handleDrop(MouseEvent event) {
     // Test if the current draggable is accepted by this dropzone. If there is
     // no accepter all are accepted.
     if (acceptor == null || 
-        acceptor.accepts(_currentDragElement, info.draggableId, event.currentTarget)) {
+        acceptor.accepts(_currentDrag.element, _currentDrag.draggableId, 
+            event.currentTarget)) {
       
       _log.fine('Drop');
       
       // Fire drop event.
       if (_onDrop != null) {
-        _onDrop.add(new DropzoneEvent._(_currentDragElement, 
-            event.currentTarget, info.position));
+        _onDrop.add(new DropzoneEvent._(_currentDrag.element, 
+            event.currentTarget, _currentDrag.position));
       }
     }
   }

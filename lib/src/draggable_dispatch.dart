@@ -1,7 +1,7 @@
 part of dnd;
 
 /**
- * Dispatches [CustomEvent]s for dragEnter, dragOver, and dragLeave.
+ * Dispatches [MouseEvent]s for dragEnter, dragOver, and dragLeave.
  * 
  * Those events are only meant for communication between [Draggable]s and 
  * [Dropzone]s and not to be consumed by users of the library.
@@ -23,20 +23,22 @@ class _DragEventDispatcher {
   /// Keeps track of the previous target to be able to fire dragLeave events on it.
   static EventTarget previousTarget;
   
-  /// Stream provider for [CUSTOM_DRAG_ENTER] events.
-  static EventStreamProvider<CustomEvent> enterEvent =
+  /// Stream provider for [CUSTOM_DRAG_ENTER] events. The relatedTarget contains
+  /// the [Element] the user entered from (may be null).
+  static EventStreamProvider<MouseEvent> enterEvent =
        new EventStreamProvider(CUSTOM_DRAG_ENTER);
   
-  /// Stream provider for [CUSTOM_DRAG_OVER] events.
-  static EventStreamProvider<CustomEvent> overEvent =
+  /// Stream provider for [CUSTOM_DRAG_OVER] events. The relatedTarget is empty.
+  static EventStreamProvider<MouseEvent> overEvent =
        new EventStreamProvider(CUSTOM_DRAG_OVER);
   
-  /// Stream provider for [CUSTOM_DRAG_LEAVE] events.
-  static EventStreamProvider<CustomEvent> leaveEvent =
+  /// Stream provider for [CUSTOM_DRAG_LEAVE] events. The relatedTarget contains
+  /// the [Element] the user is leaving to (may be null).
+  static EventStreamProvider<MouseEvent> leaveEvent =
        new EventStreamProvider(CUSTOM_DRAG_LEAVE);
   
-  /// Stream provider for [CUSTOM_DROP] events.
-  static EventStreamProvider<CustomEvent> dropEvent =
+  /// Stream provider for [CUSTOM_DROP] events. The relatedTarget is empty.
+  static EventStreamProvider<MouseEvent> dropEvent =
        new EventStreamProvider(CUSTOM_DROP);
   
   /**
@@ -54,31 +56,26 @@ class _DragEventDispatcher {
       return;
     }
     
-    _DragEventInfo dragInfo = new _DragEventInfo(draggable.id, pagePosition);
-    String dragInfoJson = dragInfo.toJson();
-    
     if (previousTarget == target) {
       // Moved on the same element --> dispatch dragOver.
-      CustomEvent dragOverEvent = new CustomEvent(CUSTOM_DRAG_OVER, 
-          detail: dragInfoJson);
+      MouseEvent dragOverEvent = new MouseEvent(CUSTOM_DRAG_OVER);
       target.dispatchEvent(dragOverEvent);
       
     } else {
       // Entered a new element --> fire dragEnter of new element.
-      CustomEvent dragEnterEvent = new CustomEvent(CUSTOM_DRAG_ENTER, 
-          detail: dragInfoJson);
+      MouseEvent dragEnterEvent = new MouseEvent(CUSTOM_DRAG_ENTER, 
+          relatedTarget: previousTarget);
       target.dispatchEvent(dragEnterEvent);
       
       // Fire dragLeave of old element (if there is one).
       if (previousTarget != null) {
-        CustomEvent dragLeaveEvent = new CustomEvent(CUSTOM_DRAG_LEAVE, 
-            detail: dragInfoJson);
+        MouseEvent dragLeaveEvent = new MouseEvent(CUSTOM_DRAG_LEAVE,
+            relatedTarget: target);
         previousTarget.dispatchEvent(dragLeaveEvent);
       }
       
       // Also fire the first dragOver event for the new element.
-      CustomEvent dragOverEvent = new CustomEvent(CUSTOM_DRAG_OVER, 
-          detail: dragInfoJson);
+      MouseEvent dragOverEvent = new MouseEvent(CUSTOM_DRAG_OVER);
       target.dispatchEvent(dragOverEvent);
       
       previousTarget = target;
@@ -101,11 +98,7 @@ class _DragEventDispatcher {
       return;
     }
     
-    _DragEventInfo dragInfo = new _DragEventInfo(draggable.id, pagePosition);
-    String dragInfoJson = dragInfo.toJson();
-
-    CustomEvent dropEvent = new CustomEvent(CUSTOM_DROP, 
-        detail: dragInfoJson);
+    MouseEvent dropEvent = new MouseEvent(CUSTOM_DROP);
     target.dispatchEvent(dropEvent);
     
     reset(draggable, pagePosition);
@@ -117,41 +110,9 @@ class _DragEventDispatcher {
   static void reset(Draggable draggable, Point pagePosition) {
     // Fire a last dragLeave.
     if (previousTarget != null) {
-      _DragEventInfo dragInfo = new _DragEventInfo(draggable.id, pagePosition);
-      CustomEvent dragLeaveEvent = new CustomEvent(CUSTOM_DRAG_LEAVE, 
-          detail: dragInfo.toJson());
+      MouseEvent dragLeaveEvent = new MouseEvent(CUSTOM_DRAG_LEAVE);
       previousTarget.dispatchEvent(dragLeaveEvent);
       previousTarget = null;
     }
-  }
-}
-
-/**
- * Used as detail for the [CustomEvent]s.
- */
-class _DragEventInfo {
-  /// The id of the currently dragged draggable.
-  int draggableId;
-  
-  /// The current mouse/touch position, relative to the whole document (page 
-  /// position).
-  Point position;
-  
-  _DragEventInfo(this.draggableId, this.position);
-  
-  _DragEventInfo.fromJson(String jsonString) {
-    Map jsonMap = JSON.decode(jsonString);
-    draggableId = jsonMap['draggableId'];
-    position = new Point(jsonMap['position']['x'], jsonMap['position']['y']);    
-  }
-  
-  String toJson() {
-    return JSON.encode({
-      'draggableId': draggableId,
-      'position': {
-        'x': position.x,
-        'y': position.y
-      },
-    });
   }
 }
