@@ -64,7 +64,7 @@ class MyAvatarHandler extends AvatarHandler {
     '../images/smiley06.png'];
   
   /// Define an offset for the avatar relative to the mouse cursor.
-  static const Point OFFSET = const Point(-64, -110);
+  static const Point OFFSET = const Point(-64, -130);
   
   /// The avatar element which is created in [dragStart].
   ImageElement avatar;
