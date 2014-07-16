@@ -250,14 +250,14 @@ class Dropzone {
  */
 class DropzoneEvent {
   /// The [Element] that is beeing dragged. 
-  Element draggableElement;
+  final Element draggableElement;
   
   /// The [Element] of the [Dropzone].
-  Element dropzoneElement;
+  final Element dropzoneElement;
   
   /// The current mouse/touch position, relative to the whole document (page 
   /// position).
-  Point position;
+  final Point position;
   
   DropzoneEvent._(this.draggableElement, this.dropzoneElement, this.position);
 }

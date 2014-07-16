@@ -497,7 +497,8 @@ class Draggable {
     if (_onDragStart != null) {
       // The dragStart has the same for startPosition and current position.
       _onDragStart.add(new DraggableEvent._(_currentDragElement, moveEvent, 
-          position, position));
+          position, position, 
+          avatarElement: avatarHandler != null ? avatarHandler.avatar : null));
     }
     
     // Add the css classes during the drag operation.
@@ -537,8 +538,9 @@ class Draggable {
     
     // Fire the drag event.
     if (_onDrag != null) {
-      _onDrag.add(new DraggableEvent._(_currentDragElement, moveEvent, _startPosition,
-          _currentPosition)); 
+      _onDrag.add(new DraggableEvent._(_currentDragElement, moveEvent, 
+          _startPosition, _currentPosition, 
+          avatarElement: avatarHandler != null ? avatarHandler.avatar : null)); 
     }
   }
   
@@ -565,7 +567,8 @@ class Draggable {
       // Fire dragEnd event.
       if (_onDragEnd != null) {
         _onDragEnd.add(new DraggableEvent._(_currentDragElement, event, 
-            _startPosition, position));
+            _startPosition, position,
+            avatarElement: avatarHandler != null ? avatarHandler.avatar : null));
       }
       
       // Prevent TouchEvent from emulating a click after touchEnd event.
@@ -694,6 +697,9 @@ class DraggableEvent {
   /// The [Element] that is beeing dragged. 
   final Element draggableElement;
   
+  /// The drag avatar or null if there is no avatar.
+  final Element avatarElement;
+  
   /// The original event which is either ...
   /// * a [MouseEvent], 
   /// * a [TouchEvent], 
@@ -713,5 +719,5 @@ class DraggableEvent {
    * Private constructor for [DraggableEvent].
    */
   DraggableEvent._(this.draggableElement, this.originalEvent, this.startPosition, 
-      this.position);
+      this.position, {this.avatarElement});
 }

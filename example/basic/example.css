@@ -1,3 +1,17 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #333;
+  background-color: #fff;
+  margin: 0;
+}
+
+.container {
+  max-width: 400px;
+  padding: 15px 15px 0 15px;
+}
+
 .trash {
   background: url(../images/trash.png) top left no-repeat;
   height: 128px;
@@ -12,7 +26,7 @@
 }
 
 .document {
-  margin: 10px 0 0 5px;
+  margin-top: 10px;
   display: block;
   cursor: url(../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
   cursor: url(../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
@@ -26,11 +40,7 @@
   opacity: 0.5;
 }
 
-.dnd-drag-occurring {
-  background-color: #fcf8e3;
-}
-
-.dnd-dragging, .dnd-drag-occurring, .dnd-avatar {
+.dnd-dragging, .dnd-drag-occurring {
   cursor: url(../packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
   cursor: url(../packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }

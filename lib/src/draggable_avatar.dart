@@ -14,9 +14,6 @@ abstract class AvatarHandler {
    */
   Element get avatar;
   
-  /// Save the pointer event value to later be able to restore it.
-  String _pointerEventsOldValue;
-  
   /**
    * Creates an [AvatarHelper] that uses the draggable element itself as 
    * drag avatar.
@@ -117,15 +114,14 @@ abstract class AvatarHandler {
    * mouse and touch events to go trough to the element under the [avatar].
    */
   void setPointerEventsNone() {
-    _pointerEventsOldValue = avatar.style.pointerEvents;
     avatar.style.pointerEvents = 'none';
   }
   
   /**
-   * Resets the pointer-events CSS property of [avatar] to its old value.
+   * Removes the pointer-events CSS property from [avatar].
    */
   void resetPointerEvents() {
-    avatar.style.pointerEvents = _pointerEventsOldValue;
+    avatar.style.pointerEvents = null;
   }
 }
 

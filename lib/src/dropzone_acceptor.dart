@@ -11,10 +11,10 @@ abstract class Acceptor {
    * Creates an [Acceptor] that accepts all drag elements that are part of the 
    * specified [draggables].
    * 
-   * See [DraggableAcceptor].
+   * See [DraggablesAcceptor].
    */
-  factory Acceptor.draggable(List<Draggable> draggables) {
-    return new DraggableAcceptor(draggables);
+  factory Acceptor.draggables(List<Draggable> draggables) {
+    return new DraggablesAcceptor(draggables);
   }
   
   /**
@@ -25,14 +25,14 @@ abstract class Acceptor {
 }
 
 /**
- * The [DraggableAcceptor] accepts all drag elements that are part of the 
+ * The [DraggablesAcceptor] accepts all drag elements that are part of the 
  * specified list of [Draggable]s. 
  */
-class DraggableAcceptor extends Acceptor {
+class DraggablesAcceptor extends Acceptor {
   
   final Set<int> draggableIds = new Set();
   
-  DraggableAcceptor(List<Draggable> draggables) {
+  DraggablesAcceptor(List<Draggable> draggables) {
     draggables.forEach((d) => draggableIds.add(d.id));
   }
   
