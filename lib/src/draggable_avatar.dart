@@ -42,28 +42,26 @@ abstract class AvatarHandler {
    * The provided [draggable] is used to know where in the DOM the drag avatar
    * can be inserted.
    * 
-   * The [mousePosition] is the position of the mouse relative to the whole 
-   * document (page coordinates).
+   * The [startPosition] is the position where the drag started, relative to the 
+   * whole document (page coordinates).
    */
-  void dragStart(Element draggable, Point mousePosition);
+  void dragStart(Element draggable, Point startPosition);
   
   /**
-   * Moves the drag avatar to the new [mousePosition]. 
+   * Moves the drag avatar to the new [position]. 
    * 
-   * [mousePositionStart] is the mouse position where the drag started and
-   * [mousePosition] is the current mouse position. Both positions are 
-   * relative to the whole document (page coordinates).
+   * The [startPosition] is the position where the drag started, [position] is the 
+   * current position. Both are relative to the whole document (page coordinates).
    */
-  void drag(Point mousePositionStart, Point mousePosition);
+  void drag(Point startPosition, Point position);
   
   /**
    * Called when the drag operation ends. 
    * 
-   * [mousePositionStart] is the mouse position where the drag started and
-   * [mousePosition] is the current mouse position. Both positions are 
-   * relative to the whole document (page coordinates).
+   * The [startPosition] is the position where the drag started, [position] is the 
+   * current position. Both are relative to the whole document (page coordinates).
    */
-  void dragEnd(Point mousePositionStart, Point mousePosition);
+  void dragEnd(Point startPosition, Point position);
   
   Point _lastTranslate;
   bool _updating = false;
@@ -138,37 +136,34 @@ class OriginalAvatarHandler extends AvatarHandler {
   Point _dragStartOffset;
   
   @override
-  void dragStart(Element draggable, Point mousePosition) {
+  void dragStart(Element draggable, Point startPosition) {
     // Use the draggable itself as avatar.
     avatar = draggable;
     
     // Calc the start offset of the mouse relative to the draggable.
     _dragStartOffset = pageOffset(draggable);
-    Point mouseOffset = mousePosition - _dragStartOffset;
-    
-    // Ensure avatar has an absolute position.
-    avatar.style.position = 'absolute';
+    Point mouseOffset = startPosition - _dragStartOffset;
     
     // Set pointer-events to none.
     setPointerEventsNone();
     
-    // Set the initial position.
-    setLeftTop(mousePosition - mouseOffset);
+    // Ensure avatar has an absolute position.
+    avatar.style.position = 'absolute';
+    
+    // Set the initial position of the original.
+    setLeftTop(startPosition - mouseOffset);
   }
   
   @override
-  void drag(Point mousePositionStart, Point mousePosition) {
-    setTranslate(mousePosition - mousePositionStart);
+  void drag(Point startPosition, Point position) {
+    setTranslate(position - startPosition);
   }
   
-  /**
-   * Called when the drag operation ends. 
-   */
   @override
-  void dragEnd(Point mousePositionStart, Point mousePosition) {
+  void dragEnd(Point startPosition, Point position) {
     // Remove the translate and set the new position as left/top.
     removeTranslate();
-    setLeftTop(mousePosition - mousePositionStart + _dragStartOffset);
+    setLeftTop(position - startPosition + _dragStartOffset);
     
     resetPointerEvents();
   }
@@ -185,7 +180,7 @@ class CloneAvatarHandler extends AvatarHandler {
   Element avatar;
   
   @override
-  void dragStart(Element draggable, Point mousePosition) {
+  void dragStart(Element draggable, Point startPosition) {
     // Clone the draggable to create the avatar.
     avatar = (draggable.clone(true) as Element)
         ..attributes.remove('id')
@@ -209,15 +204,12 @@ class CloneAvatarHandler extends AvatarHandler {
   }
   
   @override
-  void drag(Point mousePositionStart, Point mousePosition) {
-    setTranslate(mousePosition - mousePositionStart);
+  void drag(Point startPosition, Point position) {
+    setTranslate(position - startPosition);
   }
   
-  /**
-   * Called when the drag operation ends. 
-   */
   @override
-  void dragEnd(Point mousePositionStart, Point mousePosition) {
+  void dragEnd(Point startPosition, Point position) {
     avatar.remove();
   }
 }

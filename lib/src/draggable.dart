@@ -217,7 +217,8 @@ class Draggable {
     
     // Initialize the drag info. 
     // Note: the drag is not started on touchStart but after a first valid move.
-    _currentDrag = new _DragInfo(id, startEvent.currentTarget, startEvent.touches[0].page, 
+    _currentDrag = new _DragInfo(id, startEvent.currentTarget, 
+        startEvent.touches[0].page, avatarHandler: avatarHandler,
         horizontalOnly: horizontalOnly, verticalOnly: verticalOnly);
 
     
@@ -312,6 +313,7 @@ class Draggable {
     // Initialize the drag info. 
     // Note: the drag is not started on mouseDown but after a first valid move.
     _currentDrag = new _DragInfo(id, startEvent.currentTarget, startEvent.page, 
+        avatarHandler: avatarHandler,
         horizontalOnly: horizontalOnly, verticalOnly: verticalOnly);
     
     // Install mouseMove listener.
@@ -450,8 +452,7 @@ class Draggable {
     // Fire the drag start event with start position.
     if (_onDragStart != null) {
       // The dragStart has the same for startPosition and current position.
-      _onDragStart.add(new DraggableEvent._(moveEvent, _currentDrag,
-          avatarElement: avatarHandler != null ? avatarHandler.avatar : null));
+      _onDragStart.add(new DraggableEvent._(moveEvent, _currentDrag));
     }
     
     // Add the css classes during the drag operation.
@@ -487,8 +488,7 @@ class Draggable {
     
     // Fire the drag event.
     if (_onDrag != null) {
-      _onDrag.add(new DraggableEvent._(moveEvent, _currentDrag,
-          avatarElement: avatarHandler != null ? avatarHandler.avatar : null)); 
+      _onDrag.add(new DraggableEvent._(moveEvent, _currentDrag));
     }
   }
   
@@ -514,8 +514,7 @@ class Draggable {
       
       // Fire dragEnd event.
       if (_onDragEnd != null) {
-        _onDragEnd.add(new DraggableEvent._(event, _currentDrag,
-            avatarElement: avatarHandler != null ? avatarHandler.avatar : null));
+        _onDragEnd.add(new DraggableEvent._(event, _currentDrag));
       }
       
       // Prevent TouchEvent from emulating a click after touchEnd event.
@@ -637,8 +636,8 @@ class DraggableEvent {
   /// The [Element] that is beeing dragged. 
   final Element draggableElement;
   
-  /// The drag avatar or null if there is no avatar.
-  final Element avatarElement;
+  /// The [AvatarHandler] or null if there is none.
+  final AvatarHandler avatarHandler;
   
   /// The original event which is either ...
   /// * a [MouseEvent], 
@@ -658,10 +657,11 @@ class DraggableEvent {
   /**
    * Private constructor for [DraggableEvent].
    */
-  DraggableEvent._(this.originalEvent, _DragInfo dragInfo, {this.avatarElement})
+  DraggableEvent._(this.originalEvent, _DragInfo dragInfo)
       : draggableElement = dragInfo.element,
         startPosition = dragInfo.startPosition,
-        position = dragInfo.position;
+        position = dragInfo.position,
+        avatarHandler = dragInfo.avatarHandler;
 }
 
 /**
@@ -676,6 +676,9 @@ class _DragInfo {
   
   /// Position where the drag started.
   final Point startPosition;
+  
+  /// The [AvatarHandler] or null if there is none.
+  final AvatarHandler avatarHandler;
 
   /// The current position of the mouse or touch. This position is the real
   /// position that is not constrained by the horizontal/vertical axis.
@@ -688,7 +691,9 @@ class _DragInfo {
   final bool verticalOnly;
   
   _DragInfo(this.draggableId, this.element, this.startPosition, 
-      {this.horizontalOnly: false, this.verticalOnly: false}) {
+      { this.avatarHandler: null, 
+        this.horizontalOnly: false, 
+        this.verticalOnly: false}) {
     // Initially set current position to startPosition.
     _realPosition = startPosition;
   }

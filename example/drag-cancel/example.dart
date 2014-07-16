@@ -4,12 +4,11 @@ import 'dart:html';
 import 'package:dnd/dnd.dart';
 
 /**
- * An example of a how to freely drag a [Draggable]. Instead of using a clone
- * for the drag avatar, the original element itself is dragged.
+ * Example demonstrating how dragging can be prevented on some elements.
  */
 main() {
   // Install draggable (document).
   Draggable draggable = new Draggable(querySelector('.draggable'), 
       avatarHandler: new AvatarHandler.original(),
-      handle: '.handle');
+      cancel: 'textarea, button, .no-drag');
 }

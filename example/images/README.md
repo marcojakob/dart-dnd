@@ -9,6 +9,6 @@
 
 ## LazyCrazy - Very Emotional
 
-* Images: smiley-happy.png
+* Images: smileys
 * License: Free for commercial use
 * Url: http://lazycrazy.deviantart.com/

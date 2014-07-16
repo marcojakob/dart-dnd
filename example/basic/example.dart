@@ -12,7 +12,7 @@ main() {
       avatarHandler: new AvatarHandler.clone());
 
   // Install dropzone (trash).
-  Dropzone dropzone = new Dropzone(querySelectorAll('.trash'));
+  Dropzone dropzone = new Dropzone(querySelector('.trash'));
 
   // Remove the documents when dropped.
   dropzone.onDrop.listen((DropzoneEvent event) {

@@ -142,8 +142,7 @@ class Dropzone {
 
       // Fire dragEnter event.
       if (_onDragEnter != null) {
-        _onDragEnter.add(new DropzoneEvent._(_currentDrag.element, 
-            event.currentTarget, _currentDrag.position));
+        _onDragEnter.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
       }
       
       // Add the css class to indicate drag over.
@@ -166,8 +165,7 @@ class Dropzone {
       
       // Fire dragOver event.
       if (_onDragOver != null) {
-        _onDragOver.add(new DropzoneEvent._(_currentDrag.element, 
-            event.currentTarget, _currentDrag.position));
+        _onDragOver.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
       }
     }
   }
@@ -193,8 +191,7 @@ class Dropzone {
       
       // Fire dragLeave event.
       if (_onDragLeave != null) {
-        _onDragLeave.add(new DropzoneEvent._(_currentDrag.element, 
-            event.currentTarget, _currentDrag.position));
+        _onDragLeave.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
       }
       
       // Remove the css class.
@@ -219,8 +216,7 @@ class Dropzone {
       
       // Fire drop event.
       if (_onDrop != null) {
-        _onDrop.add(new DropzoneEvent._(_currentDrag.element, 
-            event.currentTarget, _currentDrag.position));
+        _onDrop.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
       }
     }
   }
@@ -239,15 +235,21 @@ class Dropzone {
  * Event for dropzone elements.
  */
 class DropzoneEvent {
+  /// The [Element] of the [Dropzone].
+  final Element dropzoneElement;
+  
   /// The [Element] that is beeing dragged. 
   final Element draggableElement;
   
-  /// The [Element] of the [Dropzone].
-  final Element dropzoneElement;
+  /// The [AvatarHandler] or null if there is none.
+  final AvatarHandler avatarHandler;
   
   /// The current mouse/touch position, relative to the whole document (page 
   /// position).
   final Point position;
   
-  DropzoneEvent._(this.draggableElement, this.dropzoneElement, this.position);
+  DropzoneEvent._(this.dropzoneElement, _DragInfo dragInfo)
+      : draggableElement = dragInfo.element,
+        avatarHandler = dragInfo.avatarHandler,
+        position = dragInfo.position;
 }
