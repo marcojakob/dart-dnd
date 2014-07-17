@@ -1,5 +1,3 @@
-library dnd_example;
-
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 
@@ -8,7 +6,7 @@ import 'package:dnd/dnd.dart';
  * for the drag avatar, the original element itself is dragged.
  */
 main() {
-  // Install draggable (document).
+  // Install draggable.
   Draggable draggable = new Draggable(querySelector('.draggable'), 
       avatarHandler: new AvatarHandler.original());
 }

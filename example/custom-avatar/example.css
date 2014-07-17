@@ -13,7 +13,7 @@ body {
 }
 
 .trash {
-  background: url(../images/trash.png) top left no-repeat;
+  background: url(images/trash.png) top left no-repeat;
   height: 128px;
   width: 128px;
   margin-top: 60px;
@@ -22,7 +22,7 @@ body {
 }
 
 .trash.full {
-  background: url(../images/trash.png) top right no-repeat;
+  background: url(images/trash.png) top right no-repeat;
 }
 
 .document {

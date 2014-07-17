@@ -17,23 +17,51 @@ body {
 }
 
 .draggable {
+  margin-bottom: 1em;
   width: 120px;
-  height: 120px;
+  height: 85px;
   background: #cddc39;
   border-radius: 8px;
+  text-align: center;
   cursor: url(../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
   cursor: url(../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }
 
 .draggable p {
-  text-align: center;
-  padding-top: 30px;
+  padding-top: 10px;
   margin: 0;
   font-weight: bold;
 }
 
+.draggable input {
+  width: 110px;
+}
+
+.dropzone-container {
+  float: right;
+}
+
+.dropzone {
+  margin-bottom: 1em;
+  width: 150px;
+  height: 120px;
+  background: #ffc107;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.dropzone p {
+  margin: 0;
+  padding-top: 30px;
+  font-weight: bold;
+}
+
 .dnd-dragging {
-  opacity: 0.5;
+  opacity: 0.7;
+}
+
+.dnd-over {
+  background-color: #ff5722;
 }
 
 .dnd-dragging, .dnd-drag-occurring {

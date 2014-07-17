@@ -10,7 +10,7 @@ import 'package:dnd/dnd.dart';
  * See [MyAvatarHandler].
  */
 main() {
-  // Install draggables (documents).
+  // Install draggables.
   Draggable draggable = new Draggable(querySelectorAll('.document'), 
       avatarHandler: new MyAvatarHandler());
 
@@ -57,11 +57,11 @@ class MyAvatarHandler extends AvatarHandler {
 
   /// List of smiley src urls.
   static final List<String> SMILEYS = [
-    '../images/smiley02.png',
-    '../images/smiley03.png',
-    '../images/smiley04.png',
-    '../images/smiley05.png',
-    '../images/smiley06.png'];
+    'images/smiley02.png',
+    'images/smiley03.png',
+    'images/smiley04.png',
+    'images/smiley05.png',
+    'images/smiley06.png'];
   
   /// Define an offset for the avatar relative to the mouse cursor.
   static const Point OFFSET = const Point(-64, -130);

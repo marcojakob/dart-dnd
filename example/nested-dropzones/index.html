@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Dart Drag and Drop: Horizontal Only Example</title>
+<title>Dart Drag and Drop: Nested Dropzones Example</title>
 
 <link rel="stylesheet" href="example.css">
 
@@ -15,15 +15,24 @@
 
 <body>
   <div class="container">
-    <a href="https://github.com/marcojakob/dart-dnd/tree/master/example/horizontal-only" 
+    <a href="https://github.com/marcojakob/dart-dnd/tree/master/example/nested-dropzones" 
     target="_parent">Example Source on GitHub</a>
     
     <p>
-      This is only draggable in the horizontal axis.
+      Drop on nested dropzones. Note that if dropped on an inner [Dropzone] the 
+      outer [Dropzone] will also receive the drop event.
     </p>
     
     <div class="draggable">
       <p>Drag me!</p>
+    </div>
+    
+    <div class="dropzone-outer">
+      <span>Outer Dropzone</span>
+      
+      <div class="dropzone-inner">
+        <span>Inner Dropzone</span>
+      </div>
     </div>
   </div>
 </body>

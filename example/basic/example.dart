@@ -1,5 +1,3 @@
-library dnd_example;
-
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 

@@ -9,7 +9,7 @@ Drag and Drop for Mouse and Touch.
 
 *All Demos can be found in the `example` folder.*
 
-* [Draggable Example](http://marcojakob.github.io/dart-dnd/draggable/)
+* [All Examples](http://marcojakob.github.io/dart-dnd/)
 
 
 ## More Infos

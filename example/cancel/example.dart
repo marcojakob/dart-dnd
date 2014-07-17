@@ -1,14 +1,12 @@
-library dnd_example;
-
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 
 /**
- * Example that uses a sub-element as drag handle.
+ * Example demonstrating how dragging can be prevented on some elements.
  */
 main() {
-  // Install draggable (document).
+  // Install draggable.
   Draggable draggable = new Draggable(querySelector('.draggable'), 
       avatarHandler: new AvatarHandler.original(),
-      handle: '.handle');
+      cancel: 'textarea, button, .no-drag');
 }

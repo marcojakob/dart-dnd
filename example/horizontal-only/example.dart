@@ -1,5 +1,3 @@
-library dnd_example;
-
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 
@@ -9,6 +7,7 @@ import 'package:dnd/dnd.dart';
  * it is ignored and thus can be used for scrolling on touch devices.
  */
 main() {
+  // Install draggable.
   Draggable draggable = new Draggable(querySelector('.draggable'), 
       avatarHandler: new AvatarHandler.original(),
       horizontalOnly: true);

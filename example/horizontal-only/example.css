@@ -28,6 +28,7 @@ body {
 .draggable p {
   text-align: center;
   padding-top: 30px;
+  margin: 0;
   font-weight: bold;
 }
 
