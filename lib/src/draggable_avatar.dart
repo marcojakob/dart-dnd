@@ -185,8 +185,8 @@ class OriginalAvatarHandler extends AvatarHandler {
     
     // Set the new position as left/top. Prevent from moving past the top and 
     // left borders as the user might not be able to grab the element any more.
-    Point constrainedPosition = new Point(math.max(0, position.x), 
-        math.max(0, position.y));
+    Point constrainedPosition = new Point(math.max(1, position.x), 
+        math.max(1, position.y));
     
     setLeftTop(constrainedPosition - startPosition + _draggableStartOffset);
     
