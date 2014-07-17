@@ -318,13 +318,6 @@ class Draggable {
     
     // Install mouseMove listener.
     _dragSubs.add(document.onMouseMove.listen((MouseEvent event) {
-      // Test if mouseUp occurred in another document (iframe!).
-      if (event.button != 0) {
-        // End the drag and return.
-        _handleDragEnd(event);
-        return;
-      }      
-      
       // Set the current position.
       _currentDrag.position = event.page;
       
@@ -705,9 +698,10 @@ class _DragInfo {
     _realPosition = startPosition;
   }
   
-  /// The current position, constrained by the horizontal/vertical axis 
-  /// depending on [horizontalOnly] and [verticalOnly].
-  Point get position => _constrainAxis(_realPosition);
+  /// The current position. Is constrained by the horizontal/vertical axis 
+  /// (depending on [horizontalOnly] and [verticalOnly]) and the left and 
+  /// top borders of the window.
+  Point get position => _constrain(_realPosition);
   
   /// Sets the current position.
   set position(Point pos) => _realPosition = pos;
@@ -736,17 +730,22 @@ class _DragInfo {
   
   /**
    * Constrains the axis if [horizontalOnly] or [verticalOnly] is true.
+   * Further it keeps x and y >= 0 to not allow dragging out of the window.
    */
-  Point _constrainAxis(Point pos) {
+  Point _constrain(Point pos) {
+    int x = pos.x;
+    int y = pos.y;
+    
     // Set y-value to startPosition if horizontalOnly.
     if (horizontalOnly) {
-      return new Point(pos.x, startPosition.y);
+      y = startPosition.y;
     }
     // Set x-value to startPosition if verticalOnly.
     if (verticalOnly) {
-      return new Point(startPosition.x, pos.y);
+      x = startPosition.x;
     }
-    // Axis is not constrained.
-    return pos;
+    
+    // Constrain by top and left border of window.
+    return new Point(math.max(0, x), math.max(0, y));
   }
 }

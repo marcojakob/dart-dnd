@@ -2,6 +2,7 @@ library dnd;
 
 import 'dart:html';
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:logging/logging.dart';
 
 part 'src/draggable.dart';
