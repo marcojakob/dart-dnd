@@ -45,3 +45,38 @@ body {
   cursor: url(../packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }
 
+
+/* Bootstrap Style Button. */
+.btn {
+  margin-bottom: 10px;
+  display: inline-block;
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 1.625;
+  border-radius: 4px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  text-decoration: none;
+}
+.btn-default {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+}
+.btn-default:active, .btn-default:focus, .btn-default:hover {
+  color: #333;
+  background-image: none;
+  background-color: #ebebeb;
+  border-color: #adadad;
+}
+.btn:active {
+  outline: 0;
+  -webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+  box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+}
+
