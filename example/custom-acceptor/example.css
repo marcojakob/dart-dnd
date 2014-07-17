@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-  max-width: 400px;
+  max-width: 500px;
   padding: 15px 15px 0 15px;
 }
 
@@ -38,7 +38,6 @@ body {
 }
 
 .dropzone-container {
-  margin-top: 20px;
   float: right;
 }
 
@@ -53,7 +52,7 @@ body {
 
 .dropzone p {
   margin: 0;
-  padding-top: 30px;
+  padding-top: 10px;
   font-weight: bold;
 }
 

@@ -2,7 +2,7 @@ import 'dart:html';
 import 'package:dnd/dnd.dart';
 
 /**
- * Example how to drag over nested [Draggable]s.
+ * Example how to drag over nested [Dropzone]s.
  * 
  * Note: If dropped on an inner [Dropzone] the outer [Dropzone] will also 
  * receive the drop event.
