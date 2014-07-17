@@ -17,6 +17,7 @@ body {
 }
 
 .draggable {
+  margin-top: 15px;
   padding: 10px;
   width: 280px;
   height: 210px;

@@ -17,7 +17,7 @@ body {
 }
 
 .draggable {
-  margin-bottom: 1em;
+  margin-top: 15px;
   width: 120px;
   height: 85px;
   background: #cddc39;
@@ -38,11 +38,12 @@ body {
 }
 
 .dropzone-container {
+  margin-top: 20px;
   float: right;
 }
 
 .dropzone {
-  margin-bottom: 1em;
+  margin-top: 15px;
   width: 150px;
   height: 120px;
   background: #ffc107;
