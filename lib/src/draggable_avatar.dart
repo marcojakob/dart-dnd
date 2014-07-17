@@ -107,22 +107,12 @@ abstract class AvatarHandler {
   }
   
   /**
-   * Sets the CSS top/left values of [avatar]. Takes care of any top/left
+   * Sets the CSS left/top values of [avatar]. Takes care of any left/top
    * margins the [avatar] might have to correctly position the element.
    */
-  void setTopLeft(Point position) {
-    avatar.style.top = '${position.y - marginTop}px';
+  void setLeftTop(Point position) {
     avatar.style.left = '${position.x - marginLeft}px';
-  }
-  
-  /**
-   * Helper method to get the offset of [element] relative to the document.
-   */
-  Point pageOffset(Element element) {
-    Rectangle rect = element.getBoundingClientRect();
-    return new Point(
-        (rect.left + window.pageXOffset - document.documentElement.client.left).round(), 
-        (rect.top + window.pageYOffset - document.documentElement.client.top).round());
+    avatar.style.top = '${position.y - marginTop}px';
   }
   
   /**
@@ -163,16 +153,15 @@ class OriginalAvatarHandler extends AvatarHandler {
   /// The avatar element which is created in [dragStart].
   Element avatar;
   
-  Point _dragStartOffset;
+  Point _draggableStartOffset;
   
   @override
   void dragStart(Element draggable, Point startPosition) {
     // Use the draggable itself as avatar.
     avatar = draggable;
     
-    // Calc the start offset of the mouse relative to the draggable.
-    _dragStartOffset = pageOffset(draggable);
-    Point mouseOffset = startPosition - _dragStartOffset;
+    // Get the start offset of the draggable.
+    _draggableStartOffset = draggable.documentOffset;
     
     // Set pointer-events to none.
     setPointerEventsNone();
@@ -181,7 +170,7 @@ class OriginalAvatarHandler extends AvatarHandler {
     avatar.style.position = 'absolute';
     
     // Set the initial position of the original.
-    setTopLeft(startPosition - mouseOffset);
+    setLeftTop(_draggableStartOffset);
   }
   
   @override
@@ -193,7 +182,13 @@ class OriginalAvatarHandler extends AvatarHandler {
   void dragEnd(Point startPosition, Point position) {
     // Remove the translate and set the new position as left/top.
     removeTranslate();
-    setTopLeft(position - startPosition + _dragStartOffset);
+    
+    // Set the new position as left/top. Prevent from moving past the top and 
+    // left borders as the user might not be able to grab the element any more.
+    Point constrainedPosition = new Point(math.max(0, position.x), 
+        math.max(0, position.y));
+    
+    setLeftTop(constrainedPosition - startPosition + _draggableStartOffset);
     
     resetPointerEvents();
   }
@@ -216,11 +211,8 @@ class CloneAvatarHandler extends AvatarHandler {
         ..attributes.remove('id')
         ..style.cursor = 'inherit';
     
-    // Calc the position of the draggable.
-    Point draggablePosition = pageOffset(draggable);
-    
     // Set the initial position of avatar.
-    setTopLeft(draggablePosition);
+    setLeftTop(draggable.documentOffset);
     
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';

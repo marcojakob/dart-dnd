@@ -698,10 +698,9 @@ class _DragInfo {
     _realPosition = startPosition;
   }
   
-  /// The current position. Is constrained by the horizontal/vertical axis 
-  /// (depending on [horizontalOnly] and [verticalOnly]) and the left and 
-  /// top borders of the window.
-  Point get position => _constrain(_realPosition);
+  /// The current position, constrained by the horizontal/vertical axis 
+  /// depending on [horizontalOnly] and [verticalOnly].
+  Point get position => _constrainAxis(_realPosition);
   
   /// Sets the current position.
   set position(Point pos) => _realPosition = pos;
@@ -730,22 +729,19 @@ class _DragInfo {
   
   /**
    * Constrains the axis if [horizontalOnly] or [verticalOnly] is true.
-   * Further it keeps x and y >= 0 to not allow dragging out of the window.
    */
-  Point _constrain(Point pos) {
-    int x = pos.x;
-    int y = pos.y;
-    
+  Point _constrainAxis(Point pos) {
     // Set y-value to startPosition if horizontalOnly.
     if (horizontalOnly) {
-      y = startPosition.y;
-    }
-    // Set x-value to startPosition if verticalOnly.
-    if (verticalOnly) {
-      x = startPosition.x;
+      return new Point(pos.x, startPosition.y);
     }
     
-    // Constrain by top and left border of window.
-    return new Point(math.max(0, x), math.max(0, y));
+    // Set x-value to startPosition if verticalOnly.
+    if (verticalOnly) {
+      return new Point(startPosition.x, pos.y);
+    }
+    
+    // Axis is not constrained.
+    return pos;
   }
 }

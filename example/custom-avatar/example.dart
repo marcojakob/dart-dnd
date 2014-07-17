@@ -82,7 +82,7 @@ class MyAvatarHandler extends AvatarHandler {
     avatar = new ImageElement(src: SMILEYS[0]);
     
     // Set the initial position of avatar.
-    setTopLeft(startPosition + OFFSET);
+    setLeftTop(startPosition + OFFSET);
     
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
