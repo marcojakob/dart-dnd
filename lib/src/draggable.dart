@@ -123,7 +123,7 @@ class Draggable {
    * 
    * The [avatarHandler]  is responsible for creating, position, and 
    * removing a drag avatar. A drag avatar provides visual feedback during a
-   * drag operation. Here are possible options for the [dragAvatarHandler]:
+   * drag operation. Here are possible options for the [avatarHandler] :
    * 
    * * null (the default) - will not create a drag avatar
    * * new [AvatarHandler.original] - handler that uses the original 

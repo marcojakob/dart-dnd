@@ -32,7 +32,7 @@ class Dropzone {
   }
   
   /**
-   * Fired when a [Draggable] is moved over a [Dropzone].
+   * Fired periodically while a [Draggable] is moved over a [Dropzone].
    */
   Stream<DropzoneEvent> get onDragOver {
     if (_onDragOver == null) {

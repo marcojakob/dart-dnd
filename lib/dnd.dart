@@ -2,7 +2,6 @@ library dnd;
 
 import 'dart:html';
 import 'dart:async';
-import 'dart:convert';
 import 'package:logging/logging.dart';
 
 part 'src/draggable.dart';
