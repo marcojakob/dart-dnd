@@ -9,10 +9,30 @@ abstract class AvatarHandler {
   
   AvatarHandler();
   
-  /**
-   * Returns the [avatar] element.
-   */
+  /// Returns the [avatar] element.
   Element get avatar;
+  
+  /// The cached top margin of [avatar].
+  num _marginTop;
+  
+  /// Returns the (cached) top margin of [avatar].
+  num get marginTop {
+    if (_marginTop == null) {
+      _cacheMargins();
+    }
+    return _marginTop;
+  }
+  
+  /// The cached left margin of [avatar].
+  num _marginLeft;
+  
+  /// Returns the (cached) left margin of [avatar].
+  num get marginLeft {
+    if (_marginLeft == null) {
+      _cacheMargins();
+    }
+    return _marginLeft;
+  }
   
   /**
    * Creates an [AvatarHelper] that uses the draggable element itself as 
@@ -63,9 +83,6 @@ abstract class AvatarHandler {
    */
   void dragEnd(Point startPosition, Point position);
   
-  Point _lastTranslate;
-  bool _updating = false;
-  
   /**
    * Sets the CSS transform translate of [avatar]. Uses requestAnimationFrame
    * to speed up animation.
@@ -90,11 +107,12 @@ abstract class AvatarHandler {
   }
   
   /**
-   * Sets the CSS left/top of [avatar].
+   * Sets the CSS top/left values of [avatar]. Takes care of any top/left
+   * margins the [avatar] might have to correctly position the element.
    */
-  void setLeftTop(Point position) {
-    avatar.style.left = '${position.x}px';
-    avatar.style.top = '${position.y}px';
+  void setTopLeft(Point position) {
+    avatar.style.top = '${position.y - marginTop}px';
+    avatar.style.left = '${position.x - marginLeft}px';
   }
   
   /**
@@ -120,6 +138,18 @@ abstract class AvatarHandler {
    */
   void resetPointerEvents() {
     avatar.style.pointerEvents = null;
+  }
+  
+  /**
+   * Caches the margins of [avatar].
+   */
+  void _cacheMargins() {
+    // Calculate margins.
+    var marginEdge = avatar.marginEdge;
+    var borderEdge = avatar.borderEdge;
+    
+    _marginTop = borderEdge.top - marginEdge.top;
+    _marginLeft = borderEdge.left - marginEdge.left;
   }
 }
 
@@ -151,7 +181,7 @@ class OriginalAvatarHandler extends AvatarHandler {
     avatar.style.position = 'absolute';
     
     // Set the initial position of the original.
-    setLeftTop(startPosition - mouseOffset);
+    setTopLeft(startPosition - mouseOffset);
   }
   
   @override
@@ -163,7 +193,7 @@ class OriginalAvatarHandler extends AvatarHandler {
   void dragEnd(Point startPosition, Point position) {
     // Remove the translate and set the new position as left/top.
     removeTranslate();
-    setLeftTop(position - startPosition + _dragStartOffset);
+    setTopLeft(position - startPosition + _dragStartOffset);
     
     resetPointerEvents();
   }
@@ -190,7 +220,7 @@ class CloneAvatarHandler extends AvatarHandler {
     Point draggablePosition = pageOffset(draggable);
     
     // Set the initial position of avatar.
-    setLeftTop(draggablePosition);
+    setTopLeft(draggablePosition);
     
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
