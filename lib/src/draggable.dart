@@ -320,8 +320,9 @@ class Draggable {
     _dragSubs.add(document.onMouseMove.listen((MouseEvent event) {
       // Test if mouseUp occurred in another document (iframe!).
       if (event.button != 0) {
-        // End the drag.
+        // End the drag and return.
         _handleDragEnd(event);
+        return;
       }      
       
       // Set the current position.
