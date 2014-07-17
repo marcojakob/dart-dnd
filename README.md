@@ -9,9 +9,7 @@ Drag and Drop for Dart web apps with mouse and touch support.
 
 See [Dart Drag and Drop Examples](http://code.makery.ch/library/dart-drag-and-drop/).
 
-[![DnD Screenshot](https://raw.githubusercontent.com/marcojakob/dart-dnd/master/doc/dnd-screenshot.png)]
-(http://code.makery.ch/library/dart-drag-and-drop/)
-
+[![DnD Screenshot](https://raw.githubusercontent.com/marcojakob/dart-dnd/master/doc/dnd-screenshot.png)](http://code.makery.ch/library/dart-drag-and-drop/)
 
 ## Features
 
