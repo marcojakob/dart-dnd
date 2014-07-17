@@ -241,7 +241,7 @@ class Draggable {
           if (_currentDrag.isScrolling()) {
             // The user is scrolling --> Stop tracking current drag.
             _log.fine('User is scrolling, cancel drag.');
-            _resetCurrentDrag();
+            _handleDragEnd(event);
             return;
           }
           
@@ -297,7 +297,7 @@ class Draggable {
       return;
     }
     
-    // Ignore clicks from right or middle buttons.
+    // Only handle left clicks, ignore clicks from right or middle buttons.
     if (startEvent.button != 0) {
       return;
     }
@@ -318,6 +318,12 @@ class Draggable {
     
     // Install mouseMove listener.
     _dragSubs.add(document.onMouseMove.listen((MouseEvent event) {
+      // Test if mouseUp occurred in another document (iframe!).
+      if (event.button != 0) {
+        // End the drag.
+        _handleDragEnd(event);
+      }      
+      
       // Set the current position.
       _currentDrag.position = event.page;
       
