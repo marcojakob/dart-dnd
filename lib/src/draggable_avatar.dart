@@ -18,7 +18,7 @@ abstract class AvatarHandler {
   /// Returns the (cached) top margin of [avatar].
   num get marginTop {
     if (_marginTop == null) {
-      _cacheMargins();
+      cacheMargins();
     }
     return _marginTop;
   }
@@ -29,7 +29,7 @@ abstract class AvatarHandler {
   /// Returns the (cached) left margin of [avatar].
   num get marginLeft {
     if (_marginLeft == null) {
-      _cacheMargins();
+      cacheMargins();
     }
     return _marginLeft;
   }
@@ -131,15 +131,16 @@ abstract class AvatarHandler {
   }
   
   /**
-   * Caches the margins of [avatar].
+   * Caches the [marginLeft] and [marginTop] of [avatar]. Call this method 
+   * again if those margins changed.
    */
-  void _cacheMargins() {
+  void cacheMargins() {
     // Calculate margins.
-    var marginEdge = avatar.marginEdge;
-    var borderEdge = avatar.borderEdge;
-    
-    _marginTop = borderEdge.top - marginEdge.top;
-    _marginLeft = borderEdge.left - marginEdge.left;
+    var computedStyles = avatar.getComputedStyle();
+    _marginLeft = num.parse(computedStyles.marginLeft.replaceFirst('px', ''), 
+        (s) => 0);
+    _marginTop = num.parse(computedStyles.marginTop.replaceFirst('px', ''), 
+        (s) => 0);
   }
 }
 
@@ -211,12 +212,12 @@ class CloneAvatarHandler extends AvatarHandler {
         ..attributes.remove('id')
         ..style.cursor = 'inherit';
     
-    // Set the initial position of avatar.
-    setLeftTop(draggable.documentOffset);
-    
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
     avatar.style.zIndex = '100';
+    
+    // Set the initial position of avatar.
+    setLeftTop(draggable.documentOffset);
     
     // Set pointer-events to none.
     setPointerEventsNone();
