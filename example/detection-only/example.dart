@@ -16,18 +16,20 @@ main() {
   
   // Listen to drag start.
   draggable.onDragStart.listen((DraggableEvent event) {
-    p.innerHtml = 'DragStart: <br>${event.position}';
+    p.innerHtml = 'DragStart: <br>${round(event.position)}';
   });
   
   // Listen do drag.
   draggable.onDrag.listen((DraggableEvent event) {
-    p.innerHtml = 'Drag: <br>${event.position}';
+    p.innerHtml = 'Drag: <br>${round(event.position)}';
   });
   
   // Listen to dragEnd.
   draggable.onDragEnd.listen((DraggableEvent event) {
-    p.innerHtml = 'DragEnd: ${event.position}';
+    p.innerHtml = 'DragEnd: ${round(event.position)}';
   });
-    
-  
+}
+
+Point round(Point point) {
+  return new Point(point.x.round(), point.y.round());
 }
