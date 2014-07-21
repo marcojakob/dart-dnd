@@ -330,12 +330,15 @@ class Draggable {
     // Remove selection.
     window.getSelection().removeAllRanges();
     
-    // Remove selection from textarea or input.
-    var activeElement = document.activeElement;
-    if (activeElement is TextAreaElement) {
-      activeElement.setSelectionRange(0, 0);
-    } else if (activeElement is InputElement) {
-      activeElement.setSelectionRange(0, 0);
+    // Try to remove selection from textarea or input.
+    try {
+      var activeElement = document.activeElement;
+      if (activeElement is TextAreaElement || activeElement is InputElement) {
+        activeElement.setSelectionRange(0, 0);
+      }
+    } catch (_) {
+      // Might throw an error if the element does not support setSelectionRange.
+      // This is the case for InputElement with type 'file'.
     }
   }
   
