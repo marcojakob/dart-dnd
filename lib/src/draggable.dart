@@ -107,12 +107,8 @@ class Draggable {
   /// The [Element] or [ElementList] on which a drag is detected.
   final _elementOrElementList;
   
-  /// Tracks subscriptions for start events (mouseDown, touchStart).
-  List<StreamSubscription> _startSubs = [];
-  
-  /// Tracks subscriptions for all other events (mouseMove, touchMove, mouseUp,
-  /// touchEnd, and more).
-  List<StreamSubscription> _dragSubs = [];
+  /// Managers for browser events.
+  final List<_EventManager> _eventManagers = [];
   
   /**
    * Creates a new [Draggable] for [elementOrElementList]. The 
@@ -169,348 +165,20 @@ class Draggable {
     
     if (jsNavigator.hasProperty('pointerEnabled')) {
       // We're on IE11 or higher supporting pointerEvents.
-      _installStartPointer();
+      _eventManagers.add(new _PointerManager(this));
       
     } else if (jsNavigator.hasProperty('msPointerEnabled')){
       // We're on IE10 supporting msPointerEvents.
-      _installStartPointer(msPrefix: true);
+      _eventManagers.add(new _PointerManager(this, msPrefix: true));
       
     } else {
       // We're on other browsers. Install touch and mouse listeners.
       if (TouchEvent.supported) {
-        _installStartTouch();
+        _eventManagers.add(new _TouchManager(this));
       }
-      _installStartMouse();
+      _eventManagers.add(new _MouseManager(this));
     }
   }
-  
-  /**
-   * Installs listener for the touchStart event.
-   */
-  void _installStartTouch() {
-    _startSubs.add(_elementOrElementList.onTouchStart.listen((TouchEvent event) {
-      // Ignore multi-touch events.
-      if (event.touches.length > 1) {
-        return;
-      }
-      
-      bool validStart = _handleStart(event, event.touches[0].target, event.touches[0].page);
-
-      if (validStart) {
-        // Install listeners to detect a drag move or a drag end.
-        _installMoveTouch();
-        _installEndTouch();
-        _installCancelTouch();
-        _installCancelEscAndBlur();
-      }
-    }));
-  }
-  
-  /**
-   * Installs listener for the mouseDown event.
-   */
-  void _installStartMouse() {
-    _startSubs.add(_elementOrElementList.onMouseDown.listen((MouseEvent event) {
-      // Only handle left clicks, ignore clicks from right or middle buttons.
-      if (event.button != 0) {
-        return;
-      }
-      
-      bool validStart = _handleStart(event, event.target, event.page);
-      
-      if (validStart) {
-        // Install listeners to detect a drag move or a drag end.
-        _installMoveMouse();
-        _installEndMouse();
-        _installCancelEscAndBlur();
-        
-        // Prevent default on mouseDown. Reasons:
-        // * Disables image dragging handled by the browser.
-        // * Disables text selection.
-        // 
-        // Note: We must NOT prevent default on form elements. Reasons:
-        // * SelectElement would not show a dropdown.
-        // * InputElement and TextAreaElement would not get focus.
-        // * ButtonElement and OptionElement - don't know if this is needed??
-        Element target = event.target;
-        if (!(target is SelectElement || target is InputElement || 
-              target is TextAreaElement || target is ButtonElement || 
-              target is OptionElement)) {
-          event.preventDefault();
-        }
-      }
-    }));
-  }
-  
-  /**
-   * Installs pointerDown listeners (for IE).
-   */
-  void _installStartPointer({bool msPrefix: false}) {
-    String downEventName = msPrefix ? 'MSPointerDown' : 'pointerdown';
-    
-    // Function to be called on all elements of [_elementOrElementList].
-    var installFunc = (Element element) {
-      _startSubs.add(element.on[downEventName].listen((UIEvent event) {
-        bool validStart = _handleStart(event, event.target, event.page);
-        
-        if (validStart) {
-          // Install listeners to detect a drag move or a drag end.
-          _installMovePointer(msPrefix: msPrefix);
-          _installEndPointer(msPrefix: msPrefix);
-          _installCancelPointer(msPrefix: msPrefix);
-          _installCancelEscAndBlur();
-          
-          event.preventDefault();
-        }
-      }));
-    };
-    
-    if (_elementOrElementList is ElementList) {
-      // Must call the `element.on[...]` on every single element of ElementList
-      // because the method does not exist on the collection.
-      _elementOrElementList.forEach(installFunc);
-    } else { 
-      // Install on the single [Element].
-      installFunc(_elementOrElementList);
-    }
-    
-    // Disable default touch actions on all elements (scrolling, panning, zooming).
-    if (msPrefix) {
-      _elementOrElementList.style.setProperty('-ms-touch-action', 'none');
-    } else {
-      _elementOrElementList.style.setProperty('-touch-action', 'none');
-    }
-  }
-  
-  /**
-   * Handles all start events (touchStart, mouseDown, and pointerDown).
-   * 
-   * Returns true if it was a valid move.
-   */
-  bool _handleStart(Event event, EventTarget target, Point position) {
-    // Ignore if drag is already beeing handled.
-    if (_currentDrag != null) {
-      return false;
-    }
-    
-    // Ensure the drag started on a valid target (with respect to cancel and 
-    // handle query Strings).
-    if (!_isValidDragStartTarget(target)) {
-      return false; 
-    }
-    
-    // Initialize the drag info. 
-    // Note: the drag is not started on touchStart but after a first valid move.
-    _currentDrag = new _DragInfo(id, event.currentTarget, 
-        position, avatarHandler: avatarHandler,
-        horizontalOnly: horizontalOnly, verticalOnly: verticalOnly);
-    
-    return true;
-  }
-  
-  /**
-   * Installs the touchMove listener.
-   */
-  void _installMoveTouch() {
-    _dragSubs.add(document.onTouchMove.listen((TouchEvent event) {
-      // Stop and cancel subscriptions on multi-touch.
-      if (event.touches.length > 1) {
-        _handleDragEnd(event);
-        return;
-      }
-        
-      bool validMove = _handleMove(event, event.changedTouches[0].page, 
-          event.changedTouches[0].client, scrollingTest: true);
-      
-      if (validMove) {
-        // Prevent touch scrolling.
-        event.preventDefault();
-      }
-    }));
-  }
-  
-  /**
-   * Installs the mouseMove listener.
-   */
-  void _installMoveMouse() {
-    _dragSubs.add(document.onMouseMove.listen((MouseEvent event) {
-      _handleMove(event, event.page, event.client);
-    }));
-  }
-  
-  /**
-   * Installs pointerMove listeners (for IE).
-   */
-  void _installMovePointer({bool msPrefix: false}) {
-    String moveEventName = msPrefix ? 'MSPointerMove' : 'pointermove';
-    
-    // Function to be called on all elements of [_elementOrElementList].
-    var installFunc = (Element element) {
-      _dragSubs.add(document.on[moveEventName].listen((event) {
-        _handleMove(event, event.page, event.client);
-      }));
-    };
-    
-    if (_elementOrElementList is ElementList) {
-      // Must call the `element.on[...]` on every single element of ElementList
-      // because the method does not exist on the collection.
-      _elementOrElementList.forEach(installFunc);
-    } else { 
-      // Install on the single [Element].
-      installFunc(_elementOrElementList);
-    }
-  }
-  
-  /**
-   * Handles all move events (touchMove, mouseMove, and pointerMove).
-   * 
-   * Returns true if it was a valid move.
-   */
-  bool _handleMove(Event event, Point position, Point clientPosition, 
-                   {bool scrollingTest: false}) {
-    // Set the current position.
-    _currentDrag.position = position;
-    
-    if (!_currentDrag.started 
-        && _currentDrag.startPosition != _currentDrag.position) {
-      // This is the first drag move.
-      
-      // Do the scrolling test.
-      if (scrollingTest && _currentDrag.isScrolling()) {
-        // The user is scrolling --> Stop tracking current drag.
-        _handleDragEnd(event);
-        return false;
-      }
-      
-      // Handle dragStart.
-      _handleDragStart(event);
-    }
-
-    // Handle drag (will also be called after drag start).
-    if (_currentDrag.started) {
-      Element realTarget = _getRealTarget(clientPosition);
-      _handleDrag(event, realTarget);
-    }
-    
-    return true;
-  }
-  
-  /**
-   * Installs the touchEnd listener.
-   */
-  void _installEndTouch() {
-    _dragSubs.add(document.onTouchEnd.listen((TouchEvent event) {
-      _handleEnd(event, null, event.changedTouches[0].page, event.changedTouches[0].client);
-    }));
-  }
-  
-  /**
-   * Installs the mouseUp listener.
-   */
-  void _installEndMouse() {
-    _dragSubs.add(document.onMouseUp.listen((MouseEvent event) {
-      _handleEnd(event, event.target, event.page, event.client);
-    }));
-  }
-  
-  /**
-   * Installs pointerUp listener (for IE).
-   */
-  void _installEndPointer({bool msPrefix: false}) {
-    String endEventName = msPrefix ? 'MSPointerUp' : 'pointerup';
-    
-    // Function to be called on all elements of [_elementOrElementList].
-    var installFunc = (Element element) {
-      _dragSubs.add(document.on[endEventName].listen((event) {
-        _handleEnd(event, event.target, event.page, event.client);
-      }));
-    };
-    
-    if (_elementOrElementList is ElementList) {
-      // Must call the `element.on[...]` on every single element of ElementList
-      // because the method does not exist on the collection.
-      _elementOrElementList.forEach(installFunc);
-    } else { 
-      // Install on the single [Element].
-      installFunc(_elementOrElementList);
-    }
-  }
-  
-  /**
-   * Handles all end events (touchEnd, mouseUp, and pointerUp).
-   */
-  void _handleEnd(Event event, EventTarget target, Point position, Point clientPosition) {
-    // Set the current position.
-    _currentDrag.position = position;
-    
-    // Dispatch a drop event.
-    EventTarget realTarget = _getRealTarget(clientPosition, target: target);
-    _DragEventDispatcher.dispatchDrop(this, realTarget, position);
-    
-    _handleDragEnd(event);
-  }
-  
-  /**
-   * Installs the touchCancel listener.
-   */
-  void _installCancelTouch() {
-    _dragSubs.add(document.onTouchCancel.listen((TouchEvent event) {
-      _handleCancel(event, event.changedTouches[0].page);
-    }));
-  }
-  
-  /**
-   * Installs pointerCancel listener (for IE).
-   */
-  void _installCancelPointer({bool msPrefix: false}) {
-    String cancelEventName = msPrefix ? 'MSPointerCancel' : 'mspointercancel';
-    
-    // Function to be called on all elements of [_elementOrElementList].
-    var installFunc = (Element element) {
-      _dragSubs.add(document.on[cancelEventName].listen((event) {
-        _handleCancel(event, event.page);
-      }));
-    };
-    
-    if (_elementOrElementList is ElementList) {
-      // Must call the `element.on[...]` on every single element of ElementList
-      // because the method does not exist on the collection.
-      _elementOrElementList.forEach(installFunc);
-    } else { 
-      // Install on the single [Element].
-      installFunc(_elementOrElementList);
-    }
-  }
-  
-  /**
-   * Installs listener for esc-key and blur (window loses focus). Those 
-   * events will cancel the drag operation.
-   */
-  void _installCancelEscAndBlur() {
-    // Drag ends when escape key is hit.
-    _dragSubs.add(window.onKeyDown.listen((keyboardEvent) {
-      if (keyboardEvent.keyCode == KeyCode.ESC) {
-        _handleCancel(keyboardEvent, _currentDrag.position);
-      }
-    }));
-    
-    // Drag ends when focus is lost.
-    _dragSubs.add(window.onBlur.listen((event) {
-      _handleCancel(event, _currentDrag.position);
-    }));
-  }
-  
-  /**
-   * Handles all cancel events (touchCancel and pointerCancel).
-   */
-  void _handleCancel(Event event, Point position) {
-    // Set the current position.
-    _currentDrag.position = position;
-    
-    // Drag end.
-    _handleDragEnd(event);
-  }
-  
   
   /**
    * Handles the drag start start. The [moveEvent] might either be a 
@@ -635,21 +303,22 @@ class Draggable {
   void destroy() {
     _resetCurrentDrag();
     
-    // Cancel start subscriptions.
-    _startSubs.forEach((sub) => sub.cancel());
-    _startSubs.clear();
+    // Destroy all managers.
+    _eventManagers.forEach((m) => m.destroy());
+    _eventManagers.clear();
   }
   
   /**
    * Cancels drag subscriptions and resets to initial state.
    */
   void _resetCurrentDrag() {
-    // Cancel drag subscriptions.
-    _dragSubs.forEach((sub) => sub.cancel());
-    _dragSubs.clear();
+    // Reset all managers.
+    _eventManagers.forEach((m) => m.reset());
     
-    // Reset.
+    // Reset dispatcher to fire a last dragLeave event.
     _DragEventDispatcher.reset(this, _currentDrag.position);
+    
+    // Reset the current drag.
     _currentDrag = null;
   }
   
@@ -741,6 +410,7 @@ class Draggable {
   }
 }
 
+
 /**
  * Event used when a drag is detected.
  */
@@ -792,9 +462,9 @@ class _DragInfo {
   /// The [AvatarHandler] or null if there is none.
   final AvatarHandler avatarHandler;
 
-  /// The current position of the mouse or touch. This position is the real
-  /// position that is not constrained by the horizontal/vertical axis.
-  Point _realPosition;
+  /// The current position of the mouse or touch. This position is constrained
+  /// by the horizontal/vertical axis.
+  Point _position;
   
   /// Flag indicating if the drag started.
   bool started = false;
@@ -807,37 +477,15 @@ class _DragInfo {
         this.horizontalOnly: false, 
         this.verticalOnly: false}) {
     // Initially set current position to startPosition.
-    _realPosition = startPosition;
+    _position = startPosition;
   }
   
   /// The current position, constrained by the horizontal/vertical axis 
   /// depending on [horizontalOnly] and [verticalOnly].
-  Point get position => _constrainAxis(_realPosition);
+  Point get position => _position;
   
   /// Sets the current position.
-  set position(Point pos) => _realPosition = pos;
-  
-  /**
-   * Returns true if there was scrolling activity instead of dragging.
-   */
-  bool isScrolling() {
-    Point delta = _realPosition - startPosition;
-    
-    // If horizontalOnly test for vertical movement.
-    if (horizontalOnly && delta.y.abs() > delta.x.abs()) {
-      // Vertical scrolling.
-      return true;
-    }
-    
-    // If verticalOnly test for horizontal movement.
-    if (verticalOnly && delta.x.abs() > delta.y.abs()) {
-      // Horizontal scrolling.
-      return true;
-    }
-    
-    // No scrolling.
-    return false;
-  }
+  set position(Point pos) => _position = _constrainAxis(pos);
   
   /**
    * Constrains the axis if [horizontalOnly] or [verticalOnly] is true.
