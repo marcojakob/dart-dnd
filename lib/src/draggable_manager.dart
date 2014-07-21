@@ -426,9 +426,11 @@ class _PointerManager extends _EventManager {
     
     // Disable default touch actions on all elements (scrolling, panning, zooming).
     if (msPrefix) {
-      drg._elementOrElementList.style.setProperty('-ms-touch-action', 'none');
+      drg._elementOrElementList.style.setProperty('-ms-touch-action', 
+          _getTouchActionValue());
     } else {
-      drg._elementOrElementList.style.setProperty('-touch-action', 'none');
+      drg._elementOrElementList.style.setProperty('-touch-action', 
+          _getTouchActionValue());
     }
   }
   
@@ -486,5 +488,19 @@ class _PointerManager extends _EventManager {
     } else { 
       func(drg._elementOrElementList);
     }
+  }
+  
+  /**
+   * Returns the touch-action values `none`, `pan-x`, or `pan-y` depending on 
+   * horizontalOnly / verticalOnly options.
+   */
+  String _getTouchActionValue() {
+    if (drg.horizontalOnly) {
+      return 'pan-y';
+    }
+    if (drg.verticalOnly) {
+      return 'pan-x';
+    }
+    return 'none';
   }
 }
