@@ -5,7 +5,7 @@
 * First version.
 
 
-## Version 0.1.1 (?)
+## Version 0.1.1 (2014-07-21)
 
 * Support for IE10 and IE11 touch screens through pointer events.
 * Removed `disableTouch` and `disableMouse` options. The goal was to unify
