@@ -96,13 +96,11 @@ class Dropzone {
         this.overClass: 'dnd-over'})
       : this._elementOrElementList = elementOrElementList {
     
-    _log.fine('Initializing Dropzone.');
-
     // Install drag listener on Element or ElementList.
-    if (elementOrElementList is ElementList) {
-      elementOrElementList.forEach(_installCustomDragListener);
+    if (_elementOrElementList is ElementList) {
+      _elementOrElementList.forEach(_installCustomDragListener);
     } else {
-      _installCustomDragListener(elementOrElementList);
+      _installCustomDragListener(_elementOrElementList);
     }
   }
   
@@ -138,8 +136,6 @@ class Dropzone {
         acceptor.accepts(_currentDrag.element, _currentDrag.draggableId, 
             event.currentTarget)) {
       
-      _log.fine('DragEnter');
-
       // Fire dragEnter event.
       if (_onDragEnter != null) {
         _onDragEnter.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
@@ -160,8 +156,6 @@ class Dropzone {
     // no accepter all are accepted.
     if (acceptor == null || 
         acceptor.accepts(_currentDrag.element, _currentDrag.draggableId, event.currentTarget)) {
-      
-      _log.finest('DragOver');
       
       // Fire dragOver event.
       if (_onDragOver != null) {
@@ -187,8 +181,6 @@ class Dropzone {
         acceptor.accepts(_currentDrag.element, _currentDrag.draggableId, 
             event.currentTarget)) {
       
-      _log.fine('DragLeave');
-      
       // Fire dragLeave event.
       if (_onDragLeave != null) {
         _onDragLeave.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
@@ -211,8 +203,6 @@ class Dropzone {
     if (acceptor == null || 
         acceptor.accepts(_currentDrag.element, _currentDrag.draggableId, 
             event.currentTarget)) {
-      
-      _log.fine('Drop');
       
       // Fire drop event.
       if (_onDrop != null) {

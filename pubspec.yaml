@@ -6,4 +6,3 @@ homepage: http://code.makery.ch/library/dart-drag-and-drop/
 documentation: http://www.dartdocs.org/documentation/dnd/0.1.0/
 dependencies:
   browser: '>=0.10.0+2 <0.11.0'
-  logging: '>=0.9.1+1 <0.10.0'
