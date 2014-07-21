@@ -139,10 +139,6 @@ class Draggable {
    * If [verticalOnly] is set to true, only vertical dragging is tracked.
    * This enables horizontal touch dragging to be used for scrolling.
    * 
-   * If [disableTouch] is set to true, touch events will be ignored.
-   * 
-   * If [disableMouse] is set to true, mouse events will be ignored.
-   * 
    * If a [handle] query String is specified, it restricts the dragging from 
    * starting unless it occurs on the specified element(s). Only elements that 
    * descend from [elementOrElementList] are permitted. 
@@ -160,8 +156,6 @@ class Draggable {
       { this.avatarHandler: null,
         this.horizontalOnly: false, 
         this.verticalOnly: false, 
-        bool disableTouch: false, 
-        bool disableMouse: false,
         this.handle: null, 
         this.cancel: 'input, textarea, button, select, option',
         this.draggingClass: 'dnd-dragging',
@@ -172,16 +166,12 @@ class Draggable {
     _log.fine('Initializing Draggable.');
     
     // Install listeners for touch. Ignore browsers without touch support.
-    bool touchSupport = false;
-    
-    if (!disableTouch && TouchEvent.supported) {
+    if (TouchEvent.supported) {
       _installTouchStart();
     }
     
     // Install drag start listener for mouse.
-    if (!disableMouse) {
-      _installMouseStart();
-    }
+    _installMouseStart();
   }
   
   /**

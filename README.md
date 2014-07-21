@@ -84,10 +84,6 @@ The following options can be passed as *named parameters* to the constructor of
 * `verticalOnly`: If set to true, only vertical dragging is tracked.
   This enables horizontal touch dragging to be used for scrolling.
 
-* `disableTouch`: If set to true, touch events will be ignored.
-
-* `disableMouse`: If set to true, mouse events will be ignored.
-
 * `handle`: If handle query String is specified, it restricts the dragging from 
   starting unless it occurs on the specified element(s). Only elements that 
   descend from the draggables elements are permitted. 
