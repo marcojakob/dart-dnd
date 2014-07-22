@@ -429,7 +429,7 @@ class _PointerManager extends _EventManager {
       drg._elementOrElementList.style.setProperty('-ms-touch-action', 
           _getTouchActionValue());
     } else {
-      drg._elementOrElementList.style.setProperty('-touch-action', 
+      drg._elementOrElementList.style.setProperty('touch-action', 
           _getTouchActionValue());
     }
   }
