@@ -47,8 +47,7 @@ class _DragEventDispatcher {
    * The [draggable] is the [Draggable] that is dispatching the event.
    * The [target] is the element that the event will be dispatched on.
    */
-  static void dispatchEnterOverLeave(Draggable draggable, EventTarget target, 
-                                     Point pagePosition) {
+  static void dispatchEnterOverLeave(Draggable draggable, EventTarget target) {
     
     // Sometimes the target is null (e.g. when user drags over buttons on 
     // android). Ignore it.
@@ -89,8 +88,7 @@ class _DragEventDispatcher {
    * The [draggable] is the [Draggable] that is dispatching the event.
    * The [target] is the element that the event will be dispatched on.
    */
-  static void dispatchDrop(Draggable draggable, EventTarget target, 
-                           Point pagePosition) {
+  static void dispatchDrop(Draggable draggable, EventTarget target) {
     
     // Sometimes the target is null (e.g. when user drags over buttons on 
     // android). Ignore it.
@@ -101,13 +99,13 @@ class _DragEventDispatcher {
     MouseEvent dropEvent = new MouseEvent(CUSTOM_DROP);
     target.dispatchEvent(dropEvent);
     
-    reset(draggable, pagePosition);
+    reset(draggable);
   }
   
   /**
    * Must be called when drag ended to fire a last dragLeave event.
    */
-  static void reset(Draggable draggable, Point pagePosition) {
+  static void reset(Draggable draggable) {
     // Fire a last dragLeave.
     if (previousTarget != null) {
       MouseEvent dragLeaveEvent = new MouseEvent(CUSTOM_DRAG_LEAVE);

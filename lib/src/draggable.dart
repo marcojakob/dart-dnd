@@ -225,8 +225,7 @@ class Draggable {
     }
     
     // Dispatch a drag over event.
-    _DragEventDispatcher.dispatchEnterOverLeave(this, target, 
-        _currentDrag.position);
+    _DragEventDispatcher.dispatchEnterOverLeave(this, target);
     
     // Fire the drag event.
     if (_onDrag != null) {
@@ -316,7 +315,7 @@ class Draggable {
     _eventManagers.forEach((m) => m.reset());
     
     // Reset dispatcher to fire a last dragLeave event.
-    _DragEventDispatcher.reset(this, _currentDrag.position);
+    _DragEventDispatcher.reset(this);
     
     // Reset the current drag.
     _currentDrag = null;

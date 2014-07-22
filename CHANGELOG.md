@@ -1,9 +1,11 @@
 # Changelog
 
-## Version 0.x.x (?)
+## Version 0.1.2 (?)
 
 * Correcting small bug that occurred when setSelectionRange() was called on 
   an element that does not support it.
+* Fix Pointer Event bug: Too many event listeners in move, end, cancel.
+* Fix for Bug #1 - Not working in Windows 8.1 IE11
 
 
 ## Version 0.1.1 (2014-07-21)

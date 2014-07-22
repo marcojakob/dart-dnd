@@ -109,7 +109,7 @@ abstract class _EventManager {
     
     // Dispatch a drop event.
     EventTarget realTarget = _getRealTarget(clientPosition, target: target);
-    _DragEventDispatcher.dispatchDrop(drg, realTarget, position);
+    _DragEventDispatcher.dispatchDrop(drg, realTarget);
     
     drg._handleDragEnd(event);
   }
@@ -422,7 +422,13 @@ class _PointerManager extends _EventManager {
       }));
     };
     
-    _callOnAllElements(installFunc);
+    // The [ElementList] does not have the `on` method for custom events. So, 
+    // we need to manually go trough all [Element]s and call the [installFunc].
+    if (drg._elementOrElementList is ElementList) {
+      drg._elementOrElementList.forEach(installFunc);
+    } else { 
+      installFunc(drg._elementOrElementList);
+    }
     
     // Disable default touch actions on all elements (scrolling, panning, zooming).
     if (msPrefix) {
@@ -438,58 +444,29 @@ class _PointerManager extends _EventManager {
   void installMove() {
     String moveEventName = msPrefix ? 'MSPointerMove' : 'pointermove';
     
-    // Function to be called on all elements of [_elementOrElementList].
-    var installFunc = (Element element) {
-      dragSubs.add(document.on[moveEventName].listen((event) {
-        handleMove(event, event.page, event.client);
-      }));
-    };
-
-    _callOnAllElements(installFunc);
+    dragSubs.add(document.on[moveEventName].listen((event) {
+      handleMove(event, event.page, event.client);
+    }));
   }
 
   @override
   void installEnd() {
     String endEventName = msPrefix ? 'MSPointerUp' : 'pointerup';
     
-    // Function to be called on all elements of [_elementOrElementList].
-    var installFunc = (Element element) {
-      dragSubs.add(document.on[endEventName].listen((event) {
-        handleEnd(event, event.target, event.page, event.client);
-      }));
-    };
-    
-    _callOnAllElements(installFunc);
+    dragSubs.add(document.on[endEventName].listen((event) {
+      handleEnd(event, event.target, event.page, event.client);
+    }));
   }
 
   @override
   void installCancel() {
     String cancelEventName = msPrefix ? 'MSPointerCancel' : 'mspointercancel';
     
-    // Function to be called on all elements of [_elementOrElementList].
-    var installFunc = (Element element) {
-      dragSubs.add(document.on[cancelEventName].listen((event) {
-        handleCancel(event);
-      }));
-    };
-    
-    _callOnAllElements(installFunc);
+    dragSubs.add(document.on[cancelEventName].listen((event) {
+      handleCancel(event);
+    }));
   }
 
-  /**
-   * Helper method to call the [func] on all [Element]s of the [Draggable].
-   * This is necessary if we want to call methods that do not exist in 
-   * [ElementList] so that we have to go through the collection to call them
-   * on every [Element] individually.
-   */
-  void _callOnAllElements(void func(Element element)) {
-    if (drg._elementOrElementList is ElementList) {
-      drg._elementOrElementList.forEach(func);
-    } else { 
-      func(drg._elementOrElementList);
-    }
-  }
-  
   /**
    * Returns the touch-action values `none`, `pan-x`, or `pan-y` depending on 
    * horizontalOnly / verticalOnly options.
