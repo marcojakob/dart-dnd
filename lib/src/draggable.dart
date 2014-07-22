@@ -238,11 +238,10 @@ class Draggable {
    * be a [TouchEvent], a [MouseEvent], a [KeyboardEvent], or a [Event] (when 
    * focus is lost). 
    * 
-   * The [target] is the actual target receiving the event.
-   * 
-   * The [position] is the page position of the event. 
+   * Set [cancelled] to true to indicate that this drag ended through a 
+   * cancel oparation like hitting the `esc` key.
    */
-  void _handleDragEnd(Event event) {
+  void _handleDragEnd(Event event, {cancelled: false}) {
     // Only handle drag end if the user actually did drag and not just clicked.
     if (_currentDrag.started) {
       
@@ -253,7 +252,8 @@ class Draggable {
       
       // Fire dragEnd event.
       if (_onDragEnd != null) {
-        _onDragEnd.add(new DraggableEvent._(event, _currentDrag));
+        _onDragEnd.add(new DraggableEvent._(event, _currentDrag, 
+            cancelled: cancelled));
       }
       
       // Prevent TouchEvent from emulating a click after touchEnd event.
@@ -438,14 +438,19 @@ class DraggableEvent {
   /// position).
   final Point position;
   
+  /// Indicates if this [DraggableEvent] was [cancelled]. This is currently 
+  /// only used for [onDragEnd] events to indicate a drag end through a 
+  /// cancelling oparation like `esc` key or windows loosing focus.
+  final bool cancelled;
+  
   /**
    * Private constructor for [DraggableEvent].
    */
-  DraggableEvent._(this.originalEvent, _DragInfo dragInfo)
+  DraggableEvent._(this.originalEvent, _DragInfo dragInfo, {this.cancelled: false})
       : draggableElement = dragInfo.element,
+        avatarHandler = dragInfo.avatarHandler,
         startPosition = dragInfo.startPosition,
-        position = dragInfo.position,
-        avatarHandler = dragInfo.avatarHandler;
+        position = dragInfo.position;
 }
 
 /**

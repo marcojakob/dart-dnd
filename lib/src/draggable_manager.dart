@@ -118,8 +118,8 @@ abstract class _EventManager {
    * Handles all cancel events (touchCancel and pointerCancel).
    */
   void handleCancel(Event event) {
-    // Drag end.
-    drg._handleDragEnd(event);
+    // Drag end with the cancelled flag.
+    drg._handleDragEnd(event, cancelled: true);
   }
   
   /**
