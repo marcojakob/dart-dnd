@@ -109,6 +109,9 @@ abstract class AvatarHandler {
   /**
    * Sets the CSS left/top values of [avatar]. Takes care of any left/top
    * margins the [avatar] might have to correctly position the element.
+   * 
+   * Note: The [avatar] must already be in the DOM for the margins to be 
+   * calculated correctly.
    */
   void setLeftTop(Point position) {
     avatar.style.left = '${position.x - marginLeft}px';
@@ -217,15 +220,15 @@ class CloneAvatarHandler extends AvatarHandler {
     avatar.style.position = 'absolute';
     avatar.style.zIndex = '100';
     
-    // Set the initial position of avatar (relative to the closest positioned
-    // ancestor).
-    setLeftTop(draggable.offset.topLeft);
-    
     // Set pointer-events to none.
     setPointerEventsNone();
     
     // Add the drag avatar to the parent element.
     draggable.parentNode.append(avatar);
+    
+    // Set the initial position of avatar (relative to the closest positioned
+    // ancestor).
+    setLeftTop(draggable.offset.topLeft);
   }
   
   @override
