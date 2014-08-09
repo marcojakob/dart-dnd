@@ -223,7 +223,8 @@ class CloneAvatarHandler extends AvatarHandler {
     setPointerEventsNone();
     
     // Add the drag avatar to the parent element.
-    draggable.parentNode.append(avatar);
+    //draggable.parentNode.append(avatar);
+    document.body.append(avatar);
   }
   
   @override
