@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.3 (2014-08-09)
+
+* Fix #4: Problem when an ancestor of the dragged element was positioned
+  (relative, absolute, fixed). 
+
+
 ## Version 0.1.2 (2014-07-22)
 
 * Correcting small bug that occurred when setSelectionRange() was called on 
