@@ -1,10 +1,8 @@
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 
-/**
- * Example demonstrating how to drag over nested elements and get correct 
- * dragEnter and dragLeave events.
- */
+/// Example demonstrating how to drag over nested elements and get correct 
+/// dragEnter and dragLeave events.
 main() {
   // Install draggable.
   Draggable draggable = new Draggable(querySelector('.draggable'), 

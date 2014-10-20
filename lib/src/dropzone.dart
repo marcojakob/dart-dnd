@@ -1,11 +1,24 @@
 part of dnd;
 
+/// The [Dropzone] detects when a [Draggable] is dragged over it or dropped on
+/// it. An [acceptor] can be provided to specify which [Draggable]s will be 
+/// accepted.
+/// 
+/// The following event streams are provided:
+/// 
+/// * [onDragEnter]
+/// * [onDragOver]
+/// * [onDragLeave]
+/// * [onDrop]
+/// 
+/// A [Dropzone] can be created for one [Element] or an [ElementList].
 class Dropzone {
+  
   // --------------
   // Options
   // --------------
   /// The [Acceptor] used to determine which [Draggable]s will be accepted by
-  /// this [Dropzone].
+  /// this [Dropzone]. If none is specified, all [Draggable]s will be accepted.
   Acceptor acceptor;
   
   /// CSS class set to the [Dropzone] element when an accepted [Draggable] is 
@@ -20,9 +33,7 @@ class Dropzone {
   StreamController<DropzoneEvent> _onDragLeave;
   StreamController<DropzoneEvent> _onDrop;
   
-  /**
-   * Fired when a [Draggable] enters this [Dropzone].
-   */
+  /// Fired when a [Draggable] enters this [Dropzone].
   Stream<DropzoneEvent> get onDragEnter {
     if (_onDragEnter == null) {
       _onDragEnter = new StreamController<DropzoneEvent>.broadcast(sync: true, 
@@ -31,9 +42,7 @@ class Dropzone {
     return _onDragEnter.stream;
   }
   
-  /**
-   * Fired periodically while a [Draggable] is moved over a [Dropzone].
-   */
+  /// Fired periodically while a [Draggable] is moved over a [Dropzone].
   Stream<DropzoneEvent> get onDragOver {
     if (_onDragOver == null) {
       _onDragOver = new StreamController<DropzoneEvent>.broadcast(sync: true, 
@@ -42,9 +51,7 @@ class Dropzone {
     return _onDragOver.stream;
   }
   
-  /**
-   * Fired when a [Draggable] leaves this [Dropzone].
-   */
+  /// Fired when a [Draggable] leaves this [Dropzone].
   Stream<DropzoneEvent> get onDragLeave {
     if (_onDragLeave == null) {
       _onDragLeave = new StreamController<DropzoneEvent>.broadcast(sync: true, 
@@ -53,10 +60,8 @@ class Dropzone {
     return _onDragLeave.stream;
   }
   
-  /**
-   * Fired at the end of the drag operation when the [Draggable] is dropped
-   * inside this [Dropzone].
-   */
+  /// Fired at the end of the drag operation when the [Draggable] is dropped
+  /// inside this [Dropzone].
   Stream<DropzoneEvent> get onDrop {
     if (_onDrop == null) {
       _onDrop = new StreamController<DropzoneEvent>.broadcast(sync: true, 
@@ -79,18 +84,16 @@ class Dropzone {
   /// this flag is true we must ignore the next dragLeave event.
   bool _childOfCurrentOverElementEntered = false;
   
-  /**
-   * Creates a new [Dropzone] for [elementOrElementList]. The 
-   * [elementOrElementList] must be of type [Element] or [ElementList].
-   * 
-   * ## Options
-   * 
-   * The [acceptor] is used to determine which [Draggable]s will be accepted by
-   * this [Dropzone]. If none is specified, all [Draggable]s will be accepted.
-   * 
-   * The [overClass] is the css class set to the dragged element 
-   * during a drag. If set to null, no such css class is added.
-   */
+  /// Creates a new [Dropzone] for [elementOrElementList]. The 
+  /// [elementOrElementList] must be of type [Element] or [ElementList].
+  /// 
+  /// ## Options
+  /// 
+  /// The [acceptor] is used to determine which [Draggable]s will be accepted by
+  /// this [Dropzone]. If none is specified, all [Draggable]s will be accepted.
+  /// 
+  /// The [overClass] is the css class set to the dragged element 
+  /// during a drag. If set to null, no such css class is added.
   Dropzone(elementOrElementList,
       { this.acceptor: null,
         this.overClass: 'dnd-over'})
@@ -104,10 +107,8 @@ class Dropzone {
     }
   }
   
-  /**
-   * Installs the custom drag listeners (dragEnter, dragOver, dragLeave, and
-   * drop) on [element].
-   */
+  /// Installs the custom drag listeners (dragEnter, dragOver, dragLeave, and
+  /// drop) on [element].
   void _installCustomDragListener(Element element) {
     _subs.add(_DragEventDispatcher.enterEvent.forTarget(element)
         .listen(_handleDragEnter));
@@ -119,9 +120,7 @@ class Dropzone {
         .listen(_handleDrop));
   }
   
-  /**
-   * Handles dragEnter events.
-   */
+  /// Handles dragEnter events.
   void _handleDragEnter(MouseEvent event) {
     // Only handle dragEnter if user moved from outside of element into the 
     // element. That means we ignore it if user is coming from a child element.
@@ -148,9 +147,7 @@ class Dropzone {
     }
   }
   
-  /**
-   * Handles dragOver events.
-   */
+  /// Handles dragOver events.
   void _handleDragOver(MouseEvent event) {
     // Test if the current draggable is accepted by this dropzone. If there is
     // no accepter all are accepted.
@@ -164,9 +161,7 @@ class Dropzone {
     }
   }
   
-  /**
-   * Handles dragLeave events.
-   */
+  /// Handles dragLeave events.
   void _handleDragLeave(MouseEvent event) {
     // Only handle dragLeave if user moved from inside of element to the 
     // outside. That means we ignore it if user is moving to a child element.
@@ -194,9 +189,7 @@ class Dropzone {
   }
   
   
-  /**
-   * Handles drop events.
-   */
+  /// Handles drop events.
   void _handleDrop(MouseEvent event) {
     // Test if the current draggable is accepted by this dropzone. If there is
     // no accepter all are accepted.
@@ -211,9 +204,7 @@ class Dropzone {
     }
   }
   
-  /**
-   * Unistalls all listeners.
-   */
+  /// Unistalls all listeners.
   void destroy() {
     _subs.forEach((sub) => sub.cancel());
     _subs.clear();
@@ -221,9 +212,7 @@ class Dropzone {
 }
 
 
-/**
- * Event for dropzone elements.
- */
+/// Event for dropzone elements.
 class DropzoneEvent {
   /// The [Element] of the [Dropzone].
   final Element dropzoneElement;

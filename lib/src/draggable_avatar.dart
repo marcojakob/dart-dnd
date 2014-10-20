@@ -1,10 +1,8 @@
 part of dnd;
 
-/**
- * The [AvatarHandler] is responsible for creating, position, and removing 
- * a drag avatar. A drag avatar provides visual feedback during the drag 
- * operation.
- */
+/// The [AvatarHandler] is responsible for creating, position, and removing 
+/// a drag avatar. A drag avatar provides visual feedback during the drag 
+/// operation.
 abstract class AvatarHandler {
   
   AvatarHandler();
@@ -34,59 +32,47 @@ abstract class AvatarHandler {
     return _marginLeft;
   }
   
-  /**
-   * Creates an [AvatarHelper] that uses the draggable element itself as 
-   * drag avatar.
-   * 
-   * See [OriginalAvatarHandler].
-   */
+  /// Creates an [AvatarHelper] that uses the draggable element itself as 
+  /// drag avatar.
+  /// 
+  /// See [OriginalAvatarHandler].
   factory AvatarHandler.original() {
     return new OriginalAvatarHandler();
   }
   
-  /**
-   * Creates an [AvatarHelper] that creates a clone of the draggable element
-   * as drag avatar. The avatar is removed at the end of the drag operation.
-   * 
-   * See [CloneAvatarHandler].
-   */
+  /// Creates an [AvatarHelper] that creates a clone of the draggable element
+  /// as drag avatar. The avatar is removed at the end of the drag operation.
+  /// 
+  /// See [CloneAvatarHandler].
   factory AvatarHandler.clone() {
     return new CloneAvatarHandler();
   }
   
-  /**
-   * Called when the drag operation starts. 
-   * 
-   * A drag avatar is created and attached to the DOM.
-   * 
-   * The provided [draggable] is used to know where in the DOM the drag avatar
-   * can be inserted.
-   * 
-   * The [startPosition] is the position where the drag started, relative to the 
-   * whole document (page coordinates).
-   */
+  /// Called when the drag operation starts. 
+  /// 
+  /// A drag avatar is created and attached to the DOM.
+  /// 
+  /// The provided [draggable] is used to know where in the DOM the drag avatar
+  /// can be inserted.
+  /// 
+  /// The [startPosition] is the position where the drag started, relative to the 
+  /// whole document (page coordinates).
   void dragStart(Element draggable, Point startPosition);
   
-  /**
-   * Moves the drag avatar to the new [position]. 
-   * 
-   * The [startPosition] is the position where the drag started, [position] is the 
-   * current position. Both are relative to the whole document (page coordinates).
-   */
+  /// Moves the drag avatar to the new [position]. 
+  /// 
+  /// The [startPosition] is the position where the drag started, [position] is the 
+  /// current position. Both are relative to the whole document (page coordinates).
   void drag(Point startPosition, Point position);
   
-  /**
-   * Called when the drag operation ends. 
-   * 
-   * The [startPosition] is the position where the drag started, [position] is the 
-   * current position. Both are relative to the whole document (page coordinates).
-   */
+  /// Called when the drag operation ends. 
+  /// 
+  /// The [startPosition] is the position where the drag started, [position] is the 
+  /// current position. Both are relative to the whole document (page coordinates).
   void dragEnd(Point startPosition, Point position);
   
-  /**
-   * Sets the CSS transform translate of [avatar]. Uses requestAnimationFrame
-   * to speed up animation.
-   */
+  /// Sets the CSS transform translate of [avatar]. Uses requestAnimationFrame
+  /// to speed up animation.
   void setTranslate(Point position) {
     Function updateFunction = () {
       // Unsing `translate3d` to activate GPU hardware-acceleration (a bit of a hack).
@@ -97,46 +83,36 @@ abstract class AvatarHandler {
     AnimationHelper.requestUpdate(updateFunction);            
   }
   
-  /**
-   * Removes the CSS transform of [avatar]. Also stops the requested animation
-   * from [setTranslate].
-   */
+  /// Removes the CSS transform of [avatar]. Also stops the requested animation
+  /// from [setTranslate].
   void removeTranslate() {
     AnimationHelper.stop();
     avatar.style.transform = null;
   }
   
-  /**
-   * Sets the CSS left/top values of [avatar]. Takes care of any left/top
-   * margins the [avatar] might have to correctly position the element.
-   * 
-   * Note: The [avatar] must already be in the DOM for the margins to be 
-   * calculated correctly.
-   */
+  /// Sets the CSS left/top values of [avatar]. Takes care of any left/top
+  /// margins the [avatar] might have to correctly position the element.
+  /// 
+  /// Note: The [avatar] must already be in the DOM for the margins to be 
+  /// calculated correctly.
   void setLeftTop(Point position) {
     avatar.style.left = '${position.x - marginLeft}px';
     avatar.style.top = '${position.y - marginTop}px';
   }
   
-  /**
-   * Sets the pointer-events CSS property of [avatar] to 'none' which enables 
-   * mouse and touch events to go trough to the element under the [avatar].
-   */
+  /// Sets the pointer-events CSS property of [avatar] to 'none' which enables 
+  /// mouse and touch events to go trough to the element under the [avatar].
   void setPointerEventsNone() {
     avatar.style.pointerEvents = 'none';
   }
   
-  /**
-   * Removes the pointer-events CSS property from [avatar].
-   */
+  /// Removes the pointer-events CSS property from [avatar].
   void resetPointerEvents() {
     avatar.style.pointerEvents = null;
   }
   
-  /**
-   * Caches the [marginLeft] and [marginTop] of [avatar]. Call this method 
-   * again if those margins changed.
-   */
+  /// Caches the [marginLeft] and [marginTop] of [avatar]. Call this method 
+  /// again if those margins changed.
   void cacheMargins() {
     // Calculate margins.
     var computedStyles = avatar.getComputedStyle();
@@ -148,10 +124,8 @@ abstract class AvatarHandler {
 }
 
 
-/**
- * The [OriginalAvatarHandler] uses the draggable element itself as drag 
- * avatar. It uses absolute positioning of the avatar.
- */
+/// The [OriginalAvatarHandler] uses the draggable element itself as drag 
+/// avatar. It uses absolute positioning of the avatar.
 class OriginalAvatarHandler extends AvatarHandler {
   
   /// The avatar element which is created in [dragStart].
@@ -200,10 +174,8 @@ class OriginalAvatarHandler extends AvatarHandler {
 }
 
 
-/**
- * [CloneAvatarHandler] creates a clone of the draggable element as drag avatar.
- * The avatar is removed at the end of the drag operation.
- */
+/// [CloneAvatarHandler] creates a clone of the draggable element as drag avatar.
+/// The avatar is removed at the end of the drag operation.
 class CloneAvatarHandler extends AvatarHandler {
   
   /// The avatar element which is created in [dragStart].
@@ -243,19 +215,15 @@ class CloneAvatarHandler extends AvatarHandler {
 }
 
 
-/**
- * Simple helper class to speed up animation with requestAnimationFrame.
- */
+/// Simple helper class to speed up animation with requestAnimationFrame.
 class AnimationHelper {
   
   static Function _lastUpdateFunction;
   static bool _updating = false;
   
-  /**
-   * Requests that the [updateFunction] be called. When the animation frame is
-   * ready, the [updateFunction] is executed. Note that any subsequent calls 
-   * in the same frame will overwrite the [updateFunction]. 
-   */
+  /// Requests that the [updateFunction] be called. When the animation frame is
+  /// ready, the [updateFunction] is executed. Note that any subsequent calls 
+  /// in the same frame will overwrite the [updateFunction]. 
   static void requestUpdate(void updateFunction()) {
     _lastUpdateFunction = updateFunction;
     
@@ -265,9 +233,7 @@ class AnimationHelper {
     }
   }
   
-  /**
-   * Stops the updating.
-   */
+  /// Stops the updating.
   static void stop() {
     _updating = false;
   }

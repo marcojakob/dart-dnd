@@ -1,9 +1,7 @@
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 
-/**
- * Uses Acceptors to determine which Draggables are accepted by which Dropzones.
- */
+/// Uses Acceptors to determine which Draggables are accepted by which Dropzones.
 main() {
   // Install draggables.
   Draggable draggableA = new Draggable(querySelector('#draggable-a'), 

@@ -6,17 +6,16 @@ part of dnd;
 /// the [CustomEvent]s.
 _DragInfo _currentDrag;
 
-/**
- * The [Draggable] detects drag operations for touch and mouse interactions and
- * optionally creates a drag avatar for visual feedback of the drag. Event 
- * streams are provided to track touch or mouse dragging:
- * 
- * * [onDragStart]
- * * [onDrag]
- * * [onDragEnd]
- * 
- * A [Draggable] can be created for one [Element] or an [ElementList].
- */
+
+/// The [Draggable] detects drag operations for touch and mouse interactions and
+/// optionally creates a drag avatar for visual feedback of the drag. Event 
+/// streams are provided to track touch or mouse dragging:
+/// 
+/// * [onDragStart]
+/// * [onDrag]
+/// * [onDragEnd]
+/// 
+/// A [Draggable] can be created for one [Element] or an [ElementList].
 class Draggable {
   
   /// Counter to generate a unique id for each instance.
@@ -63,13 +62,11 @@ class Draggable {
   StreamController<DraggableEvent> _onDrag;
   StreamController<DraggableEvent> _onDragEnd;
   
-  /**
-   * Fired when the user starts dragging. 
-   * 
-   * Note: The [onDragStart] is fired not on touchStart or mouseDown but as 
-   * soon as there is a drag movement. When a drag is started an [onDrag] event 
-   * will also be fired.
-   */
+  /// Fired when the user starts dragging. 
+  /// 
+  /// Note: The [onDragStart] is fired not on touchStart or mouseDown but as 
+  /// soon as there is a drag movement. When a drag is started an [onDrag] event 
+  /// will also be fired.
   Stream<DraggableEvent> get onDragStart {
     if (_onDragStart == null) {
       _onDragStart = new StreamController<DraggableEvent>.broadcast(sync: true, 
@@ -78,9 +75,7 @@ class Draggable {
     return _onDragStart.stream;
   }
   
-  /**
-   * Fired periodically throughout the drag operation. 
-   */
+  /// Fired periodically throughout the drag operation. 
   Stream<DraggableEvent> get onDrag {
     if (_onDrag == null) {
       _onDrag = new StreamController<DraggableEvent>.broadcast(sync: true, 
@@ -89,10 +84,8 @@ class Draggable {
     return _onDrag.stream;
   }
   
-  /**
-   * Fired when the user ends the dragging. 
-   * Is also fired when the user clicks the 'esc'-key or the window loses focus. 
-   */
+  /// Fired when the user ends the dragging. 
+  /// Is also fired when the user clicks the 'esc'-key or the window loses focus. 
   Stream<DraggableEvent> get onDragEnd {
     if (_onDragEnd == null) {
       _onDragEnd = new StreamController<DraggableEvent>.broadcast(sync: true, 
@@ -110,44 +103,42 @@ class Draggable {
   /// Managers for browser events.
   final List<_EventManager> _eventManagers = [];
   
-  /**
-   * Creates a new [Draggable] for [elementOrElementList]. The 
-   * [elementOrElementList] must be of type [Element] or [ElementList].
-   * 
-   * 
-   * ## Options
-   * 
-   * The [avatarHandler]  is responsible for creating, position, and 
-   * removing a drag avatar. A drag avatar provides visual feedback during a
-   * drag operation. Here are possible options for the [avatarHandler] :
-   * 
-   * * null (the default) - will not create a drag avatar
-   * * new [AvatarHandler.original] - handler that uses the original 
-   *   draggable as avatar. See [OriginalAvatarHandler].
-   * * new [AvatarHandler.clone] - handler that uses a clone of the draggable 
-   *   element as avatar. See [CloneAvatarHandler].
-   * * A custom [AvatarHandler] - you can provide your own implementation of 
-   *   [AvatarHandler].
-   * 
-   * If [horizontalOnly] is set to true, only horizontal dragging is tracked.
-   * This enables vertical touch dragging to be used for scrolling.
-   * 
-   * If [verticalOnly] is set to true, only vertical dragging is tracked.
-   * This enables horizontal touch dragging to be used for scrolling.
-   * 
-   * If a [handle] query String is specified, it restricts the dragging from 
-   * starting unless it occurs on the specified element(s). Only elements that 
-   * descend from [elementOrElementList] are permitted. 
-   * 
-   * If [cancel] query String is specified, drag starting is prevented on 
-   * specified elements.
-   * 
-   * The [draggingClass] is the css class set to the dragged element 
-   * during a drag. If set to null, no such css class is added.
-   * 
-   * The [draggingClassBody] is the css class set to the html body tag
-   * during a drag. If set to null, no such css class is added.
-   */
+  /// Creates a new [Draggable] for [elementOrElementList]. The 
+  /// [elementOrElementList] must be of type [Element] or [ElementList].
+  /// 
+  /// 
+  /// ## Options
+  /// 
+  /// The [avatarHandler]  is responsible for creating, position, and 
+  /// removing a drag avatar. A drag avatar provides visual feedback during a
+  /// drag operation. Here are possible options for the [avatarHandler] :
+  /// 
+  /// * null (the default) - will not create a drag avatar
+  /// * new [AvatarHandler.original] - handler that uses the original 
+  ///   draggable as avatar. See [OriginalAvatarHandler].
+  /// * new [AvatarHandler.clone] - handler that uses a clone of the draggable 
+  ///   element as avatar. See [CloneAvatarHandler].
+  /// * A custom [AvatarHandler] - you can provide your own implementation of 
+  ///   [AvatarHandler].
+  /// 
+  /// If [horizontalOnly] is set to true, only horizontal dragging is tracked.
+  /// This enables vertical touch dragging to be used for scrolling.
+  /// 
+  /// If [verticalOnly] is set to true, only vertical dragging is tracked.
+  /// This enables horizontal touch dragging to be used for scrolling.
+  /// 
+  /// If a [handle] query String is specified, it restricts the dragging from 
+  /// starting unless it occurs on the specified element(s). Only elements that 
+  /// descend from [elementOrElementList] are permitted. 
+  /// 
+  /// If [cancel] query String is specified, drag starting is prevented on 
+  /// specified elements.
+  /// 
+  /// The [draggingClass] is the css class set to the dragged element 
+  /// during a drag. If set to null, no such css class is added.
+  /// 
+  /// The [draggingClassBody] is the css class set to the html body tag
+  /// during a drag. If set to null, no such css class is added.
   Draggable(elementOrElementList, 
       { this.avatarHandler: null,
         this.horizontalOnly: false, 
@@ -180,10 +171,8 @@ class Draggable {
     }
   }
   
-  /**
-   * Handles the drag start start. The [moveEvent] might either be a 
-   * [TouchEvent] or a [MouseEvent]. 
-   */
+  /// Handles the drag start start. The [moveEvent] might either be a 
+  /// [TouchEvent] or a [MouseEvent]. 
   void _handleDragStart(UIEvent moveEvent) {
     // Set the drag started flag.
     _currentDrag.started = true;
@@ -212,12 +201,10 @@ class Draggable {
     _clearTextSelections();
   }
   
-  /**
-   * Handles the drag. The [moveEvent] might either be a [TouchEvent] or a 
-   * [MouseEvent]. 
-   * 
-   * The [target] is the actual target receiving the event.
-   */
+  /// Handles the drag. The [moveEvent] might either be a [TouchEvent] or a 
+  /// [MouseEvent]. 
+  /// 
+  /// The [target] is the actual target receiving the event.
   void _handleDrag(UIEvent moveEvent, EventTarget target) {
     // Pass event to AvatarHandler.
     if (avatarHandler != null) {
@@ -233,14 +220,12 @@ class Draggable {
     }
   }
   
-  /**
-   * Handles the drag end (mouseUp or touchEnd) event. The [event] might either
-   * be a [TouchEvent], a [MouseEvent], a [KeyboardEvent], or a [Event] (when 
-   * focus is lost). 
-   * 
-   * Set [cancelled] to true to indicate that this drag ended through a 
-   * cancel oparation like hitting the `esc` key.
-   */
+  /// Handles the drag end (mouseUp or touchEnd) event. The [event] might either
+  /// be a [TouchEvent], a [MouseEvent], a [KeyboardEvent], or a [Event] (when 
+  /// focus is lost). 
+  /// 
+  /// Set [cancelled] to true to indicate that this drag ended through a 
+  /// cancel oparation like hitting the `esc` key.
   void _handleDragEnd(Event event, {cancelled: false}) {
     // Only handle drag end if the user actually did drag and not just clicked.
     if (_currentDrag.started) {
@@ -277,11 +262,9 @@ class Draggable {
     _resetCurrentDrag();
   }
   
-  /**
-   * Makes sure that a potential click event is ignored. This is necessary for
-   * [MouseEvent]s. We have to wait for and cancel a potential click event 
-   * happening after the mouseUp event. 
-   */
+  /// Makes sure that a potential click event is ignored. This is necessary for
+  /// [MouseEvent]s. We have to wait for and cancel a potential click event 
+  /// happening after the mouseUp event. 
   void _suppressClickEvent() {
     StreamSubscription clickPreventer = _elementOrElementList.onClick.listen((event) {
       event.stopPropagation();
@@ -296,9 +279,7 @@ class Draggable {
     });
   }
   
-  /**
-   * Unistalls all listeners. 
-   */
+  /// Unistalls all listeners. 
   void destroy() {
     _resetCurrentDrag();
     
@@ -307,9 +288,7 @@ class Draggable {
     _eventManagers.clear();
   }
   
-  /**
-   * Cancels drag subscriptions and resets to initial state.
-   */
+  /// Cancels drag subscriptions and resets to initial state.
   void _resetCurrentDrag() {
     // Reset all managers.
     _eventManagers.forEach((m) => m.reset());
@@ -321,10 +300,8 @@ class Draggable {
     _currentDrag = null;
   }
   
-  /**
-   * Removes all text selections from the HTML document, including selections
-   * in active textarea or active input element.
-   */
+  /// Removes all text selections from the HTML document, including selections
+  /// in active textarea or active input element.
   void _clearTextSelections() {
     // Remove selection.
     window.getSelection().removeAllRanges();
@@ -341,14 +318,12 @@ class Draggable {
     }
   }
   
-  /**
-   * Determine the actual target that should receive the event because 
-   * mouse or touch event might have occurred on a drag avatar.
-   * 
-   * If a [target] is provided it is tested to see if is already the correct
-   * target or if it is the drag avatar and thus must be replaced by the 
-   * element underneath.
-   */
+  /// Determine the actual target that should receive the event because 
+  /// mouse or touch event might have occurred on a drag avatar.
+  /// 
+  /// If a [target] is provided it is tested to see if is already the correct
+  /// target or if it is the drag avatar and thus must be replaced by the 
+  /// element underneath.
   EventTarget _getRealTarget(Point clientPosition, {EventTarget target}) {
     // If no target was provided get it.
     if (target == null) {
@@ -368,11 +343,9 @@ class Draggable {
     return target;
   }
   
-  /**
-   * Tests if [target] is a valid place to start a drag. If [handle] is
-   * provided, drag can only start on the [handle]s. If [cancel] is 
-   * provided, drag cannot be started on those elements.
-   */
+  /// Tests if [target] is a valid place to start a drag. If [handle] is
+  /// provided, drag can only start on the [handle]s. If [cancel] is 
+  /// provided, drag cannot be started on those elements.
   bool _isValidDragStartTarget(EventTarget target) {
     // Test if a drag was started on a cancel element.
     if (cancel != null 
@@ -413,9 +386,7 @@ class Draggable {
 }
 
 
-/**
- * Event used when a drag is detected.
- */
+/// Event used when a drag is detected.
 class DraggableEvent {
   /// The [Element] that is beeing dragged. 
   final Element draggableElement;
@@ -443,9 +414,7 @@ class DraggableEvent {
   /// cancelling oparation like `esc` key or windows loosing focus.
   final bool cancelled;
   
-  /**
-   * Private constructor for [DraggableEvent].
-   */
+  /// Private constructor for [DraggableEvent].
   DraggableEvent._(this.originalEvent, _DragInfo dragInfo, {this.cancelled: false})
       : draggableElement = dragInfo.element,
         avatarHandler = dragInfo.avatarHandler,
@@ -453,9 +422,7 @@ class DraggableEvent {
         position = dragInfo.position;
 }
 
-/**
- * Information about the current drag operation.
- */
+/// Information about the current drag operation.
 class _DragInfo {
   /// The id of the currently dragged [Draggable].
   final int draggableId;
@@ -494,9 +461,7 @@ class _DragInfo {
   /// Sets the current position.
   set position(Point pos) => _position = _constrainAxis(pos);
   
-  /**
-   * Constrains the axis if [horizontalOnly] or [verticalOnly] is true.
-   */
+  /// Constrains the axis if [horizontalOnly] or [verticalOnly] is true.
   Point _constrainAxis(Point pos) {
     // Set y-value to startPosition if horizontalOnly.
     if (horizontalOnly) {

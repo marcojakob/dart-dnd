@@ -1,12 +1,10 @@
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 
-/**
- * An example that only uses drag detection. This already helps quite a lot
- * as it unifies touch and mouse dragging and provides convenient event streams.
- * 
- * Use this if you want to implement your own custom dragging behavior.
- */
+/// An example that only uses drag detection. This already helps quite a lot
+/// as it unifies touch and mouse dragging and provides convenient event streams.
+/// 
+/// Use this if you want to implement your own custom dragging behavior.
 main() {
   // Install draggable.
   Draggable draggable = new Draggable(querySelector('.draggable'));

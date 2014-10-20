@@ -1,11 +1,9 @@
 part of dnd;
 
-/**
- * Dispatches [MouseEvent]s for dragEnter, dragOver, and dragLeave.
- * 
- * Those events are only meant for communication between [Draggable]s and 
- * [Dropzone]s and not to be consumed by users of the library.
- */
+/// Dispatches [MouseEvent]s for dragEnter, dragOver, and dragLeave.
+/// 
+/// Those events are only meant for communication between [Draggable]s and 
+/// [Dropzone]s and not to be consumed by users of the library.
 class _DragEventDispatcher {
 
   /// Custom drag enter event that is fired on the element that is entered.
@@ -19,9 +17,6 @@ class _DragEventDispatcher {
   
   /// Custom drag leave event that is fired on the element that is left.
   static const String CUSTOM_DROP = '_customDrop';
-  
-  /// Keeps track of the previous target to be able to fire dragLeave events on it.
-  static EventTarget previousTarget;
   
   /// Stream provider for [CUSTOM_DRAG_ENTER] events. The relatedTarget contains
   /// the [Element] the user entered from (may be null).
@@ -40,13 +35,15 @@ class _DragEventDispatcher {
   /// Stream provider for [CUSTOM_DROP] events. The relatedTarget is empty.
   static EventStreamProvider<MouseEvent> dropEvent =
        new EventStreamProvider(CUSTOM_DROP);
+ 
   
-  /**
-   * Dispatches dragEnter, dragOver, and dragLeave events.
-   * 
-   * The [draggable] is the [Draggable] that is dispatching the event.
-   * The [target] is the element that the event will be dispatched on.
-   */
+  /// Keeps track of the previous target to be able to fire dragLeave events on it.
+  static EventTarget previousTarget;
+  
+  /// Dispatches dragEnter, dragOver, and dragLeave events.
+  /// 
+  /// The [draggable] is the [Draggable] that is dispatching the event.
+  /// The [target] is the element that the event will be dispatched on.
   static void dispatchEnterOverLeave(Draggable draggable, EventTarget target) {
     
     // Sometimes the target is null (e.g. when user drags over buttons on 
@@ -82,12 +79,10 @@ class _DragEventDispatcher {
   }
   
   
-  /**
-   * Dispatches drop event.
-   * 
-   * The [draggable] is the [Draggable] that is dispatching the event.
-   * The [target] is the element that the event will be dispatched on.
-   */
+  /// Dispatches drop event.
+  /// 
+  /// The [draggable] is the [Draggable] that is dispatching the event.
+  /// The [target] is the element that the event will be dispatched on.
   static void dispatchDrop(Draggable draggable, EventTarget target) {
     
     // Sometimes the target is null (e.g. when user drags over buttons on 
@@ -102,9 +97,7 @@ class _DragEventDispatcher {
     reset(draggable);
   }
   
-  /**
-   * Must be called when drag ended to fire a last dragLeave event.
-   */
+  /// Must be called when drag ended to fire a last dragLeave event.
   static void reset(Draggable draggable) {
     // Fire a last dragLeave.
     if (previousTarget != null) {

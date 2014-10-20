@@ -1,9 +1,7 @@
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 
-/**
- * A basic example of how to use [Draggable]s and [Dropzone]s together.
- */
+/// A basic example of how to use [Draggable]s and [Dropzone]s together.
 main() {
   // Install draggables (documents).
   Draggable draggable = new Draggable(querySelectorAll('.document'), 

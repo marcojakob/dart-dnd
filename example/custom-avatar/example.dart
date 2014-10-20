@@ -4,11 +4,9 @@ import 'dart:html';
 import 'dart:math' as math;
 import 'package:dnd/dnd.dart';
 
-/**
- * An example of how to use a custom [AvatarHandler]. 
- * 
- * See [MyAvatarHandler].
- */
+/// An example of how to use a custom [AvatarHandler]. 
+/// 
+/// See [MyAvatarHandler].
 main() {
   // Install draggables.
   Draggable draggable = new Draggable(querySelectorAll('.document'), 
@@ -48,11 +46,9 @@ main() {
   });
 }
 
-/**
- * An example of a custom [AvatarHandler].
- * 
- * The [MyAvatarHandler] creates changing smiley images as drag avatar.
- */
+/// An example of a custom [AvatarHandler].
+/// 
+/// The [MyAvatarHandler] creates changing smiley images as drag avatar.
 class MyAvatarHandler extends AvatarHandler {
 
   /// List of smiley src urls.
@@ -99,25 +95,18 @@ class MyAvatarHandler extends AvatarHandler {
     setTranslate(position - startPosition);
   }
   
-  /**
-   * Called when the drag operation ends. 
-   */
   @override
   void dragEnd(Point startPosition, Point position) {
     avatar.remove();
   }
   
-  /**
-   * Updates the image to [imageNumber].
-   */
+  /// Updates the image to [imageNumber].
   void updateImage(int imageNumber) {
     avatar.src = SMILEYS[imageNumber]; 
   }
 }
 
-/**
- * Calculates the image number depending on the distance to [trash].
- */
+/// Calculates the image number depending on the distance to [trash].
 int calcImageNumber(Element trash, Point startPosition, Point position) {
   var trashDim = trash.borderEdge;
   Point trashCenter = new Point(trashDim.left + trashDim.width / 2, 

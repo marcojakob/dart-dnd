@@ -1,11 +1,9 @@
 part of dnd;
 
-/**
- * Class responsible for managing browser events. 
- * 
- * This class is an abstraction for the specific managers like 
- * [_TouchManager], [_MouseManager], etc.
- */
+/// Class responsible for managing browser events. 
+/// 
+/// This class is an abstraction for the specific managers like 
+/// [_TouchManager], [_MouseManager], etc.
 abstract class _EventManager {
   /// Tracks subscriptions for start events (mouseDown, touchStart).
   List<StreamSubscription> startSubs = [];
@@ -22,30 +20,20 @@ abstract class _EventManager {
     installStart();
   }
   
-  /**
-   * Installs the start listeners (e.g. mouseDown, touchStart, etc.).
-   */
+  /// Installs the start listeners (e.g. mouseDown, touchStart, etc.).
   void installStart();
   
-  /**
-   * Installs the move listeners (e.g. mouseMove, touchMove, etc.).
-   */
+  /// Installs the move listeners (e.g. mouseMove, touchMove, etc.).
   void installMove();
   
-  /**
-   * Installs the end listeners (e.g. mouseUp, touchEnd, etc.).
-   */
+  /// Installs the end listeners (e.g. mouseUp, touchEnd, etc.).
   void installEnd();
   
-  /**
-   * Installs the cancel listeners (e.g. touchCancel, pointerCancel, etc.).
-   */
+  /// Installs the cancel listeners (e.g. touchCancel, pointerCancel, etc.).
   void installCancel();
   
-  /**
-   * Installs listener for esc-key and blur (window loses focus). Those 
-   * events will cancel the drag operation.
-   */
+  /// Installs listener for esc-key and blur (window loses focus). Those 
+  /// events will cancel the drag operation.
   void installEscAndBlur() {
     // Drag ends when escape key is hit.
     dragSubs.add(window.onKeyDown.listen((keyboardEvent) {
@@ -60,9 +48,7 @@ abstract class _EventManager {
     }));
   }
   
-  /**
-   * Handles a start event (touchStart, mouseUp, etc.).
-   */
+  /// Handles a start event (touchStart, mouseUp, etc.).
   void handleStart(Event event, Point position) {
     // Initialize the drag info. 
     // Note: the drag is not started on touchStart but after a first valid move.
@@ -78,9 +64,7 @@ abstract class _EventManager {
     installEscAndBlur();
   }
   
-  /**
-   * Handles a move event (touchMove, mouseMove, etc.).
-   */
+  /// Handles a move event (touchMove, mouseMove, etc.).
   void handleMove(Event event, Point position, Point clientPosition) {
     // Set the current position.
     _currentDrag.position = position;
@@ -100,9 +84,7 @@ abstract class _EventManager {
     }
   }
   
-  /**
-   * Handles all end events (touchEnd, mouseUp, and pointerUp).
-   */
+  /// Handles all end events (touchEnd, mouseUp, and pointerUp).
   void handleEnd(Event event, EventTarget target, Point position, Point clientPosition) {
     // Set the current position.
     _currentDrag.position = position;
@@ -114,27 +96,21 @@ abstract class _EventManager {
     drg._handleDragEnd(event);
   }
   
-  /**
-   * Handles all cancel events (touchCancel and pointerCancel).
-   */
+  /// Handles all cancel events (touchCancel and pointerCancel).
   void handleCancel(Event event) {
     // Drag end with the cancelled flag.
     drg._handleDragEnd(event, cancelled: true);
   }
   
-  /**
-   * Resets this [_EventManager] to its initial state. This means that all 
-   * listeners are canceled except the listeners set up during [installStart].
-   */
+  /// Resets this [_EventManager] to its initial state. This means that all 
+  /// listeners are canceled except the listeners set up during [installStart].
   void reset() {
     // Cancel drag subscriptions.
     dragSubs.forEach((sub) => sub.cancel());
     dragSubs.clear();  
   }
   
-  /**
-   * Cancels all listeners, including the listeners set up during [installStart].
-   */
+  /// Cancels all listeners, including the listeners set up during [installStart].
   void destroy() {
     reset();
     
@@ -143,14 +119,12 @@ abstract class _EventManager {
     startSubs.clear();    
   }
   
-  /**
-   * Determine the actual target that should receive the event because 
-   * mouse or touch event might have occurred on a drag avatar.
-   * 
-   * If a [target] is provided it is tested to see if is already the correct
-   * target or if it is the drag avatar and thus must be replaced by the 
-   * element underneath.
-   */
+  /// Determine the actual target that should receive the event because 
+  /// mouse or touch event might have occurred on a drag avatar.
+  /// 
+  /// If a [target] is provided it is tested to see if is already the correct
+  /// target or if it is the drag avatar and thus must be replaced by the 
+  /// element underneath.
   EventTarget _getRealTarget(Point clientPosition, {EventTarget target}) {
     // If no target was provided get it.
     if (target == null) {
@@ -170,11 +144,9 @@ abstract class _EventManager {
     return target;
   }
   
-  /**
-   * Tests if [target] is a valid place to start a drag. If [handle] is
-   * provided, drag can only start on the [handle]s. If [cancel] is 
-   * provided, drag cannot be started on those elements.
-   */
+  /// Tests if [target] is a valid place to start a drag. If [handle] is
+  /// provided, drag can only start on the [handle]s. If [cancel] is 
+  /// provided, drag cannot be started on those elements.
   bool _isValidDragStartTarget(EventTarget target) {
     // Test if a drag was started on a cancel element.
     if (drg.cancel != null 
@@ -214,9 +186,7 @@ abstract class _EventManager {
   }
 }
 
-/**
- * Manages the browser's touch events.
- */
+/// Manages the browser's touch events.
 class _TouchManager extends _EventManager {
   
   _TouchManager(Draggable draggable)
@@ -282,9 +252,7 @@ class _TouchManager extends _EventManager {
     }));
   }
   
-  /**
-   * Returns true if there was scrolling activity instead of dragging.
-   */
+  /// Returns true if there was scrolling activity instead of dragging.
   bool isScrolling(Point currentPosition) {
     Point delta = currentPosition - _currentDrag.startPosition;
     
@@ -305,9 +273,7 @@ class _TouchManager extends _EventManager {
   }
 }
 
-/**
- * Manages the browser's mouse events.
- */
+/// Manages the browser's mouse events.
 class _MouseManager extends _EventManager {
   
   _MouseManager(Draggable draggable)
@@ -371,9 +337,7 @@ class _MouseManager extends _EventManager {
   }
 }
 
-/**
- * Manages the browser's pointer events (used for Internet Explorer).
- */
+/// Manages the browser's pointer events (used for Internet Explorer).
 class _PointerManager extends _EventManager {
   
   bool msPrefix;
@@ -467,10 +431,8 @@ class _PointerManager extends _EventManager {
     }));
   }
 
-  /**
-   * Returns the touch-action values `none`, `pan-x`, or `pan-y` depending on 
-   * horizontalOnly / verticalOnly options.
-   */
+  /// Returns the touch-action values `none`, `pan-x`, or `pan-y` depending on 
+  /// horizontalOnly / verticalOnly options.
   String _getTouchActionValue() {
     if (drg.horizontalOnly) {
       return 'pan-y';

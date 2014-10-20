@@ -1,9 +1,7 @@
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 
-/**
- * Example demonstrating how dragging can be prevented on some elements.
- */
+/// Example demonstrating how dragging can be prevented on some elements.
 main() {
   // Install draggable.
   Draggable draggable = new Draggable(querySelector('.draggable'), 
