@@ -1,10 +1,8 @@
 import 'dart:html';
 import 'package:dnd/dnd.dart';
 
-/**
- * Just a test if we can set up [Draggable] and [Dropzone] on the same elements
- * and implement some basic sortable/rarranging behavior.
- */
+/// Just a test if we can set up [Draggable] and [Dropzone] on the same elements
+/// and implement some basic sortable/rearranging behavior.
 main() {
   // Install same elements as draggable and dropzone.
   Draggable draggable = new Draggable(querySelectorAll('.sortable'), 
@@ -18,9 +16,7 @@ main() {
   });
 }
 
-/**
- * Simple function to swap two elements.
- */
+/// Simple function to swap two elements.
 void swapElements(Element elm1, Element elm2) {
   var parent1 = elm1.parent;
   var next1   = elm1.nextElementSibling;

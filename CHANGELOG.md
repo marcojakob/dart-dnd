@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.1.4 (2014-10-20)
+
+* Add a sortable example.
+* Change comments according to new Dart Style Guide rule 
+  (`///` instead of `/** */`).
+* Move event dispatching calls from EventManager to Draggable (refactoring). 
+
+
 ## Version 0.1.3 (2014-08-09)
 
 * Fix #4: Problem when an ancestor of the dragged element was positioned
