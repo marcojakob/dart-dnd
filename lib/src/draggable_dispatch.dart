@@ -94,11 +94,11 @@ class _DragEventDispatcher {
     MouseEvent dropEvent = new MouseEvent(CUSTOM_DROP);
     target.dispatchEvent(dropEvent);
     
-    reset(draggable);
+    reset();
   }
   
   /// Must be called when drag ended to fire a last dragLeave event.
-  static void reset(Draggable draggable) {
+  static void reset() {
     // Fire a last dragLeave.
     if (previousTarget != null) {
       MouseEvent dragLeaveEvent = new MouseEvent(CUSTOM_DRAG_LEAVE);

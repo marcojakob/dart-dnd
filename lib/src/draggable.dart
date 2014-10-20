@@ -211,7 +211,7 @@ class Draggable {
       avatarHandler.drag(_currentDrag.startPosition, _currentDrag.position);
     }
     
-    // Dispatch a drag over event.
+    // Dispatch internal drag enter, over, or leave event.
     _DragEventDispatcher.dispatchEnterOverLeave(this, target);
     
     // Fire the drag event.
@@ -224,15 +224,22 @@ class Draggable {
   /// be a [TouchEvent], a [MouseEvent], a [KeyboardEvent], or a [Event] (when 
   /// focus is lost). 
   /// 
+  /// The [target] is the actual target receiving the event. The [target] may
+  /// be null when the event was [cancelled] (e.g. user clicked esc-key).
+  /// 
   /// Set [cancelled] to true to indicate that this drag ended through a 
   /// cancel oparation like hitting the `esc` key.
-  void _handleDragEnd(Event event, {cancelled: false}) {
+  void _handleDragEnd(Event event, EventTarget target, {cancelled: false}) {
     // Only handle drag end if the user actually did drag and not just clicked.
     if (_currentDrag.started) {
-      
       // Pass event to AvatarHandler.
       if (avatarHandler != null) {
         avatarHandler.dragEnd(_currentDrag.startPosition, _currentDrag.position);
+      }
+      
+      // Dispatch internal drop event if drag was not cancelled.
+      if (!cancelled && target != null) {
+        _DragEventDispatcher.dispatchDrop(this, target);
       }
       
       // Fire dragEnd event.
@@ -293,8 +300,8 @@ class Draggable {
     // Reset all managers.
     _eventManagers.forEach((m) => m.reset());
     
-    // Reset dispatcher to fire a last dragLeave event.
-    _DragEventDispatcher.reset(this);
+    // Reset dispatcher to fire a last internal dragLeave event.
+    _DragEventDispatcher.reset();
     
     // Reset the current drag.
     _currentDrag = null;

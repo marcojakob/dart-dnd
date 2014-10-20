@@ -89,17 +89,14 @@ abstract class _EventManager {
     // Set the current position.
     _currentDrag.position = position;
     
-    // Dispatch a drop event.
     EventTarget realTarget = _getRealTarget(clientPosition, target: target);
-    _DragEventDispatcher.dispatchDrop(drg, realTarget);
-    
-    drg._handleDragEnd(event);
+    drg._handleDragEnd(event, realTarget);
   }
   
   /// Handles all cancel events (touchCancel and pointerCancel).
   void handleCancel(Event event) {
     // Drag end with the cancelled flag.
-    drg._handleDragEnd(event, cancelled: true);
+    drg._handleDragEnd(event, null, cancelled: true);
   }
   
   /// Resets this [_EventManager] to its initial state. This means that all 
