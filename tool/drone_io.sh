@@ -33,7 +33,7 @@ git fetch
 if git show-ref --verify --quiet refs/remotes/origin/gh-pages
 then
   git checkout gh-pages
-  rm -rf
+  rm -rf *
   git checkout tmp *
   git add -A
   # Test if we have something to commit.
