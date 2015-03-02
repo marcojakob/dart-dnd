@@ -5,6 +5,11 @@ part of dnd;
 /// This class is an abstraction for the specific managers like
 /// [_TouchManager], [_MouseManager], etc.
 abstract class _EventManager {
+
+  /// Attribute to mark custom elements where events should be retargeted
+  /// to their Shadow DOM children.
+  static const String SHADOW_DOM_RETARGET_ATTRIBUTE = 'dnd-retarget';
+
   /// Tracks subscriptions for start events (mouseDown, touchStart).
   List<StreamSubscription> startSubs = [];
 
@@ -52,10 +57,7 @@ abstract class _EventManager {
   void handleStart(Event event, Point position) {
     // Initialize the drag info.
     // Note: the drag is not started on touchStart but after a first valid move.
-    _currentDrag = new _DragInfo(
-        drg.id,
-        event.currentTarget,
-        position,
+    _currentDrag = new _DragInfo(drg.id, event.currentTarget, position,
         avatarHandler: drg.avatarHandler,
         horizontalOnly: drg.horizontalOnly,
         verticalOnly: drg.verticalOnly);
@@ -72,7 +74,8 @@ abstract class _EventManager {
     // Set the current position.
     _currentDrag.position = position;
 
-    if (!_currentDrag.started && _currentDrag.startPosition != _currentDrag.position) {
+    if (!_currentDrag.started
+        && _currentDrag.startPosition != _currentDrag.position) {
       // This is the first drag move.
 
       // Handle dragStart.
@@ -90,8 +93,8 @@ abstract class _EventManager {
   void handleEnd(Event event, EventTarget target, Point position, Point clientPosition) {
     // Set the current position.
     _currentDrag.position = position;
-    EventTarget realTarget = _getRealTarget(clientPosition, target: target);
 
+    EventTarget realTarget = _getRealTarget(clientPosition, target: target);
     drg._handleDragEnd(event, realTarget);
   }
 
@@ -118,19 +121,6 @@ abstract class _EventManager {
     startSubs.clear();
   }
 
-  dynamic get root {
-    return (this._isSetRoot) ? this.drg.root : document;
-  }
-
-  dynamic get rootDocument {
-    return (this._isSetRoot) ? this.drg.root.shadowRoot : document;
-  }
-
-  bool get _isSetRoot {
-    return (this.drg.root != null);
-  }
-
-
   /// Determine the actual target that should receive the event because
   /// mouse or touch event might have occurred on a drag avatar.
   ///
@@ -139,17 +129,38 @@ abstract class _EventManager {
   /// element underneath.
   EventTarget _getRealTarget(Point clientPosition, {EventTarget target}) {
     // If no target was provided get it.
-
-    if (target == null || this._isSetRoot) {
-      target = this.rootDocument.elementFromPoint(clientPosition.x, clientPosition.y);
+    if (target == null) {
+      target = document.elementFromPoint(clientPosition.x, clientPosition.y);
     }
+
     // Test if target is the drag avatar.
-    if (drg.avatarHandler != null && drg.avatarHandler.avatar != null && drg.avatarHandler.avatar.contains(target)) {
+    if (drg.avatarHandler != null && drg.avatarHandler.avatar != null
+        && drg.avatarHandler.avatar.contains(target)) {
 
       // Target is the drag avatar, get element underneath.
       drg.avatarHandler.avatar.style.visibility = 'hidden';
-      target = this.rootDocument.elementFromPoint(clientPosition.x, clientPosition.y);
+      target = document.elementFromPoint(clientPosition.x, clientPosition.y);
       drg.avatarHandler.avatar.style.visibility = 'visible';
+    }
+
+    target = _recursiveShadowDomTarget(clientPosition, target);
+
+    return target;
+  }
+
+  /// Recursively searches for the real target inside the Shadow DOM for all
+  /// Shadow hosts with the attribute [SHADOW_DOM_RETARGET_ATTRIBUTE].
+  EventTarget _recursiveShadowDomTarget(Point clientPosition, EventTarget target) {
+
+    // Retarget if target is a shadow host and has the specific attribute.
+    if (target is Element && target.shadowRoot != null &&
+        target.attributes.containsKey(SHADOW_DOM_RETARGET_ATTRIBUTE)) {
+
+      Element newTarget = (target as Element).shadowRoot
+          .elementFromPoint(clientPosition.x, clientPosition.y);
+
+      // Recursive call for nested shadow DOM trees.
+      target = _recursiveShadowDomTarget(clientPosition, newTarget);
     }
 
     return target;
@@ -160,7 +171,9 @@ abstract class _EventManager {
   /// provided, drag cannot be started on those elements.
   bool _isValidDragStartTarget(EventTarget target) {
     // Test if a drag was started on a cancel element.
-    if (drg.cancel != null && target is Element && target.matchesWithAncestors(drg.cancel)) {
+    if (drg.cancel != null
+        && target is Element
+        && target.matchesWithAncestors(drg.cancel)) {
 
       return false;
     }
@@ -225,7 +238,7 @@ class _TouchManager extends _EventManager {
 
   @override
   void installMove() {
-    dragSubs.add(this.root.onTouchMove.listen((TouchEvent event) {
+    dragSubs.add(document.onTouchMove.listen((TouchEvent event) {
       // Stop and cancel subscriptions on multi-touch.
       if (event.touches.length > 1) {
         handleCancel(event);
@@ -239,7 +252,8 @@ class _TouchManager extends _EventManager {
         return;
       }
 
-      handleMove(event, event.changedTouches[0].page, event.changedTouches[0].client);
+      handleMove(event, event.changedTouches[0].page,
+          event.changedTouches[0].client);
 
       // Prevent touch scrolling.
       event.preventDefault();
@@ -248,14 +262,14 @@ class _TouchManager extends _EventManager {
 
   @override
   void installEnd() {
-    dragSubs.add(this.root.onTouchEnd.listen((TouchEvent event) {
+    dragSubs.add(document.onTouchEnd.listen((TouchEvent event) {
       handleEnd(event, null, event.changedTouches[0].page, event.changedTouches[0].client);
     }));
   }
 
   @override
   void installCancel() {
-    dragSubs.add(this.root.onTouchCancel.listen((TouchEvent event) {
+    dragSubs.add(document.onTouchCancel.listen((TouchEvent event) {
       handleCancel(event);
     }));
   }
@@ -283,7 +297,6 @@ class _TouchManager extends _EventManager {
 
 /// Manages the browser's mouse events.
 class _MouseManager extends _EventManager {
-
 
   _MouseManager(Draggable draggable)
       : super(draggable);
@@ -316,11 +329,9 @@ class _MouseManager extends _EventManager {
       // * InputElement and TextAreaElement would not get focus.
       // * ButtonElement and OptionElement - don't know if this is needed??
       Element target = event.target;
-      if (!(target is SelectElement ||
-          target is InputElement ||
-          target is TextAreaElement ||
-          target is ButtonElement ||
-          target is OptionElement)) {
+      if (!(target is SelectElement || target is InputElement ||
+            target is TextAreaElement || target is ButtonElement ||
+            target is OptionElement)) {
         event.preventDefault();
       }
 
@@ -330,14 +341,14 @@ class _MouseManager extends _EventManager {
 
   @override
   void installMove() {
-    dragSubs.add(this.root.onMouseMove.listen((MouseEvent event) {
+    dragSubs.add(document.onMouseMove.listen((MouseEvent event) {
       handleMove(event, event.page, event.client);
     }));
   }
 
   @override
   void installEnd() {
-    dragSubs.add(this.root.onMouseUp.listen((MouseEvent event) {
+    dragSubs.add(document.onMouseUp.listen((MouseEvent event) {
       handleEnd(event, event.target, event.page, event.client);
     }));
   }
@@ -387,11 +398,9 @@ class _PointerManager extends _EventManager {
         // * InputElement and TextAreaElement would not get focus.
         // * ButtonElement and OptionElement - don't know if this is needed??
         Element target = event.target;
-        if (!(target is SelectElement ||
-            target is InputElement ||
-            target is TextAreaElement ||
-            target is ButtonElement ||
-            target is OptionElement)) {
+        if (!(target is SelectElement || target is InputElement ||
+              target is TextAreaElement || target is ButtonElement ||
+              target is OptionElement)) {
           event.preventDefault();
         }
 
@@ -409,18 +418,19 @@ class _PointerManager extends _EventManager {
 
     // Disable default touch actions on all elements (scrolling, panning, zooming).
     if (msPrefix) {
-      drg._elementOrElementList.style.setProperty('-ms-touch-action', _getTouchActionValue());
+      drg._elementOrElementList.style.setProperty('-ms-touch-action',
+          _getTouchActionValue());
     } else {
-      drg._elementOrElementList.style.setProperty('touch-action', _getTouchActionValue());
+      drg._elementOrElementList.style.setProperty('touch-action',
+          _getTouchActionValue());
     }
   }
 
   @override
   void installMove() {
     String moveEventName = msPrefix ? 'MSPointerMove' : 'pointermove';
-    //
-    dragSubs.add(this.root.on[moveEventName].listen((event) {
 
+    dragSubs.add(document.on[moveEventName].listen((event) {
       handleMove(event, event.page, event.client);
     }));
   }
@@ -429,7 +439,7 @@ class _PointerManager extends _EventManager {
   void installEnd() {
     String endEventName = msPrefix ? 'MSPointerUp' : 'pointerup';
 
-    dragSubs.add(this.root.on[endEventName].listen((event) {
+    dragSubs.add(document.on[endEventName].listen((event) {
       handleEnd(event, event.target, event.page, event.client);
     }));
   }
@@ -438,7 +448,7 @@ class _PointerManager extends _EventManager {
   void installCancel() {
     String cancelEventName = msPrefix ? 'MSPointerCancel' : 'mspointercancel';
 
-    dragSubs.add(this.root.on[cancelEventName].listen((event) {
+    dragSubs.add(document.on[cancelEventName].listen((event) {
       handleCancel(event);
     }));
   }
