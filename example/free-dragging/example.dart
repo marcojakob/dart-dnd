@@ -5,6 +5,6 @@ import 'package:dnd/dnd.dart';
 /// for the drag avatar, the original element itself is dragged.
 main() {
   // Install draggable.
-  Draggable draggable = new Draggable(querySelector('.draggable'), 
+  Draggable draggable = new Draggable(querySelector('.draggable'),
       avatarHandler: new AvatarHandler.original());
 }
