@@ -21,6 +21,7 @@ See [Dart Drag and Drop Examples](http://code.makery.ch/library/dart-drag-and-dr
   * Original element as drag avatar.
   * Clone as drag avatar.
   * Custom drag avatar.
+* Support for Shadow DOM (Web Components, Custom Elements, Polymer, etc.).
 * Much more... see examples.
 
 
@@ -121,8 +122,11 @@ The following options can be passed as *named parameters* to the constructor of
 * `acceptor`: Is used to determine which `Draggable`s will be accepted by
   this `Dropzone`. If none is specified, all `Draggable`s will be accepted.
   
-* `overClass`: Is the css class set to the dragged element 
-  during a drag. If set to null, no such css class is added.
+* `overClass`: Is the css class set to the dropzone element when an accepted 
+  draggable is dragged over it. If set to null, no such css class is added.
+  
+* `invalidClass`: Is the css class set to the dropzone element when a not-accepted 
+  draggable is dragged over it. If set to null, no such css class is added.
 
 
 ### Dropzone Events
@@ -139,6 +143,34 @@ Available event `Stream`s on `Dropzone`:
 
 *Note: `Dropzone` events are only fired when the `Draggable` is accepted by 
 the `Acceptor`.*
+
+
+### Shadow DOM
+
+Web Components create a nice ecapsulation through Shadow DOM. But this creates
+a problem with dropzones inside the Shadow DOM as they never receive events 
+because all events are captured by the host element. To make this work we need
+to retarget events to the Shadow DOM children through recursive 
+`elementFromPoint()` calls.
+
+For performance reasons it wouldn't make sense to retarget all drag and drop 
+events. If you wish to retarget events to the Shadow DOM children, you must add
+a `dnd-retarget` attribute to the host:
+ 
+```dart
+// Retarget drag and drop events to Shadow DOM children.
+<my-element dnd-retarget></my-element>
+```
+
+
+## Attribution
+
+The *Dart Drag and Drop* library is inspired by 
+
+* [jQuery UI Draggable](http://jqueryui.com/draggable/)
+* [Draggabilly](http://draggabilly.desandro.com/)
+
+Thank you for your work!
 
 
 ## License

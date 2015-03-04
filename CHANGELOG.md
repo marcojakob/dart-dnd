@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 0.2.0 (not released yet)
+
+* Fix #6: Shadow DOM is now supported. A `dnd-retarget` attribute must be added
+  to all custom elements where events should be forwarded to the Shadow DOM
+  children.
+* Fix #7: Add a css class (`dnd-invalid` by default) to dropzones when a 
+  not-accepted draggable is dragged over.
+
+
 ## Version 0.1.4 (2014-10-20)
 
 * Add a sortable example.
