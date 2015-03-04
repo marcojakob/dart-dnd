@@ -15,9 +15,9 @@ main() {
   // No acceptor means everything is accepted.
   Dropzone dropzone1 = new Dropzone(querySelector('#dropzone-1'));
 
-  // Use provided DraggablesAcceptor to accept Draggables A and C.
+  // Use provided DraggablesAcceptor to accept Draggable B only.
   Dropzone dropzone2 = new Dropzone(querySelector('#dropzone-2'),
-      acceptor: new Acceptor.draggables([draggableA, draggableC]));
+      acceptor: new Acceptor.draggables([draggableB]));
 
   // Use a custom Acceptor that accepts Draggables with a input containing
   // the text 'acceptme'.

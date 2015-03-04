@@ -25,6 +25,10 @@ class Dropzone {
   /// dragged over it. See [Dropzone] constructor.
   String overClass;
 
+  /// CSS class set to the [Dropzone] element when a not-accepted [Draggable] is
+  /// dragged over it. See [Dropzone] constructor.
+  String invalidClass;
+
   // -------------------
   // Events
   // -------------------
@@ -92,11 +96,17 @@ class Dropzone {
   /// The [acceptor] is used to determine which [Draggable]s will be accepted by
   /// this [Dropzone]. If none is specified, all [Draggable]s will be accepted.
   ///
-  /// The [overClass] is the css class set to the dragged element
-  /// during a drag. If set to null, no such css class is added.
+  /// The [overClass] is the css class set to the dropzone element when an
+  /// accepted [Draggable] is dragged over it. If set to null, no such css class
+  /// is added.
+  ///
+  /// The [invalidClass] is the css class set to the dropzone element when an
+  /// not-accepted [Draggable] is dragged over it. If set to null, no such css
+  /// class is added.
   Dropzone(elementOrElementList,
       { this.acceptor: null,
-        this.overClass: 'dnd-over'})
+        this.overClass: 'dnd-over',
+        this.invalidClass: 'dnd-invalid'})
       : this._elementOrElementList = elementOrElementList {
 
     // Install drag listener on Element or ElementList.
@@ -144,6 +154,12 @@ class Dropzone {
       if (overClass != null) {
         (event.currentTarget as Element).classes.add(overClass);
       }
+    } else {
+
+      // Add the css class to indicate invalid drag over.
+      if (invalidClass != null) {
+        (event.currentTarget as Element).classes.add(invalidClass);
+      }
     }
   }
 
@@ -184,6 +200,12 @@ class Dropzone {
       // Remove the css class.
       if (overClass != null) {
         (event.currentTarget as Element).classes.remove(overClass);
+      }
+    } else {
+
+      // Remove the invalid drag css class.
+      if (invalidClass != null) {
+        (event.currentTarget as Element).classes.remove(invalidClass);
       }
     }
   }
