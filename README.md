@@ -30,8 +30,8 @@ Drag and Drop for Dart web apps with mouse and touch support.
 
 ## Usage
 
-*Note: You can always take a look at the [examples](http://code.makery.ch/library/dart-drag-and-drop/) 
-and their source code.*
+Before you read the instructions below, you should take a look at the 
+[examples](http://code.makery.ch/library/dart-drag-and-drop/).
 
 
 ### Basic Set Up
