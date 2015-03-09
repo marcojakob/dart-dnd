@@ -3,7 +3,7 @@ version: 0.2.0
 author: Marco Jakob <majakob@gmx.ch>
 description: Drag and Drop for Dart web apps with mouse and touch support.
 homepage: http://code.makery.ch/library/dart-drag-and-drop/
-documentation: http://www.dartdocs.org/documentation/dnd/0.2.0/
+documentation: http://www.dartdocs.org/documentation/dnd/latest/
 dependencies:
   browser: '>=0.10.0+2 <0.11.0'
 dev_dependencies:

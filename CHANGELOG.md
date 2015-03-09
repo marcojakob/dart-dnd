@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.2.0 (not released yet)
+## Version 0.2.0 (2014-03-09)
 
 * Fix #6: Shadow DOM is now supported. A `dnd-retarget` attribute must be added
   to all custom elements where events should be forwarded to the Shadow DOM
