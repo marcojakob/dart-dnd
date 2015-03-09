@@ -1,11 +1,10 @@
 # Dart Drag and Drop
 
+Drag and Drop for Dart web apps with mouse and touch support.
+
 [![Star this Repo](https://img.shields.io/github/stars/marcojakob/dart-dnd.svg?style=flat-square)](https://github.com/marcojakob/dart-dnd)
 [![Pub Package](https://img.shields.io/pub/v/dnd.svg?style=flat-square)](https://pub.dartlang.org/packages/dnd)
 [![Build Status](https://drone.io/github.com/marcojakob/dart-dnd/status.png)](https://drone.io/github.com/marcojakob/dart-dnd/latest)
-
-Drag and Drop for Dart web apps with mouse and touch support.
-
 
 [GitHub](https://github.com/marcojakob/dart-dnd) | 
 [Pub](https://pub.dartlang.org/packages/dnd) | 
