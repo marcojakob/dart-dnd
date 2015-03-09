@@ -2,13 +2,13 @@
 
 Drag and Drop for Dart web apps with mouse and touch support.
 
-| What | Link |
-| --- | --- |
-| GitHub | [![Star this Repo](https://img.shields.io/github/stars/marcojakob/dart-dnd.svg?style=flat-square)](https://github.com/marcojakob/dart-dnd) |
-| Pub | [![Pub Package](https://img.shields.io/pub/v/dnd.svg?style=flat-square)](https://pub.dartlang.org/packages/dnd) |
-| API | [dnd API Docs](http://www.dartdocs.org/documentation/dnd/latest/) |
-| Demos and Examples | [Dart Drag and Drop Examples](http://code.makery.ch/library/dart-drag-and-drop/) |
-| Build | [![Build Status](https://drone.io/github.com/marcojakob/dart-dnd/status.png)](https://drone.io/github.com/marcojakob/dart-dnd/latest) |
+| What |
+| --- |
+| GitHub [![Star this Repo](https://img.shields.io/github/stars/marcojakob/dart-dnd.svg?style=flat-square)](https://github.com/marcojakob/dart-dnd) |
+| Pub [![Pub Package](https://img.shields.io/pub/v/dnd.svg?style=flat-square)](https://pub.dartlang.org/packages/dnd) |
+| [API Docs](http://www.dartdocs.org/documentation/dnd/latest/) |
+| Demos and Examples](http://code.makery.ch/library/dart-drag-and-drop/) |
+| drone.io [![Build Status](https://drone.io/github.com/marcojakob/dart-dnd/status.png)](https://drone.io/github.com/marcojakob/dart-dnd/latest) |
 
 
 ![DnD Screenshot](https://raw.githubusercontent.com/marcojakob/dart-dnd/master/doc/dnd-screenshot.png)
