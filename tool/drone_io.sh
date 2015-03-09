@@ -16,7 +16,8 @@ pub build ${build_folder}
 cd example/shadow-dom
 pub build
 cd ../..
-mv example/shadow-dom/build/* build/example/shadow-dom/
+rm -rf build/example/shadow-dom
+mv example/shadow-dom/build/* build/example/shadow-dom/web/
 
 
 # -----------------------------------
