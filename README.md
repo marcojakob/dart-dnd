@@ -2,6 +2,7 @@
 
 Drag and Drop for Dart web apps with mouse and touch support.
 
+| --- | --- |
 | GitHub | [![Star this Repo](https://img.shields.io/github/stars/marcojakob/dart-dnd.svg?style=flat-square)](https://github.com/marcojakob/dart-dnd) |
 | Pub | [![Pub Package](https://img.shields.io/pub/v/dnd.svg?style=flat-square)](https://pub.dartlang.org/packages/dnd) |
 | API | [dnd API Docs](http://www.dartdocs.org/documentation/dnd/latest/) |
