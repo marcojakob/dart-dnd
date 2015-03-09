@@ -13,7 +13,7 @@ pub install
 pub build ${build_folder}
 
 # -----------------------------------
-# Configure git in build subfolder folder
+# Configure git in build subfolder
 # -----------------------------------
 
 cd build/${build_folder}

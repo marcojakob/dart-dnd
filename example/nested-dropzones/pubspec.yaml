@@ -1,0 +1,9 @@
+name: dnd_example_nested_dropzones
+version: 0.0.0
+author: Marco Jakob <majakob@gmx.ch>
+description: 'Dart Drag and Drop Example'
+homepage: http://code.makery.ch/library/dart-drag-and-drop/
+dependencies:
+  browser: any
+  dnd:
+    path: ../../

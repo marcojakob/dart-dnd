@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.1 (2014-03-09)
+
+* Fix #9: Using transformers in the main `pubspec.yaml` caused problems with 
+  projects depending on the `dnd` package.
+
+
 ## Version 0.2.0 (2014-03-09)
 
 * Fix #3: Shadow DOM is now supported. A `dnd-retarget` attribute must be added
