@@ -179,7 +179,7 @@ class Draggable {
 
     // Pass event to AvatarHandler.
     if (avatarHandler != null) {
-      avatarHandler.dragStart(_currentDrag.element, _currentDrag.position);
+      avatarHandler._handleDragStart(_currentDrag.element, _currentDrag.position);
     }
 
     // Fire the drag start event with start position.
@@ -208,7 +208,7 @@ class Draggable {
   void _handleDrag(UIEvent moveEvent, EventTarget target) {
     // Pass event to AvatarHandler.
     if (avatarHandler != null) {
-      avatarHandler.drag(_currentDrag.startPosition, _currentDrag.position);
+      avatarHandler._handleDrag(_currentDrag.startPosition, _currentDrag.position);
     }
 
     // Dispatch internal drag enter, over, or leave event.
@@ -234,7 +234,7 @@ class Draggable {
     if (_currentDrag.started) {
       // Pass event to AvatarHandler.
       if (avatarHandler != null) {
-        avatarHandler.dragEnd(_currentDrag.startPosition, _currentDrag.position);
+        avatarHandler._handleDragEnd(_currentDrag.startPosition, _currentDrag.position);
       }
 
       // Dispatch internal drop event if drag was not cancelled.

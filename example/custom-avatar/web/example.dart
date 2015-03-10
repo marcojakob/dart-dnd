@@ -62,9 +62,6 @@ class MyAvatarHandler extends AvatarHandler {
   /// Define an offset for the avatar relative to the mouse cursor.
   static const Point OFFSET = const Point(-64, -130);
 
-  /// The avatar element which is created in [dragStart].
-  ImageElement avatar;
-
   MyAvatarHandler() {
     // Preload avatar images.
     SMILEYS.forEach((s) {
@@ -83,9 +80,6 @@ class MyAvatarHandler extends AvatarHandler {
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
 
-    // Set pointer-events to none.
-    setPointerEventsNone();
-
     // Add the drag avatar to the body element.
     document.body.append(avatar);
   }
@@ -102,7 +96,7 @@ class MyAvatarHandler extends AvatarHandler {
 
   /// Updates the image to [imageNumber].
   void updateImage(int imageNumber) {
-    avatar.src = SMILEYS[imageNumber];
+    (avatar as ImageElement).src = SMILEYS[imageNumber];
   }
 }
 

@@ -5,10 +5,10 @@ part of dnd;
 /// operation.
 abstract class AvatarHandler {
 
-  AvatarHandler();
-
-  /// Returns the [avatar] element.
-  Element get avatar;
+  /// Returns the [avatar] element during a drag operation.
+  ///
+  /// If there is no drag operation going on, [avatar] will be null.
+  Element avatar;
 
   /// The cached top margin of [avatar].
   num _marginTop;
@@ -32,6 +32,12 @@ abstract class AvatarHandler {
     return _marginLeft;
   }
 
+  /// Saved pointer events style before the drag operation.
+  String _pointerEventsBeforeDrag;
+
+  /// Default constructor.
+  AvatarHandler();
+
   /// Creates an [AvatarHelper] that uses the draggable element itself as
   /// drag avatar.
   ///
@@ -48,9 +54,40 @@ abstract class AvatarHandler {
     return new CloneAvatarHandler();
   }
 
+  /// Handles the drag start.
+  void _handleDragStart(Element draggable, Point startPosition) {
+    dragStart(draggable, startPosition);
+
+    // Sets the pointer-events CSS property of avatar to 'none' which enables
+    // mouse and touch events to go trough to the element under the avatar.
+    _pointerEventsBeforeDrag = avatar.style.pointerEvents;
+    avatar.style.pointerEvents = 'none';
+  }
+
+  /// Handles the drag.
+  void _handleDrag(Point startPosition, Point position) {
+    drag(startPosition, position);
+  }
+
+  /// Handles the drag end.
+  void _handleDragEnd(Point startPosition, Point position) {
+    dragEnd(startPosition, position);
+
+    // Reset the pointer-events CSS property to its original value.
+    avatar.style.pointerEvents = _pointerEventsBeforeDrag;
+    _pointerEventsBeforeDrag = null;
+
+    // Reset avatar.
+    avatar = null;
+
+    // Reset margins (causes them to be recalculated in next drag operation).
+    _marginTop = null;
+    _marginLeft = null;
+  }
+
   /// Called when the drag operation starts.
   ///
-  /// A drag avatar is created and attached to the DOM.
+  /// This method must set the [avatar] variable and must attache it to the DOM.
   ///
   /// The provided [draggable] is used to know where in the DOM the drag avatar
   /// can be inserted.
@@ -67,6 +104,9 @@ abstract class AvatarHandler {
 
   /// Called when the drag operation ends.
   ///
+  /// The [avatar] must be removed from the DOM in this method if it is not
+  /// needed any more.
+  ///
   /// The [startPosition] is the position where the drag started, [position] is the
   /// current position. Both are relative to the whole document (page coordinates).
   void dragEnd(Point startPosition, Point position);
@@ -76,7 +116,9 @@ abstract class AvatarHandler {
   void setTranslate(Point position) {
     Function updateFunction = () {
       // Unsing `translate3d` to activate GPU hardware-acceleration (a bit of a hack).
-      avatar.style.transform = 'translate3d(${position.x}px, ${position.y}px, 0)';
+      if (avatar != null) {
+        avatar.style.transform = 'translate3d(${position.x}px, ${position.y}px, 0)';
+      }
     };
 
     // Use request animation frame to update the transform translate.
@@ -100,19 +142,10 @@ abstract class AvatarHandler {
     avatar.style.top = '${position.y - marginTop}px';
   }
 
-  /// Sets the pointer-events CSS property of [avatar] to 'none' which enables
-  /// mouse and touch events to go trough to the element under the [avatar].
-  void setPointerEventsNone() {
-    avatar.style.pointerEvents = 'none';
-  }
-
-  /// Removes the pointer-events CSS property from [avatar].
-  void resetPointerEvents() {
-    avatar.style.pointerEvents = null;
-  }
-
-  /// Caches the [marginLeft] and [marginTop] of [avatar]. Call this method
-  /// again if those margins changed.
+  /// Caches the [marginLeft] and [marginTop] of [avatar].
+  ///
+  /// Call this method again if those margins somehow changed during a drag
+  /// operation.
   void cacheMargins() {
     // Calculate margins.
     var computedStyles = avatar.getComputedStyle();
@@ -128,9 +161,6 @@ abstract class AvatarHandler {
 /// avatar. It uses absolute positioning of the avatar.
 class OriginalAvatarHandler extends AvatarHandler {
 
-  /// The avatar element which is created in [dragStart].
-  Element avatar;
-
   Point _draggableStartOffset;
 
   @override
@@ -141,9 +171,6 @@ class OriginalAvatarHandler extends AvatarHandler {
     // Get the start offset of the draggable (relative to the closest positioned
     // ancestor).
     _draggableStartOffset = draggable.offset.topLeft;
-
-    // Set pointer-events to none.
-    setPointerEventsNone();
 
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
@@ -168,8 +195,6 @@ class OriginalAvatarHandler extends AvatarHandler {
         math.max(1, position.y));
 
     setLeftTop(constrainedPosition - startPosition + _draggableStartOffset);
-
-    resetPointerEvents();
   }
 }
 
@@ -177,9 +202,6 @@ class OriginalAvatarHandler extends AvatarHandler {
 /// [CloneAvatarHandler] creates a clone of the draggable element as drag avatar.
 /// The avatar is removed at the end of the drag operation.
 class CloneAvatarHandler extends AvatarHandler {
-
-  /// The avatar element which is created in [dragStart].
-  Element avatar;
 
   @override
   void dragStart(Element draggable, Point startPosition) {
@@ -191,9 +213,6 @@ class CloneAvatarHandler extends AvatarHandler {
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
     avatar.style.zIndex = '100';
-
-    // Set pointer-events to none.
-    setPointerEventsNone();
 
     // Add the drag avatar to the parent element.
     draggable.parentNode.append(avatar);

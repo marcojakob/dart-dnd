@@ -1,12 +1,24 @@
 # Changelog
 
-## Version 0.2.1 (2014-03-09)
+## Version 0.3.0 (not yet released)
+
+* BREAKING CHANGE: Refactoring the `AvatarHandler`. Only if you've
+  implemented a custom `AvatarHandler` you might need to do some changes:
+    * `setPointerEventsNone` and `resetPointerEvents` were removed and don't 
+      need to be called any more. Pointer event styles are handled automatically.
+* Fix `AvatarHandler` margin caching: The `AvatarHandler` only cached the 
+  margins once for every `Draggable`. This caused problems when margins of 
+  elements in the same `Draggable` had different margins or the margins were 
+  changed. Now the margins are reset after every drag.
+
+
+## Version 0.2.1 (2015-03-09)
 
 * Fix #9: Using transformers in the main `pubspec.yaml` caused problems with 
   projects depending on the `dnd` package.
 
 
-## Version 0.2.0 (2014-03-09)
+## Version 0.2.0 (2015-03-09)
 
 * Fix #3: Shadow DOM is now supported. A `dnd-retarget` attribute must be added
   to all custom elements where events should be forwarded to the Shadow DOM
