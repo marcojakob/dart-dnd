@@ -23,8 +23,8 @@ body {
   height: 210px;
   background: #cddc39;
   border-radius: 8px;
-  cursor: url(../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
-  cursor: url(../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+  cursor: url(../../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
+  cursor: url(../../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }
 
 .no-drag {
@@ -50,8 +50,8 @@ button {
 
 
 .dnd-draggable, .dnd-drag-occurring {
-  cursor: url(../packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
-  cursor: url(../packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+  cursor: url(../../packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
+  cursor: url(../../packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }
 
 .dnd-dragging {

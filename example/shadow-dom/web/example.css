@@ -29,8 +29,8 @@ body /deep/ .dropzone {
 
 body /deep/ .draggable {
   background: #cddc39;
-  cursor: url(../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
-  cursor: url(../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+  cursor: url(../../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
+  cursor: url(../../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }
 
 body /deep/ .dropzone {
@@ -45,8 +45,8 @@ body /deep/ .dropzone p {
 }
 
 body /deep/ .dnd-draggable, body /deep/ .dnd-drag-occurring {
-  cursor: url(../packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
-  cursor: url(../packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+  cursor: url(../../packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
+  cursor: url(../../packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }
 
 body /deep/ .dnd-dragging {
