@@ -50,7 +50,6 @@ body {
   height: 40px;
   border-radius: 8px;
   background-color: #ffe082;
-  cursor: default;
 }
 
 .dnd-draggable, .dnd-drag-occurring {
