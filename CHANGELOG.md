@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.3.0 (not yet released)
+## Version 0.3.0 (2015-04-18)
 
 * BREAKING CHANGE: Refactoring the `AvatarHandler`. Only if you've
   implemented a custom `AvatarHandler` you might need to do some changes:
