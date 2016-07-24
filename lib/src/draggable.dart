@@ -94,6 +94,13 @@ class Draggable {
     return _onDragEnd.stream;
   }
 
+  /// Abort the current drag
+  void abort() {
+    if (_currentDrag?.draggableId == this.id) {
+      _handleDragEnd(null, null, cancelled: true);
+    }
+  }
+
   // -------------------
   // Private Properties
   // -------------------
@@ -249,7 +256,7 @@ class Draggable {
       }
 
       // Prevent TouchEvent from emulating a click after touchEnd event.
-      event.preventDefault();
+      event?.preventDefault();
 
       if (event is MouseEvent) {
         // Prevent MouseEvent from firing a click after mouseUp event.
@@ -338,8 +345,9 @@ class DraggableEvent {
   /// The original event which is either ...
   /// * a [MouseEvent],
   /// * a [TouchEvent],
-  /// * a [KeyboardEvent] when the user clicks the esc-key, or
-  /// * a normal [Event] when the window loses focus (blur event).
+  /// * a [KeyboardEvent] when the user clicks the esc-key,
+  /// * a normal [Event] when the window loses focus (blur event), or
+  /// * null if the drag was programmatically aborted.
   final Event originalEvent;
 
   /// Position where the drag started, relative to the whole document (page
