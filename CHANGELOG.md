@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.3.1 (2016-07-26)
+
+* Support for programmatic drag abort (see issue #11).
+
+
 ## Version 0.3.0 (2015-04-18)
 
 * BREAKING CHANGE: Refactoring the `AvatarHandler`. Only if you've
