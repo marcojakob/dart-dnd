@@ -96,7 +96,7 @@ class Draggable {
 
   /// Abort the current drag
   void abort() {
-    if (_currentDrag?.draggableId == this.id) {
+    if (_currentDrag != null && _currentDrag.draggableId == this.id) {
       _handleDragEnd(null, null, cancelled: true);
     }
   }
@@ -256,7 +256,9 @@ class Draggable {
       }
 
       // Prevent TouchEvent from emulating a click after touchEnd event.
-      event?.preventDefault();
+      if (event != null) {
+        event.preventDefault();
+      }
 
       if (event is MouseEvent) {
         // Prevent MouseEvent from firing a click after mouseUp event.
