@@ -55,6 +55,9 @@ class Draggable {
   /// See [Draggable] constructor.
   String draggingClassBody;
 
+  /// The minimum distance for a drag to prevent click events.
+  int clickSuppression = 0;
+
   // -------------------
   // Events
   // -------------------
@@ -260,8 +263,11 @@ class Draggable {
         event.preventDefault();
       }
 
-      if (event is MouseEvent) {
-        // Prevent MouseEvent from firing a click after mouseUp event.
+      if (event is MouseEvent &&
+          (clickSuppression <= 0 ||
+              _currentDrag.startPosition.distanceTo(_currentDrag.position) >
+                  clickSuppression)) {
+        // Prevent MouseEvent from firing a click after mouseUp event if the move was significant.
         _suppressClickEvent();
       }
 
