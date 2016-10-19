@@ -333,8 +333,7 @@ class Draggable {
       var activeElement = document.activeElement;
       if (activeElement is TextAreaElement) {
         activeElement.setSelectionRange(0, 0);
-      }
-      if (activeElement is InputElement) {
+      } else if (activeElement is InputElement) {
         activeElement.setSelectionRange(0, 0);
       }
     } catch (_) {
