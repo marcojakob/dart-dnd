@@ -331,7 +331,10 @@ class Draggable {
     // Try to remove selection from textarea or input.
     try {
       var activeElement = document.activeElement;
-      if (activeElement is TextAreaElement || activeElement is InputElement) {
+      if (activeElement is TextAreaElement) {
+        activeElement.setSelectionRange(0, 0);
+      }
+      if (activeElement is InputElement) {
         activeElement.setSelectionRange(0, 0);
       }
     } catch (_) {

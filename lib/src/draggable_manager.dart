@@ -373,7 +373,7 @@ class _PointerManager extends _EventManager {
 
     // Function to be called on all elements of [_elementOrElementList].
     var installFunc = (Element element) {
-      startSubs.add(element.on[downEventName].listen((event) {
+      startSubs.add(element.on[downEventName].listen((MouseEvent event) {
         // Ignore if drag is already beeing handled.
         if (_currentDrag != null) {
           return;
@@ -430,7 +430,7 @@ class _PointerManager extends _EventManager {
   void installMove() {
     String moveEventName = msPrefix ? 'MSPointerMove' : 'pointermove';
 
-    dragSubs.add(document.on[moveEventName].listen((event) {
+    dragSubs.add(document.on[moveEventName].listen((MouseEvent event) {
       handleMove(event, event.page, event.client);
     }));
   }
@@ -439,7 +439,7 @@ class _PointerManager extends _EventManager {
   void installEnd() {
     String endEventName = msPrefix ? 'MSPointerUp' : 'pointerup';
 
-    dragSubs.add(document.on[endEventName].listen((event) {
+    dragSubs.add(document.on[endEventName].listen((MouseEvent event) {
       handleEnd(event, event.target, event.page, event.client);
     }));
   }
