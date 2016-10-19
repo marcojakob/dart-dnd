@@ -12,14 +12,6 @@ github_repo='git@github.com:marcojakob/dart-dnd.git'
 pub install
 pub build ${build_folder}
 
-# Build the shadow dom example separately because it has a transformer.
-cd example/shadow-dom
-pub build
-cd ../..
-rm -rf build/example/shadow-dom/*
-mv example/shadow-dom/build/* build/example/shadow-dom/
-
-
 # -----------------------------------
 # Configure git in build subfolder
 # -----------------------------------

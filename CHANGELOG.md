@@ -1,6 +1,12 @@
 # Changelog
 
 
+## Version 0.3.4 (2016-10-19)
+
+* Fix strong-mode type errors (#15).
+* Remove Shadow DOM example and (dev)dependency on Polymer (was causing some confusion).
+
+
 ## Version 0.3.3 (2016-09-22)
 
 * Allow a configurable clickSuppression distance (#13). We found that the click
