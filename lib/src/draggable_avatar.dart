@@ -114,7 +114,7 @@ abstract class AvatarHandler {
   /// Sets the CSS transform translate of [avatar]. Uses requestAnimationFrame
   /// to speed up animation.
   void setTranslate(Point position) {
-    Function updateFunction = () {
+    void updateFunction() {
       // Unsing `translate3d` to activate GPU hardware-acceleration (a bit of a hack).
       if (avatar != null) {
         avatar.style.transform = 'translate3d(${position.x}px, ${position.y}px, 0)';
