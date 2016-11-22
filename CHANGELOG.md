@@ -1,6 +1,11 @@
 # Changelog
 
 
+## Version 0.3.5 (2016-11-22)
+
+* Handle the edge case where destroy is called while dragging an avatar (#17).
+
+
 ## Version 0.3.4 (2016-10-19)
 
 * Fix strong-mode type errors (#15).
