@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Dart Drag and Drop: Custom Acceptor Example</title>
+
+<link rel="stylesheet" href="example.css">
+</head>
+
+<body>
+  <div class="container">
+    <a href="https://github.com/marcojakob/dart-dnd/tree/master/example/custom-acceptor"
+    target="_parent">Example Source on GitHub</a>
+
+    <div class="dropzone-container">
+      <div id="dropzone-1" class="dropzone">
+        <p>Dropzone 1</p>
+        (Accepts all)
+      </div>
+      <div id="dropzone-2" class="dropzone">
+        <p>Dropzone 2</p>
+        (Accepts B only)
+      </div>
+      <div id="dropzone-3" class="dropzone">
+        <p>Dropzone 3</p>
+        (Accepts if textfield contains word 'acceptme')
+      </div>
+    </div>
+
+    <div id="draggable-a" class="draggable">
+      <p>Draggable A</p>
+    </div>
+    <div id="draggable-b" class="draggable">
+      <p>Draggable B</p>
+    </div>
+    <div id="draggable-c" class="draggable">
+      <p>Draggable C</p>
+      Enter 'acceptme': <br>
+      <input>
+    </div>
+  </div>
+
+  <script type="application/dart" src="example.dart"></script>
+  <script src="packages/browser/dart.js"></script>
+</body>
+</html>

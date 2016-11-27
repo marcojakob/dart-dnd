@@ -1,0 +1,66 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #333;
+  background-color: #fff;
+  margin: 0;
+}
+
+.container {
+  max-width: 500px;
+  padding: 15px 15px 0 15px;
+}
+
+.draggable {
+  margin-top: 15px;
+  position: absolute;
+  z-index: 100;
+  width: 120px;
+  height: 50px;
+  background: #cddc39;
+  border-radius: 8px;
+  cursor: url(../../packages/dnd/cursor/openhand.cur), move; /* Cursor for IE. */
+  cursor: url(../../packages/dnd/cursor/openhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+}
+
+.draggable p {
+  text-align: center;
+  font-weight: bold;
+}
+
+.dropzone-outer {
+  position: relative;
+  top: 60px;
+  padding: 10px;
+  margin-top: 20px;
+  width: 280px;
+  height: 180px;
+  background: #ffc107;
+  border-radius: 8px;
+}
+
+.dropzone-inner {
+  padding: 10px;
+  margin-top: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: #ffe082;
+}
+
+.dnd-draggable, .dnd-drag-occurring {
+  cursor: url(../../packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
+  cursor: url(../../packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
+}
+
+.dnd-dragging {
+  opacity: 0.7;
+}
+
+.dnd-over {
+  background-color: #ff5722;
+}

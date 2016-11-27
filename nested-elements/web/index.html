@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Dart Drag and Drop: Nested Elements Example</title>
+
+<link rel="stylesheet" href="example.css">
+</head>
+
+<body>
+  <div class="container">
+    <a href="https://github.com/marcojakob/dart-dnd/tree/master/example/nested-elements"
+    target="_parent">Example Source on GitHub</a>
+
+    <div class="draggable">
+      <p>Drag me!</p>
+    </div>
+
+    <div class="dropzone">
+      <span>Outer div</span>
+      <div class="inner">Inner div</div>
+      <textarea>Textarea</textarea>
+      <button>Button</button>
+    </div>
+  </div>
+
+  <script type="application/dart" src="example.dart"></script>
+  <script src="packages/browser/dart.js"></script>
+</body>
+</html>
