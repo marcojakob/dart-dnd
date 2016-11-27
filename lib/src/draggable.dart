@@ -308,7 +308,9 @@ class Draggable {
     // Destroy all managers.
     _eventManagers.forEach((m) => m.destroy());
     _eventManagers.clear();
-    avatarHandler?.avatar?.remove();
+    if (avatarHandler != null && avatarHandler.avatar != null) {
+      avatarHandler.avatar.remove();
+    }
   }
 
   /// Cancels drag subscriptions and resets to initial state.
