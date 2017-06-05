@@ -121,6 +121,13 @@ abstract class _EventManager {
     startSubs.clear();
   }
 
+  /// Determine a target using `document.elementFromPoint` via the provided [clientPosition].
+  ///
+  /// Falls back to `document.body` if no element is found at the provided [clientPosition].
+  EventTarget _getRealTargetFromPoint(Point clientPosition) {
+    return document.elementFromPoint(clientPosition.x, clientPosition.y) ?? document.body;
+  }
+
   /// Determine the actual target that should receive the event because
   /// mouse or touch event might have occurred on a drag avatar.
   ///
@@ -130,7 +137,7 @@ abstract class _EventManager {
   EventTarget _getRealTarget(Point clientPosition, {EventTarget target}) {
     // If no target was provided get it.
     if (target == null) {
-      target = document.elementFromPoint(clientPosition.x, clientPosition.y);
+      target = _getRealTargetFromPoint(clientPosition);
     }
 
     // Test if target is the drag avatar.
@@ -139,7 +146,7 @@ abstract class _EventManager {
 
       // Target is the drag avatar, get element underneath.
       drg.avatarHandler.avatar.style.visibility = 'hidden';
-      target = document.elementFromPoint(clientPosition.x, clientPosition.y);
+      target = _getRealTargetFromPoint(clientPosition);
       drg.avatarHandler.avatar.style.visibility = 'visible';
     }
 
