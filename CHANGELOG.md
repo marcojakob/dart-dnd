@@ -1,6 +1,11 @@
 # Changelog
 
 
+## Version 0.3.6 (2017-06-06)
+
+* Fix bug: Provide reasonable fallback for event target when mouse position exits viewport (#19).
+
+
 ## Version 0.3.5 (2016-11-22)
 
 * Handle the edge case where destroy is called while dragging an avatar (#17).
