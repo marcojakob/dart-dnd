@@ -380,39 +380,7 @@ class _PointerManager extends _EventManager {
 
     // Function to be called on all elements of [_elementOrElementList].
     var installFunc = (Element element) {
-      startSubs.add(element.on[downEventName].listen((MouseEvent event) {
-        // Ignore if drag is already beeing handled.
-        if (_currentDrag != null) {
-          return;
-        }
-
-        // Only handle left clicks, ignore clicks from right or middle buttons.
-        if (event.button != 0) {
-          return;
-        }
-
-        // Ensure the drag started on a valid target.
-        if (!_isValidDragStartTarget(event.target)) {
-          return;
-        }
-
-        // Prevent default on mouseDown. Reasons:
-        // * Disables image dragging handled by the browser.
-        // * Disables text selection.
-        //
-        // Note: We must NOT prevent default on form elements. Reasons:
-        // * SelectElement would not show a dropdown.
-        // * InputElement and TextAreaElement would not get focus.
-        // * ButtonElement and OptionElement - don't know if this is needed??
-        Element target = event.target;
-        if (!(target is SelectElement || target is InputElement ||
-              target is TextAreaElement || target is ButtonElement ||
-              target is OptionElement)) {
-          event.preventDefault();
-        }
-
-        handleStart(event, event.page);
-      }));
+      startSubs.add(element.on[downEventName].listen(_listenForStartEvent));
     };
 
     // The [ElementList] does not have the `on` method for custom events. So,
@@ -437,18 +405,14 @@ class _PointerManager extends _EventManager {
   void installMove() {
     String moveEventName = msPrefix ? 'MSPointerMove' : 'pointermove';
 
-    dragSubs.add(document.on[moveEventName].listen((MouseEvent event) {
-      handleMove(event, event.page, event.client);
-    }));
+    dragSubs.add(document.on[moveEventName].listen(_listenForMoveEvent));
   }
 
   @override
   void installEnd() {
     String endEventName = msPrefix ? 'MSPointerUp' : 'pointerup';
 
-    dragSubs.add(document.on[endEventName].listen((MouseEvent event) {
-      handleEnd(event, event.target, event.page, event.client);
-    }));
+    dragSubs.add(document.on[endEventName].listen(_listenForEndEvent));
   }
 
   @override
@@ -458,6 +422,48 @@ class _PointerManager extends _EventManager {
     dragSubs.add(document.on[cancelEventName].listen((event) {
       handleCancel(event);
     }));
+  }
+
+  void _listenForStartEvent(covariant MouseEvent event) {
+    // Ignore if drag is already beeing handled.
+    if (_currentDrag != null) {
+      return;
+    }
+
+    // Only handle left clicks, ignore clicks from right or middle buttons.
+    if (event.button != 0) {
+      return;
+    }
+
+    // Ensure the drag started on a valid target.
+    if (!_isValidDragStartTarget(event.target)) {
+      return;
+    }
+
+    // Prevent default on mouseDown. Reasons:
+    // * Disables image dragging handled by the browser.
+    // * Disables text selection.
+    //
+    // Note: We must NOT prevent default on form elements. Reasons:
+    // * SelectElement would not show a dropdown.
+    // * InputElement and TextAreaElement would not get focus.
+    // * ButtonElement and OptionElement - don't know if this is needed??
+    Element target = event.target;
+    if (!(target is SelectElement || target is InputElement ||
+          target is TextAreaElement || target is ButtonElement ||
+          target is OptionElement)) {
+      event.preventDefault();
+    }
+
+    handleStart(event, event.page);
+  }
+
+  void _listenForMoveEvent(covariant MouseEvent event) {
+    handleMove(event, event.page, event.client);
+  }
+
+  void _listenForEndEvent(covariant MouseEvent event) {
+    handleEnd(event, event.target, event.page, event.client);
   }
 
   /// Returns the touch-action values `none`, `pan-x`, or `pan-y` depending on
