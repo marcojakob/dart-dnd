@@ -6,7 +6,6 @@ part of dnd;
 /// the [CustomEvent]s.
 _DragInfo _currentDrag;
 
-
 /// The [Draggable] detects drag operations for touch and mouse interactions and
 /// optionally creates a drag avatar for visual feedback of the drag. Event
 /// streams are provided to track touch or mouse dragging:
@@ -17,7 +16,6 @@ _DragInfo _currentDrag;
 ///
 /// A [Draggable] can be created for one [Element] or an [ElementList].
 class Draggable {
-
   /// Counter to generate a unique id for each instance.
   static int idCounter = 0;
 
@@ -72,8 +70,8 @@ class Draggable {
   /// will also be fired.
   Stream<DraggableEvent> get onDragStart {
     if (_onDragStart == null) {
-      _onDragStart = new StreamController<DraggableEvent>.broadcast(sync: true,
-          onCancel: () => _onDragStart = null);
+      _onDragStart = new StreamController<DraggableEvent>.broadcast(
+          sync: true, onCancel: () => _onDragStart = null);
     }
     return _onDragStart.stream;
   }
@@ -81,8 +79,8 @@ class Draggable {
   /// Fired periodically throughout the drag operation.
   Stream<DraggableEvent> get onDrag {
     if (_onDrag == null) {
-      _onDrag = new StreamController<DraggableEvent>.broadcast(sync: true,
-          onCancel: () => _onDrag = null);
+      _onDrag = new StreamController<DraggableEvent>.broadcast(
+          sync: true, onCancel: () => _onDrag = null);
     }
     return _onDrag.stream;
   }
@@ -91,8 +89,8 @@ class Draggable {
   /// Is also fired when the user clicks the 'esc'-key or the window loses focus.
   Stream<DraggableEvent> get onDragEnd {
     if (_onDragEnd == null) {
-      _onDragEnd = new StreamController<DraggableEvent>.broadcast(sync: true,
-          onCancel: () => _onDragEnd = null);
+      _onDragEnd = new StreamController<DraggableEvent>.broadcast(
+          sync: true, onCancel: () => _onDragEnd = null);
     }
     return _onDragEnd.stream;
   }
@@ -150,16 +148,14 @@ class Draggable {
   /// The [draggingClassBody] is the css class set to the html body tag
   /// during a drag. If set to null, no such css class is added.
   Draggable(elementOrElementList,
-      { this.avatarHandler: null,
-        this.horizontalOnly: false,
-        this.verticalOnly: false,
-        this.handle: null,
-        this.cancel: 'input, textarea, button, select, option',
-        this.draggingClass: 'dnd-dragging',
-        this.draggingClassBody: 'dnd-drag-occurring'})
-
+      {this.avatarHandler: null,
+      this.horizontalOnly: false,
+      this.verticalOnly: false,
+      this.handle: null,
+      this.cancel: 'input, textarea, button, select, option',
+      this.draggingClass: 'dnd-dragging',
+      this.draggingClassBody: 'dnd-drag-occurring'})
       : this._elementOrElementList = elementOrElementList {
-
     // Detect IE Pointer Event Support.
     JsObject jsWindow = new JsObject.fromBrowserObject(window);
     JsObject jsNavigator = jsWindow['navigator'];
@@ -167,11 +163,9 @@ class Draggable {
     if (jsNavigator.hasProperty('pointerEnabled')) {
       // We're on IE11 or higher supporting pointerEvents.
       _eventManagers.add(new _PointerManager(this));
-
-    } else if (jsNavigator.hasProperty('msPointerEnabled')){
+    } else if (jsNavigator.hasProperty('msPointerEnabled')) {
       // We're on IE10 supporting msPointerEvents.
       _eventManagers.add(new _PointerManager(this, msPrefix: true));
-
     } else {
       // We're on other browsers. Install touch and mouse listeners.
       if (TouchEvent.supported) {
@@ -189,7 +183,8 @@ class Draggable {
 
     // Pass event to AvatarHandler.
     if (avatarHandler != null) {
-      avatarHandler._handleDragStart(_currentDrag.element, _currentDrag.position);
+      avatarHandler._handleDragStart(
+          _currentDrag.element, _currentDrag.position);
     }
 
     // Fire the drag start event with start position.
@@ -218,7 +213,8 @@ class Draggable {
   void _handleDrag(UIEvent moveEvent, EventTarget target) {
     // Pass event to AvatarHandler.
     if (avatarHandler != null) {
-      avatarHandler._handleDrag(_currentDrag.startPosition, _currentDrag.position);
+      avatarHandler._handleDrag(
+          _currentDrag.startPosition, _currentDrag.position);
     }
 
     // Dispatch internal drag enter, over, or leave event.
@@ -244,7 +240,8 @@ class Draggable {
     if (_currentDrag.started) {
       // Pass event to AvatarHandler.
       if (avatarHandler != null) {
-        avatarHandler._handleDragEnd(_currentDrag.startPosition, _currentDrag.position);
+        avatarHandler._handleDragEnd(
+            _currentDrag.startPosition, _currentDrag.position);
       }
 
       // Dispatch internal drop event if drag was not cancelled.
@@ -254,8 +251,8 @@ class Draggable {
 
       // Fire dragEnd event.
       if (_onDragEnd != null) {
-        _onDragEnd.add(new DraggableEvent._(event, _currentDrag,
-            cancelled: cancelled));
+        _onDragEnd.add(
+            new DraggableEvent._(event, _currentDrag, cancelled: cancelled));
       }
 
       // Prevent TouchEvent from emulating a click after touchEnd event.
@@ -288,7 +285,8 @@ class Draggable {
   /// [MouseEvent]s. We have to wait for and cancel a potential click event
   /// happening after the mouseUp event.
   void _suppressClickEvent() {
-    StreamSubscription clickPreventer = _elementOrElementList.onClick.listen((event) {
+    StreamSubscription clickPreventer =
+        _elementOrElementList.onClick.listen((event) {
       event.stopPropagation();
       event.preventDefault();
     });
@@ -346,7 +344,6 @@ class Draggable {
   }
 }
 
-
 /// Event used when a drag is detected.
 class DraggableEvent {
   /// The [Element] that is beeing dragged.
@@ -377,7 +374,8 @@ class DraggableEvent {
   final bool cancelled;
 
   /// Private constructor for [DraggableEvent].
-  DraggableEvent._(this.originalEvent, _DragInfo dragInfo, {this.cancelled: false})
+  DraggableEvent._(this.originalEvent, _DragInfo dragInfo,
+      {this.cancelled: false})
       : draggableElement = dragInfo.element,
         avatarHandler = dragInfo.avatarHandler,
         startPosition = dragInfo.startPosition,
@@ -409,9 +407,9 @@ class _DragInfo {
   final bool verticalOnly;
 
   _DragInfo(this.draggableId, this.element, this.startPosition,
-      { this.avatarHandler: null,
-        this.horizontalOnly: false,
-        this.verticalOnly: false}) {
+      {this.avatarHandler: null,
+      this.horizontalOnly: false,
+      this.verticalOnly: false}) {
     // Initially set current position to startPosition.
     _position = startPosition;
   }

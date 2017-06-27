@@ -11,4 +11,3 @@ part 'src/draggable_dispatch.dart';
 part 'src/draggable_manager.dart';
 part 'src/dropzone.dart';
 part 'src/dropzone_acceptor.dart';
-

@@ -4,7 +4,6 @@ part of dnd;
 /// a drag avatar. A drag avatar provides visual feedback during the drag
 /// operation.
 abstract class AvatarHandler {
-
   /// Returns the [avatar] element during a drag operation.
   ///
   /// If there is no drag operation going on, [avatar] will be null.
@@ -117,9 +116,12 @@ abstract class AvatarHandler {
     void updateFunction() {
       // Unsing `translate3d` to activate GPU hardware-acceleration (a bit of a hack).
       if (avatar != null) {
-        avatar.style.transform = 'translate3d(${position.x}px, ${position.y}px, 0)';
+        avatar.style.transform =
+            'translate3d(${position.x}px, ${position.y}px, 0)';
       }
-    };
+    }
+
+    ;
 
     // Use request animation frame to update the transform translate.
     AnimationHelper.requestUpdate(updateFunction);
@@ -149,18 +151,16 @@ abstract class AvatarHandler {
   void cacheMargins() {
     // Calculate margins.
     var computedStyles = avatar.getComputedStyle();
-    _marginLeft = num.parse(computedStyles.marginLeft.replaceFirst('px', ''),
-        (s) => 0);
-    _marginTop = num.parse(computedStyles.marginTop.replaceFirst('px', ''),
-        (s) => 0);
+    _marginLeft =
+        num.parse(computedStyles.marginLeft.replaceFirst('px', ''), (s) => 0);
+    _marginTop =
+        num.parse(computedStyles.marginTop.replaceFirst('px', ''), (s) => 0);
   }
 }
-
 
 /// The [OriginalAvatarHandler] uses the draggable element itself as drag
 /// avatar. It uses absolute positioning of the avatar.
 class OriginalAvatarHandler extends AvatarHandler {
-
   Point _draggableStartOffset;
 
   @override
@@ -191,24 +191,22 @@ class OriginalAvatarHandler extends AvatarHandler {
 
     // Set the new position as left/top. Prevent from moving past the top and
     // left borders as the user might not be able to grab the element any more.
-    Point constrainedPosition = new Point(math.max(1, position.x),
-        math.max(1, position.y));
+    Point constrainedPosition =
+        new Point(math.max(1, position.x), math.max(1, position.y));
 
     setLeftTop(constrainedPosition - startPosition + _draggableStartOffset);
   }
 }
 
-
 /// [CloneAvatarHandler] creates a clone of the draggable element as drag avatar.
 /// The avatar is removed at the end of the drag operation.
 class CloneAvatarHandler extends AvatarHandler {
-
   @override
   void dragStart(Element draggable, Point startPosition) {
     // Clone the draggable to create the avatar.
     avatar = (draggable.clone(true) as Element)
-        ..attributes.remove('id')
-        ..style.cursor = 'inherit';
+      ..attributes.remove('id')
+      ..style.cursor = 'inherit';
 
     // Ensure avatar has an absolute position.
     avatar.style.position = 'absolute';
@@ -233,10 +231,8 @@ class CloneAvatarHandler extends AvatarHandler {
   }
 }
 
-
 /// Simple helper class to speed up animation with requestAnimationFrame.
 class AnimationHelper {
-
   static Function _lastUpdateFunction;
   static bool _updating = false;
 
