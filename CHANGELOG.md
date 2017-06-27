@@ -1,6 +1,11 @@
 # Changelog
 
 
+## Version 0.4.0 (2017-06-27)
+
+* Fix strong mode errors (#20).
+
+
 ## Version 0.3.6 (2017-06-06)
 
 * Fix bug: Provide reasonable fallback for event target when mouse position exits viewport (#19).
