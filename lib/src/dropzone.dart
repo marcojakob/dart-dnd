@@ -13,7 +13,6 @@ part of dnd;
 ///
 /// A [Dropzone] can be created for one [Element] or an [ElementList].
 class Dropzone {
-
   // --------------
   // Options
   // --------------
@@ -40,8 +39,8 @@ class Dropzone {
   /// Fired when a [Draggable] enters this [Dropzone].
   Stream<DropzoneEvent> get onDragEnter {
     if (_onDragEnter == null) {
-      _onDragEnter = new StreamController<DropzoneEvent>.broadcast(sync: true,
-          onCancel: () => _onDragEnter = null);
+      _onDragEnter = new StreamController<DropzoneEvent>.broadcast(
+          sync: true, onCancel: () => _onDragEnter = null);
     }
     return _onDragEnter.stream;
   }
@@ -49,8 +48,8 @@ class Dropzone {
   /// Fired periodically while a [Draggable] is moved over a [Dropzone].
   Stream<DropzoneEvent> get onDragOver {
     if (_onDragOver == null) {
-      _onDragOver = new StreamController<DropzoneEvent>.broadcast(sync: true,
-          onCancel: () => _onDragOver = null);
+      _onDragOver = new StreamController<DropzoneEvent>.broadcast(
+          sync: true, onCancel: () => _onDragOver = null);
     }
     return _onDragOver.stream;
   }
@@ -58,8 +57,8 @@ class Dropzone {
   /// Fired when a [Draggable] leaves this [Dropzone].
   Stream<DropzoneEvent> get onDragLeave {
     if (_onDragLeave == null) {
-      _onDragLeave = new StreamController<DropzoneEvent>.broadcast(sync: true,
-          onCancel: () => _onDragLeave = null);
+      _onDragLeave = new StreamController<DropzoneEvent>.broadcast(
+          sync: true, onCancel: () => _onDragLeave = null);
     }
     return _onDragLeave.stream;
   }
@@ -68,8 +67,8 @@ class Dropzone {
   /// inside this [Dropzone].
   Stream<DropzoneEvent> get onDrop {
     if (_onDrop == null) {
-      _onDrop = new StreamController<DropzoneEvent>.broadcast(sync: true,
-          onCancel: () => _onDrop = null);
+      _onDrop = new StreamController<DropzoneEvent>.broadcast(
+          sync: true, onCancel: () => _onDrop = null);
     }
     return _onDrop.stream;
   }
@@ -104,11 +103,10 @@ class Dropzone {
   /// not-accepted [Draggable] is dragged over it. If set to null, no such css
   /// class is added.
   Dropzone(elementOrElementList,
-      { this.acceptor: null,
-        this.overClass: 'dnd-over',
-        this.invalidClass: 'dnd-invalid'})
+      {this.acceptor: null,
+      this.overClass: 'dnd-over',
+      this.invalidClass: 'dnd-invalid'})
       : this._elementOrElementList = elementOrElementList {
-
     // Install drag listener on Element or ElementList.
     if (_elementOrElementList is ElementList) {
       _elementOrElementList.forEach(_installCustomDragListener);
@@ -120,22 +118,25 @@ class Dropzone {
   /// Installs the custom drag listeners (dragEnter, dragOver, dragLeave, and
   /// drop) on [element].
   void _installCustomDragListener(Element element) {
-    _subs.add(_DragEventDispatcher.enterEvent.forTarget(element)
+    _subs.add(_DragEventDispatcher.enterEvent
+        .forTarget(element)
         .listen(_handleDragEnter));
-    _subs.add(_DragEventDispatcher.overEvent.forTarget(element)
+    _subs.add(_DragEventDispatcher.overEvent
+        .forTarget(element)
         .listen(_handleDragOver));
-    _subs.add(_DragEventDispatcher.leaveEvent.forTarget(element)
+    _subs.add(_DragEventDispatcher.leaveEvent
+        .forTarget(element)
         .listen(_handleDragLeave));
-    _subs.add(_DragEventDispatcher.dropEvent.forTarget(element)
-        .listen(_handleDrop));
+    _subs.add(
+        _DragEventDispatcher.dropEvent.forTarget(element).listen(_handleDrop));
   }
 
   /// Handles dragEnter events.
   void _handleDragEnter(MouseEvent event) {
     // Only handle dragEnter if user moved from outside of element into the
     // element. That means we ignore it if user is coming from a child element.
-    if (event.relatedTarget != null
-        && (event.currentTarget as Element).contains(event.relatedTarget)) {
+    if (event.relatedTarget != null &&
+        (event.currentTarget as Element).contains(event.relatedTarget)) {
       return;
     }
 
@@ -144,10 +145,10 @@ class Dropzone {
     if (acceptor == null ||
         acceptor.accepts(_currentDrag.element, _currentDrag.draggableId,
             event.currentTarget)) {
-
       // Fire dragEnter event.
       if (_onDragEnter != null) {
-        _onDragEnter.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
+        _onDragEnter
+            .add(new DropzoneEvent._(event.currentTarget, _currentDrag));
       }
 
       // Add the css class to indicate drag over.
@@ -155,7 +156,6 @@ class Dropzone {
         (event.currentTarget as Element).classes.add(overClass);
       }
     } else {
-
       // Add the css class to indicate invalid drag over.
       if (invalidClass != null) {
         (event.currentTarget as Element).classes.add(invalidClass);
@@ -168,8 +168,8 @@ class Dropzone {
     // Test if the current draggable is accepted by this dropzone. If there is
     // no accepter all are accepted.
     if (acceptor == null ||
-        acceptor.accepts(_currentDrag.element, _currentDrag.draggableId, event.currentTarget)) {
-
+        acceptor.accepts(_currentDrag.element, _currentDrag.draggableId,
+            event.currentTarget)) {
       // Fire dragOver event.
       if (_onDragOver != null) {
         _onDragOver.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
@@ -181,8 +181,8 @@ class Dropzone {
   void _handleDragLeave(MouseEvent event) {
     // Only handle dragLeave if user moved from inside of element to the
     // outside. That means we ignore it if user is moving to a child element.
-    if (event.relatedTarget != null
-        && (event.currentTarget as Element).contains(event.relatedTarget)) {
+    if (event.relatedTarget != null &&
+        (event.currentTarget as Element).contains(event.relatedTarget)) {
       return;
     }
 
@@ -191,10 +191,10 @@ class Dropzone {
     if (acceptor == null ||
         acceptor.accepts(_currentDrag.element, _currentDrag.draggableId,
             event.currentTarget)) {
-
       // Fire dragLeave event.
       if (_onDragLeave != null) {
-        _onDragLeave.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
+        _onDragLeave
+            .add(new DropzoneEvent._(event.currentTarget, _currentDrag));
       }
 
       // Remove the css class.
@@ -202,14 +202,12 @@ class Dropzone {
         (event.currentTarget as Element).classes.remove(overClass);
       }
     } else {
-
       // Remove the invalid drag css class.
       if (invalidClass != null) {
         (event.currentTarget as Element).classes.remove(invalidClass);
       }
     }
   }
-
 
   /// Handles drop events.
   void _handleDrop(MouseEvent event) {
@@ -218,7 +216,6 @@ class Dropzone {
     if (acceptor == null ||
         acceptor.accepts(_currentDrag.element, _currentDrag.draggableId,
             event.currentTarget)) {
-
       // Fire drop event.
       if (_onDrop != null) {
         _onDrop.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
@@ -232,7 +229,6 @@ class Dropzone {
     _subs.clear();
   }
 }
-
 
 /// Event for dropzone elements.
 class DropzoneEvent {
