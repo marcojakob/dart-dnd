@@ -14,7 +14,7 @@ class _DragEventDispatcher {
   /// Custom drag leave event that is fired on the element that is left.
   static const String CUSTOM_DRAG_LEAVE = '_customDragLeave';
 
-  /// Custom drag leave event that is fired on the element that is left.
+  /// Custom drop event that is fired on the element that the draggable was dropped.
   static const String CUSTOM_DROP = '_customDrop';
 
   /// Stream provider for [CUSTOM_DRAG_ENTER] events. The relatedTarget contains

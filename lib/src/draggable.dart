@@ -156,18 +156,15 @@ class Draggable {
       this.draggingClass: 'dnd-dragging',
       this.draggingClassBody: 'dnd-drag-occurring'})
       : this._elementOrElementList = elementOrElementList {
-    // Detect IE Pointer Event Support.
+    // Detect Pointer Event Support.
     JsObject jsWindow = new JsObject.fromBrowserObject(window);
-    JsObject jsNavigator = jsWindow['navigator'];
 
-    if (jsNavigator.hasProperty('pointerEnabled')) {
-      // We're on IE11 or higher supporting pointerEvents.
+    if (jsWindow.hasProperty('PointerEvent')) {
+      // Browser with support for Pointer Events.
       _eventManagers.add(new _PointerManager(this));
-    } else if (jsNavigator.hasProperty('msPointerEnabled')) {
-      // We're on IE10 supporting msPointerEvents.
-      _eventManagers.add(new _PointerManager(this, msPrefix: true));
     } else {
-      // We're on other browsers. Install touch and mouse listeners.
+      // We're on a browser with no support for Pointer Events.
+      // Install touch and mouse listeners.
       if (TouchEvent.supported) {
         _eventManagers.add(new _TouchManager(this));
       }

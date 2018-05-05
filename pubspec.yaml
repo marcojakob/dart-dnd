@@ -1,10 +1,12 @@
 name: dnd
-version: 0.4.0
+version: 1.0.0-alpha+1
 author: Marco Jakob <majakob@gmx.ch>
 description: Drag and Drop for Dart web apps with mouse and touch support.
 homepage: http://code.makery.ch/library/dart-drag-and-drop/
 documentation: https://www.dartdocs.org/documentation/dnd/latest/
 environment:
-  sdk: '>=1.0.0 <2.0.0'
-dependencies:
-  browser: '>=0.10.0 <0.11.0'
+  sdk: '>=2.0.0-dev.46.0 <2.0.0'
+
+dev_dependencies:
+  build_runner: ^0.8.7
+  build_web_compilers: ^0.3.7

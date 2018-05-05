@@ -95,6 +95,7 @@ abstract class _EventManager {
     _currentDrag.position = position;
 
     EventTarget realTarget = _getRealTarget(clientPosition, target: target);
+    print('${drg.id}');
     drg._handleDragEnd(event, realTarget);
   }
 
@@ -125,7 +126,8 @@ abstract class _EventManager {
   ///
   /// Falls back to `document.body` if no element is found at the provided [clientPosition].
   EventTarget _getRealTargetFromPoint(Point clientPosition) {
-    return document.elementFromPoint(clientPosition.x, clientPosition.y) ??
+    return document.elementFromPoint(
+            clientPosition.x.round(), clientPosition.y.round()) ??
         document.body;
   }
 
@@ -166,7 +168,7 @@ abstract class _EventManager {
         target.attributes.containsKey(SHADOW_DOM_RETARGET_ATTRIBUTE)) {
       Element newTarget = (target as Element)
           .shadowRoot
-          .elementFromPoint(clientPosition.x, clientPosition.y);
+          .elementFromPoint(clientPosition.x.round(), clientPosition.y.round());
 
       // Recursive call for nested shadow DOM trees.
       target = _recursiveShadowDomTarget(clientPosition, newTarget);
@@ -369,106 +371,85 @@ class _MouseManager extends _EventManager {
 
 /// Manages the browser's pointer events (used for Internet Explorer).
 class _PointerManager extends _EventManager {
-  bool msPrefix;
-
-  _PointerManager(Draggable draggable, {this.msPrefix: false})
-      : super(draggable);
+  _PointerManager(Draggable draggable) : super(draggable);
 
   @override
   void installStart() {
-    String downEventName = msPrefix ? 'MSPointerDown' : 'pointerdown';
-
-    // Function to be called on all elements of [_elementOrElementList].
-    var installFunc = (Element element) {
-      startSubs.add(element.on[downEventName].listen(_listenForStartEvent));
-    };
-
     // The [ElementList] does not have the `on` method for custom events. So,
     // we need to manually go trough all [Element]s and call the [installFunc].
     if (drg._elementOrElementList is ElementList) {
-      drg._elementOrElementList.forEach(installFunc);
+      drg._elementOrElementList.forEach(_doInstallStart);
     } else {
-      installFunc(drg._elementOrElementList);
+      _doInstallStart(drg._elementOrElementList);
     }
 
     // Disable default touch actions on all elements (scrolling, panning, zooming).
-    if (msPrefix) {
-      drg._elementOrElementList.style
-          .setProperty('-ms-touch-action', _getTouchActionValue());
-    } else {
-      drg._elementOrElementList.style
-          .setProperty('touch-action', _getTouchActionValue());
-    }
+    drg._elementOrElementList.style
+        .setProperty('touch-action', _getTouchActionValue());
+  }
+
+  void _doInstallStart(Element element) {
+    startSubs.add(element.on['pointerdown'].listen((e) {
+      var event = e as PointerEvent;
+
+      // Ignore if drag is already beeing handled.
+      if (_currentDrag != null) {
+        return;
+      }
+
+      // Only handle left clicks, ignore clicks from right or middle buttons.
+      if (event.button != 0) {
+        return;
+      }
+
+      // Ensure the drag started on a valid target.
+      if (!_isValidDragStartTarget(event.target)) {
+        return;
+      }
+
+      // Prevent default on mouseDown. Reasons:
+      // * Disables image dragging handled by the browser.
+      // * Disables text selection.
+      //
+      // Note: We must NOT prevent default on form elements. Reasons:
+      // * SelectElement would not show a dropdown.
+      // * InputElement and TextAreaElement would not get focus.
+      // * ButtonElement and OptionElement - don't know if this is needed??
+      Element target = event.target;
+      if (!(target is SelectElement ||
+          target is InputElement ||
+          target is TextAreaElement ||
+          target is ButtonElement ||
+          target is OptionElement)) {
+        event.preventDefault();
+      }
+
+      handleStart(event, event.page);
+    }));
   }
 
   @override
   void installMove() {
-    String moveEventName = msPrefix ? 'MSPointerMove' : 'pointermove';
-
-    dragSubs.add(document.on[moveEventName].listen(_listenForMoveEvent));
+    dragSubs.add(document.on['pointermove'].listen((e) {
+      var event = e as PointerEvent;
+      handleMove(event, event.page, event.client);
+    }));
   }
 
   @override
   void installEnd() {
-    String endEventName = msPrefix ? 'MSPointerUp' : 'pointerup';
-
-    dragSubs.add(document.on[endEventName].listen(_listenForEndEvent));
+    dragSubs.add(document.on['pointerup'].listen((e) {
+      var event = e as PointerEvent;
+      // handleEnd(event, event.target, event.page, event.client);
+      handleEnd(event, null, event.page, event.client);
+    }));
   }
 
   @override
   void installCancel() {
-    String cancelEventName = msPrefix ? 'MSPointerCancel' : 'mspointercancel';
-
-    dragSubs.add(document.on[cancelEventName].listen((event) {
+    dragSubs.add(document.on['pointercancel'].listen((event) {
       handleCancel(event);
     }));
-  }
-
-  /// Listener in a separate method to be able to use the `covariant` keyword.
-  void _listenForStartEvent(covariant MouseEvent event) {
-    // Ignore if drag is already beeing handled.
-    if (_currentDrag != null) {
-      return;
-    }
-
-    // Only handle left clicks, ignore clicks from right or middle buttons.
-    if (event.button != 0) {
-      return;
-    }
-
-    // Ensure the drag started on a valid target.
-    if (!_isValidDragStartTarget(event.target)) {
-      return;
-    }
-
-    // Prevent default on mouseDown. Reasons:
-    // * Disables image dragging handled by the browser.
-    // * Disables text selection.
-    //
-    // Note: We must NOT prevent default on form elements. Reasons:
-    // * SelectElement would not show a dropdown.
-    // * InputElement and TextAreaElement would not get focus.
-    // * ButtonElement and OptionElement - don't know if this is needed??
-    Element target = event.target;
-    if (!(target is SelectElement ||
-        target is InputElement ||
-        target is TextAreaElement ||
-        target is ButtonElement ||
-        target is OptionElement)) {
-      event.preventDefault();
-    }
-
-    handleStart(event, event.page);
-  }
-
-  /// Listener in a separate method to be able to use the `covariant` keyword.
-  void _listenForMoveEvent(covariant MouseEvent event) {
-    handleMove(event, event.page, event.client);
-  }
-
-  /// Listener in a separate method to be able to use the `covariant` keyword.
-  void _listenForEndEvent(covariant MouseEvent event) {
-    handleEnd(event, event.target, event.page, event.client);
   }
 
   /// Returns the touch-action values `none`, `pan-x`, or `pan-y` depending on

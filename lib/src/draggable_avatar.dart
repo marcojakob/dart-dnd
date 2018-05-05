@@ -113,18 +113,14 @@ abstract class AvatarHandler {
   /// Sets the CSS transform translate of [avatar]. Uses requestAnimationFrame
   /// to speed up animation.
   void setTranslate(Point position) {
-    void updateFunction() {
+    // Use request animation frame to update the transform translate.
+    AnimationHelper.requestUpdate(() {
       // Unsing `translate3d` to activate GPU hardware-acceleration (a bit of a hack).
       if (avatar != null) {
         avatar.style.transform =
             'translate3d(${position.x}px, ${position.y}px, 0)';
       }
-    }
-
-    ;
-
-    // Use request animation frame to update the transform translate.
-    AnimationHelper.requestUpdate(updateFunction);
+    });
   }
 
   /// Removes the CSS transform of [avatar]. Also stops the requested animation
@@ -152,9 +148,9 @@ abstract class AvatarHandler {
     // Calculate margins.
     var computedStyles = avatar.getComputedStyle();
     _marginLeft =
-        num.parse(computedStyles.marginLeft.replaceFirst('px', ''), (s) => 0);
+        num.tryParse(computedStyles.marginLeft.replaceFirst('px', '')) ?? 0;
     _marginTop =
-        num.parse(computedStyles.marginTop.replaceFirst('px', ''), (s) => 0);
+        num.tryParse(computedStyles.marginTop.replaceFirst('px', '')) ?? 0;
   }
 }
 
