@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -38,14 +39,15 @@ body {
   opacity: 0.5;
 }
 
-.dnd-dragging, .dnd-drag-occurring {
+.dnd-dragging,
+.dnd-drag-occurring {
   cursor: url(packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
   cursor: url(packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }
 
 .dnd-over {
   border-width: medium;
-  border-color: #ff5722;
+  border-color: #cddc39;
   border-style: dashed;
   background-color: white;
   opacity: 1;
@@ -54,4 +56,3 @@ body {
 .dnd-over * {
   display: none;
 }
-

@@ -296,11 +296,16 @@ class Draggable {
     });
   }
 
-  /// Unistalls all listeners.
+  /// Resets the draggable elements to their initial state.
+  ///
+  /// All listeners are uninstalled.
   void destroy() {
     _resetCurrentDrag();
 
-    // Destroy all managers.
+    // Reset the touch action property.
+    _elementOrElementList.style.touchAction = null;
+
+    // Destroy all managers with their listeners.
     _eventManagers.forEach((m) => m.destroy());
     _eventManagers.clear();
     if (avatarHandler != null && avatarHandler.avatar != null) {

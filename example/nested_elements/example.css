@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -46,7 +47,7 @@ body {
 
 .inner {
   padding: 10px;
-  margin-top:10px;
+  margin-top: 10px;
   height: 20px;
   border-radius: 8px;
   background-color: #ffe082;
@@ -65,7 +66,8 @@ button {
   height: 30px;
 }
 
-.dnd-draggable, .dnd-drag-occurring {
+.dnd-draggable,
+.dnd-drag-occurring {
   cursor: url(packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
   cursor: url(packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }
@@ -75,5 +77,5 @@ button {
 }
 
 .dnd-over {
-  background-color: #ff5722;
+  background-color: #ffe607;
 }

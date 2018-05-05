@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -52,7 +53,8 @@ body {
   background-color: #ffe082;
 }
 
-.dnd-draggable, .dnd-drag-occurring {
+.dnd-draggable,
+.dnd-drag-occurring {
   cursor: url(packages/dnd/cursor/closedhand.cur), move; /* Cursor for IE. */
   cursor: url(packages/dnd/cursor/closedhand.cur) 7 5, move; /* Cursor for FF and Chrome (setting midpoint). */
 }
@@ -62,5 +64,5 @@ body {
 }
 
 .dnd-over {
-  background-color: #ff5722;
+  background-color: #ffe607;
 }

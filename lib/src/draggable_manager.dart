@@ -22,6 +22,19 @@ abstract class _EventManager {
   _EventManager(this.drg) {
     // Install the start listeners when constructed.
     installStart();
+
+    // Disable touch actions (scrolling, panning, zooming) depending on
+    // horizontalOnly / verticalOnly options.
+    if (drg.horizontalOnly) {
+      // Only allow vertical scrolling, panning.
+      drg._elementOrElementList.style.touchAction = 'pan-y';
+    } else if (drg.verticalOnly) {
+      // Only allow horizontal scrolling, panning.
+      drg._elementOrElementList.style.touchAction = 'pan-x';
+    } else {
+      // No scrolling, panning.
+      drg._elementOrElementList.style.touchAction = 'none';
+    }
   }
 
   /// Installs the start listeners (e.g. mouseDown, touchStart, etc.).
@@ -95,7 +108,6 @@ abstract class _EventManager {
     _currentDrag.position = position;
 
     EventTarget realTarget = _getRealTarget(clientPosition, target: target);
-    print('${drg.id}');
     drg._handleDragEnd(event, realTarget);
   }
 
@@ -382,10 +394,6 @@ class _PointerManager extends _EventManager {
     } else {
       _doInstallStart(drg._elementOrElementList);
     }
-
-    // Disable default touch actions on all elements (scrolling, panning, zooming).
-    drg._elementOrElementList.style
-        .setProperty('touch-action', _getTouchActionValue());
   }
 
   void _doInstallStart(Element element) {
@@ -450,17 +458,5 @@ class _PointerManager extends _EventManager {
     dragSubs.add(document.on['pointercancel'].listen((event) {
       handleCancel(event);
     }));
-  }
-
-  /// Returns the touch-action values `none`, `pan-x`, or `pan-y` depending on
-  /// horizontalOnly / verticalOnly options.
-  String _getTouchActionValue() {
-    if (drg.horizontalOnly) {
-      return 'pan-y';
-    }
-    if (drg.verticalOnly) {
-      return 'pan-x';
-    }
-    return 'none';
   }
 }
