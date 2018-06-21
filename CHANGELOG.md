@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.2.0 (2018-06-21)
+
+- Support for creating a Draggable with `List<Element>` (in addition to `ElementList` and `Element`).
+
 ## Version 1.1.0 (2018-06-21)
 
 - Remove cursor files. Support for `grab`, `-webkit-grab`, `grabbing`, and `-webkit-grabbing` is good enough.
