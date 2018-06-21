@@ -3,7 +3,18 @@ targets:
     builders:
       build_web_compilers|entrypoint:
         generate_for:
-          - web/main.dart
+          - example/basic/example.dart
+          - example/cancel/example.dart
+          - example/custom_acceptor/example.dart
+          - example/detection_only/example.dart
+          - example/free_dragging/example.dart
+          - example/handle/example.dart
+          - example/horizontal_only/example.dart
+          - example/nested_dropzones/example.dart
+          - example/nested_elements/example.dart
+          - example/parent_offset/example.dart
+          - example/scroll_offset/example.dart
+          - example/simple_sortable/example.dart
         options:
           compiler: dartdevc
           dart2js_args:
