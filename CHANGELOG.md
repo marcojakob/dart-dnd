@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.1.0 (2018-06-21)
+
+- Remove cursor files. Support for `grab`, `-webkit-grab`, `grabbing`, and `-webkit-grabbing` is good enough.
+
 ## Version 1.0.0 (2018-06-13)
 
 - Migrate to Dart 2.
