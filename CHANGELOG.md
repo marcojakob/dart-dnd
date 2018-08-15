@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.3.0 (2018-08-15)
+
+- Align dart version to support Dart 2 (#25).
+
+
 ## Version 1.2.0 (2018-06-21)
 
 - Support for creating a Draggable with `List<Element>` (in addition to `ElementList` and `Element`).
