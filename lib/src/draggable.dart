@@ -178,6 +178,17 @@ class Draggable {
   /// Handles the drag start. The [moveEvent] might either be a
   /// [TouchEvent] or a [MouseEvent].
   void _handleDragStart(UIEvent moveEvent) {
+    // If our current drag length is less than clickSupression, don't start the drag yet
+    // Also, make sure that the event is from a mouse or pointer (Internet Explorer)
+    if (moveEvent is MouseEvent ||
+        moveEvent is PointerEvent ||
+        _currentDrag.startPosition.distanceTo(_currentDrag.position) <
+            clickSuppression) return;
+
+    // Reset the start position of the dragEvent to our current location, since we haven't technically been "dragging"
+    // yet, due to clickSupression
+    _currentDrag.startPosition = _currentDrag.position;
+
     // Set the drag started flag.
     _currentDrag.started = true;
 
@@ -391,7 +402,7 @@ class _DragInfo {
   final Element element;
 
   /// Position where the drag started.
-  final Point startPosition;
+  Point startPosition;
 
   /// The [AvatarHandler] or null if there is none.
   final AvatarHandler avatarHandler;
