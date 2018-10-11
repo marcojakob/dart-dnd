@@ -1,0 +1,50 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #333;
+  background-color: #fff;
+  margin: 0;
+}
+
+.container {
+  max-width: 400px;
+  padding: 15px 15px 0 15px;
+}
+
+.draggable {
+  margin-top: 15px;
+  width: 180px;
+  height: 120px;
+  background: #cddc39;
+  border-radius: 8px;
+}
+
+.handle {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  left: 10px;
+  top: 35px;
+  border-radius: 8px;
+  background-color: #afb42b;
+  cursor: pointer;
+  cursor: grab;
+  cursor: -webkit-grab;
+}
+
+.dnd-draggable,
+.dnd-drag-occurring {
+  cursor: default;
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+}
+
+.dnd-dragging {
+  opacity: 0.5;
+}

@@ -1,0 +1,60 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #333;
+  background-color: #fff;
+  margin: 0;
+}
+
+.container {
+  max-width: 400px;
+  padding: 15px 15px 0 15px;
+}
+
+.sortable {
+  margin-top: 15px;
+  width: 240px;
+  height: 120px;
+  background: #cddc39;
+  border-radius: 8px;
+  box-sizing: border-box;
+  cursor: pointer;
+  cursor: grab;
+  cursor: -webkit-grab;
+}
+
+.sortable p {
+  text-align: center;
+  padding-top: 30px;
+  margin: 0;
+  font-weight: bold;
+}
+
+.dnd-dragging {
+  opacity: 0.5;
+}
+
+.dnd-dragging,
+.dnd-drag-occurring {
+  cursor: default;
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+}
+
+.dnd-over {
+  border-width: medium;
+  border-color: #cddc39;
+  border-style: dashed;
+  background-color: white;
+  opacity: 1;
+}
+
+.dnd-over * {
+  display: none;
+}

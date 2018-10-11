@@ -105,14 +105,15 @@ class Draggable {
   // -------------------
   // Private Properties
   // -------------------
-  /// The [Element] or [ElementList] on which a drag is detected.
-  final _elementOrElementList;
+  /// The list of [Element]s on which a drag is detected.
+  List<Element> _elements;
 
   /// Managers for browser events.
   final List<_EventManager> _eventManagers = [];
 
   /// Creates a new [Draggable] for [elementOrElementList]. The
-  /// [elementOrElementList] must be of type [Element] or [ElementList].
+  /// [elementOrElementList] must be of type [Element], [ElementList], or
+  /// [List<Element>].
   ///
   ///
   /// ## Options
@@ -154,20 +155,21 @@ class Draggable {
       this.handle: null,
       this.cancel: 'input, textarea, button, select, option',
       this.draggingClass: 'dnd-dragging',
-      this.draggingClassBody: 'dnd-drag-occurring'})
-      : this._elementOrElementList = elementOrElementList {
-    // Detect IE Pointer Event Support.
-    JsObject jsWindow = new JsObject.fromBrowserObject(window);
-    JsObject jsNavigator = jsWindow['navigator'];
+      this.draggingClassBody: 'dnd-drag-occurring'}) {
+    // Wrap in a List if it is not a list but a single Element.
+    _elements = elementOrElementList is List
+        ? elementOrElementList
+        : [elementOrElementList];
 
-    if (jsNavigator.hasProperty('pointerEnabled')) {
-      // We're on IE11 or higher supporting pointerEvents.
+    // Detect Pointer Event Support.
+    JsObject jsWindow = new JsObject.fromBrowserObject(window);
+
+    if (jsWindow.hasProperty('PointerEvent')) {
+      // Browser with support for Pointer Events.
       _eventManagers.add(new _PointerManager(this));
-    } else if (jsNavigator.hasProperty('msPointerEnabled')) {
-      // We're on IE10 supporting msPointerEvents.
-      _eventManagers.add(new _PointerManager(this, msPrefix: true));
     } else {
-      // We're on other browsers. Install touch and mouse listeners.
+      // We're on a browser with no support for Pointer Events.
+      // Install touch and mouse listeners.
       if (TouchEvent.supported) {
         _eventManagers.add(new _TouchManager(this));
       }
@@ -276,7 +278,7 @@ class Draggable {
               _currentDrag.startPosition.distanceTo(_currentDrag.position) >
                   clickSuppression)) {
         // Prevent MouseEvent from firing a click after mouseUp event if the move was significant.
-        _suppressClickEvent();
+        _suppressClickEvent(_currentDrag.element);
       }
 
       // Remove the css classes.
@@ -295,9 +297,8 @@ class Draggable {
   /// Makes sure that a potential click event is ignored. This is necessary for
   /// [MouseEvent]s. We have to wait for and cancel a potential click event
   /// happening after the mouseUp event.
-  void _suppressClickEvent() {
-    StreamSubscription clickPreventer =
-        _elementOrElementList.onClick.listen((event) {
+  void _suppressClickEvent(Element element) {
+    StreamSubscription clickPreventer = element.onClick.listen((event) {
       event.stopPropagation();
       event.preventDefault();
     });
@@ -306,15 +307,16 @@ class Draggable {
     // Then cancel the listener.
     new Future(() {
       clickPreventer.cancel();
-      clickPreventer = null;
     });
   }
 
-  /// Unistalls all listeners.
+  /// Resets the draggable elements to their initial state.
+  ///
+  /// All listeners are uninstalled.
   void destroy() {
     _resetCurrentDrag();
 
-    // Destroy all managers.
+    // Destroy all managers with their listeners.
     _eventManagers.forEach((m) => m.destroy());
     _eventManagers.clear();
     if (avatarHandler != null && avatarHandler.avatar != null) {

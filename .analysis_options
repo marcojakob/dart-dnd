@@ -1,7 +1,0 @@
-analyzer:
-  strong-mode: true
-linter:
-  rules:
-    - annotate_overrides
-    - cancel_subscriptions
-    - close_sinks

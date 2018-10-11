@@ -2,8 +2,8 @@ part of dnd;
 
 /// Class responsible for managing browser events.
 ///
-/// This class is an abstraction for the specific managers like
-/// [_TouchManager], [_MouseManager], etc.
+/// This class is an abstraction for the specific managers
+/// [_TouchManager], [_MouseManager], and [_PointerManager].
 abstract class _EventManager {
   /// Attribute to mark custom elements where events should be retargeted
   /// to their Shadow DOM children.
@@ -22,6 +22,19 @@ abstract class _EventManager {
   _EventManager(this.drg) {
     // Install the start listeners when constructed.
     installStart();
+
+    // Disable touch actions (scrolling, panning, zooming) depending on
+    // horizontalOnly / verticalOnly options.
+    if (drg.horizontalOnly) {
+      // Only allow vertical scrolling, panning.
+      drg._elements.forEach((el) => el.style.touchAction = 'pan-y');
+    } else if (drg.verticalOnly) {
+      // Only allow horizontal scrolling, panning.
+      drg._elements.forEach((el) => el.style.touchAction = 'pan-x');
+    } else {
+      // No scrolling, panning.
+      drg._elements.forEach((el) => el.style.touchAction = 'none');
+    }
   }
 
   /// Installs the start listeners (e.g. mouseDown, touchStart, etc.).
@@ -119,13 +132,17 @@ abstract class _EventManager {
     // Cancel start subscriptions.
     startSubs.forEach((sub) => sub.cancel());
     startSubs.clear();
+
+    // Reset the touch action property.
+    drg._elements.forEach((el) => el.style.touchAction = null);
   }
 
   /// Determine a target using `document.elementFromPoint` via the provided [clientPosition].
   ///
   /// Falls back to `document.body` if no element is found at the provided [clientPosition].
   EventTarget _getRealTargetFromPoint(Point clientPosition) {
-    return document.elementFromPoint(clientPosition.x, clientPosition.y) ??
+    return document.elementFromPoint(
+            clientPosition.x.round(), clientPosition.y.round()) ??
         document.body;
   }
 
@@ -166,7 +183,7 @@ abstract class _EventManager {
         target.attributes.containsKey(SHADOW_DOM_RETARGET_ATTRIBUTE)) {
       Element newTarget = (target as Element)
           .shadowRoot
-          .elementFromPoint(clientPosition.x, clientPosition.y);
+          .elementFromPoint(clientPosition.x.round(), clientPosition.y.round());
 
       // Recursive call for nested shadow DOM trees.
       target = _recursiveShadowDomTarget(clientPosition, newTarget);
@@ -195,16 +212,8 @@ abstract class _EventManager {
         }
 
         // 2. The target must be a child of the drag element(s).
-        if (drg._elementOrElementList is ElementList) {
-          for (Element el in drg._elementOrElementList) {
-            if (el.contains(target)) {
-              return true;
-            }
-          }
-        } else {
-          if ((drg._elementOrElementList as Element).contains(target)) {
-            return true;
-          }
+        if (drg._elements.firstWhere((el) => el.contains(target)) != null) {
+          return true;
         }
       }
 
@@ -222,25 +231,26 @@ class _TouchManager extends _EventManager {
 
   @override
   void installStart() {
-    startSubs
-        .add(drg._elementOrElementList.onTouchStart.listen((TouchEvent event) {
-      // Ignore if drag is already beeing handled.
-      if (_currentDrag != null) {
-        return;
-      }
+    drg._elements.forEach((el) {
+      startSubs.add(el.onTouchStart.listen((TouchEvent event) {
+        // Ignore if drag is already beeing handled.
+        if (_currentDrag != null) {
+          return;
+        }
 
-      // Ignore multi-touch events.
-      if (event.touches.length > 1) {
-        return;
-      }
+        // Ignore multi-touch events.
+        if (event.touches.length > 1) {
+          return;
+        }
 
-      // Ensure the drag started on a valid target.
-      if (!_isValidDragStartTarget(event.touches[0].target)) {
-        return;
-      }
+        // Ensure the drag started on a valid target.
+        if (!_isValidDragStartTarget(event.touches[0].target)) {
+          return;
+        }
 
-      handleStart(event, event.touches[0].page);
-    }));
+        handleStart(event, event.touches[0].page);
+      }));
+    });
   }
 
   @override
@@ -309,42 +319,43 @@ class _MouseManager extends _EventManager {
 
   @override
   void installStart() {
-    startSubs
-        .add(drg._elementOrElementList.onMouseDown.listen((MouseEvent event) {
-      // Ignore if drag is already beeing handled.
-      if (_currentDrag != null) {
-        return;
-      }
+    drg._elements.forEach((el) {
+      startSubs.add(el.onMouseDown.listen((MouseEvent event) {
+        // Ignore if drag is already beeing handled.
+        if (_currentDrag != null) {
+          return;
+        }
 
-      // Only handle left clicks, ignore clicks from right or middle buttons.
-      if (event.button != 0) {
-        return;
-      }
+        // Only handle left clicks, ignore clicks from right or middle buttons.
+        if (event.button != 0) {
+          return;
+        }
 
-      // Ensure the drag started on a valid target.
-      if (!_isValidDragStartTarget(event.target)) {
-        return;
-      }
+        // Ensure the drag started on a valid target.
+        if (!_isValidDragStartTarget(event.target)) {
+          return;
+        }
 
-      // Prevent default on mouseDown. Reasons:
-      // * Disables image dragging handled by the browser.
-      // * Disables text selection.
-      //
-      // Note: We must NOT prevent default on form elements. Reasons:
-      // * SelectElement would not show a dropdown.
-      // * InputElement and TextAreaElement would not get focus.
-      // * ButtonElement and OptionElement - don't know if this is needed??
-      Element target = event.target;
-      if (!(target is SelectElement ||
-          target is InputElement ||
-          target is TextAreaElement ||
-          target is ButtonElement ||
-          target is OptionElement)) {
-        event.preventDefault();
-      }
+        // Prevent default on mouseDown. Reasons:
+        // * Disables image dragging handled by the browser.
+        // * Disables text selection.
+        //
+        // Note: We must NOT prevent default on form elements. Reasons:
+        // * SelectElement would not show a dropdown.
+        // * InputElement and TextAreaElement would not get focus.
+        // * ButtonElement and OptionElement - don't know if this is needed??
+        Element target = event.target;
+        if (!(target is SelectElement ||
+            target is InputElement ||
+            target is TextAreaElement ||
+            target is ButtonElement ||
+            target is OptionElement)) {
+          event.preventDefault();
+        }
 
-      handleStart(event, event.page);
-    }));
+        handleStart(event, event.page);
+      }));
+    });
   }
 
   @override
@@ -369,117 +380,72 @@ class _MouseManager extends _EventManager {
 
 /// Manages the browser's pointer events (used for Internet Explorer).
 class _PointerManager extends _EventManager {
-  bool msPrefix;
-
-  _PointerManager(Draggable draggable, {this.msPrefix: false})
-      : super(draggable);
+  _PointerManager(Draggable draggable) : super(draggable);
 
   @override
   void installStart() {
-    String downEventName = msPrefix ? 'MSPointerDown' : 'pointerdown';
+    drg._elements.forEach((el) {
+      startSubs.add(el.on['pointerdown'].listen((e) {
+        var event = e as PointerEvent;
 
-    // Function to be called on all elements of [_elementOrElementList].
-    var installFunc = (Element element) {
-      startSubs.add(element.on[downEventName].listen(_listenForStartEvent));
-    };
+        // Ignore if drag is already beeing handled.
+        if (_currentDrag != null) {
+          return;
+        }
 
-    // The [ElementList] does not have the `on` method for custom events. So,
-    // we need to manually go trough all [Element]s and call the [installFunc].
-    if (drg._elementOrElementList is ElementList) {
-      drg._elementOrElementList.forEach(installFunc);
-    } else {
-      installFunc(drg._elementOrElementList);
-    }
+        // Only handle left clicks, ignore clicks from right or middle buttons.
+        if (event.button != 0) {
+          return;
+        }
 
-    // Disable default touch actions on all elements (scrolling, panning, zooming).
-    if (msPrefix) {
-      drg._elementOrElementList.style
-          .setProperty('-ms-touch-action', _getTouchActionValue());
-    } else {
-      drg._elementOrElementList.style
-          .setProperty('touch-action', _getTouchActionValue());
-    }
+        // Ensure the drag started on a valid target.
+        if (!_isValidDragStartTarget(event.target)) {
+          return;
+        }
+
+        // Prevent default on mouseDown. Reasons:
+        // * Disables image dragging handled by the browser.
+        // * Disables text selection.
+        //
+        // Note: We must NOT prevent default on form elements. Reasons:
+        // * SelectElement would not show a dropdown.
+        // * InputElement and TextAreaElement would not get focus.
+        // * ButtonElement and OptionElement - don't know if this is needed??
+        Element target = event.target;
+        if (!(target is SelectElement ||
+            target is InputElement ||
+            target is TextAreaElement ||
+            target is ButtonElement ||
+            target is OptionElement)) {
+          event.preventDefault();
+        }
+
+        handleStart(event, event.page);
+      }));
+    });
   }
 
   @override
   void installMove() {
-    String moveEventName = msPrefix ? 'MSPointerMove' : 'pointermove';
-
-    dragSubs.add(document.on[moveEventName].listen(_listenForMoveEvent));
+    dragSubs.add(document.on['pointermove'].listen((e) {
+      var event = e as PointerEvent;
+      handleMove(event, event.page, event.client);
+    }));
   }
 
   @override
   void installEnd() {
-    String endEventName = msPrefix ? 'MSPointerUp' : 'pointerup';
-
-    dragSubs.add(document.on[endEventName].listen(_listenForEndEvent));
+    dragSubs.add(document.on['pointerup'].listen((e) {
+      var event = e as PointerEvent;
+      // handleEnd(event, event.target, event.page, event.client);
+      handleEnd(event, null, event.page, event.client);
+    }));
   }
 
   @override
   void installCancel() {
-    String cancelEventName = msPrefix ? 'MSPointerCancel' : 'mspointercancel';
-
-    dragSubs.add(document.on[cancelEventName].listen((event) {
+    dragSubs.add(document.on['pointercancel'].listen((event) {
       handleCancel(event);
     }));
-  }
-
-  /// Listener in a separate method to be able to use the `covariant` keyword.
-  void _listenForStartEvent(covariant MouseEvent event) {
-    // Ignore if drag is already beeing handled.
-    if (_currentDrag != null) {
-      return;
-    }
-
-    // Only handle left clicks, ignore clicks from right or middle buttons.
-    if (event.button != 0) {
-      return;
-    }
-
-    // Ensure the drag started on a valid target.
-    if (!_isValidDragStartTarget(event.target)) {
-      return;
-    }
-
-    // Prevent default on mouseDown. Reasons:
-    // * Disables image dragging handled by the browser.
-    // * Disables text selection.
-    //
-    // Note: We must NOT prevent default on form elements. Reasons:
-    // * SelectElement would not show a dropdown.
-    // * InputElement and TextAreaElement would not get focus.
-    // * ButtonElement and OptionElement - don't know if this is needed??
-    Element target = event.target;
-    if (!(target is SelectElement ||
-        target is InputElement ||
-        target is TextAreaElement ||
-        target is ButtonElement ||
-        target is OptionElement)) {
-      event.preventDefault();
-    }
-
-    handleStart(event, event.page);
-  }
-
-  /// Listener in a separate method to be able to use the `covariant` keyword.
-  void _listenForMoveEvent(covariant MouseEvent event) {
-    handleMove(event, event.page, event.client);
-  }
-
-  /// Listener in a separate method to be able to use the `covariant` keyword.
-  void _listenForEndEvent(covariant MouseEvent event) {
-    handleEnd(event, event.target, event.page, event.client);
-  }
-
-  /// Returns the touch-action values `none`, `pan-x`, or `pan-y` depending on
-  /// horizontalOnly / verticalOnly options.
-  String _getTouchActionValue() {
-    if (drg.horizontalOnly) {
-      return 'pan-y';
-    }
-    if (drg.verticalOnly) {
-      return 'pan-x';
-    }
-    return 'none';
   }
 }
