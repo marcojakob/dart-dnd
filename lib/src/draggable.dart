@@ -182,8 +182,8 @@ class Draggable {
   void _handleDragStart(UIEvent moveEvent) {
     // If our current drag length is less than clickSupression, don't start the drag yet
     // Also, make sure that the event is from a mouse or pointer (Internet Explorer)
-    if (moveEvent is MouseEvent ||
-        moveEvent is PointerEvent ||
+    if ((moveEvent is MouseEvent ||
+        moveEvent is PointerEvent) &&
         _currentDrag.startPosition.distanceTo(_currentDrag.position) <
             clickSuppression) return;
 
