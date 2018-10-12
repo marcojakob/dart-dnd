@@ -1,9 +1,13 @@
 # Changelog
 
+## Version 1.4.0 (2018-10-12)
+
+- Add an option `minDragStartDistance` on `Draggable` to define the minimum distance in
+  pixels that is needed for a drag to start (#26). Default is `4` pixels. This allows for clicks with tiny movement. The option `clickSuppression` has been marked as DEPRECATED as it had the same goal but a misleading name.
+
 ## Version 1.3.0 (2018-08-15)
 
 - Align dart version to support Dart 2 (#25).
-
 
 ## Version 1.2.0 (2018-06-21)
 

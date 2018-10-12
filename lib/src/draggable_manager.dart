@@ -86,16 +86,15 @@ abstract class _EventManager {
     // Set the current position.
     _currentDrag.position = position;
 
-    if (!_currentDrag.started &&
-        _currentDrag.startPosition != _currentDrag.position) {
-      // This is the first drag move.
-
-      // Handle dragStart.
-      drg._handleDragStart(event);
-    }
-
-    // Handle drag (will also be called after drag start).
-    if (_currentDrag.started) {
+    if (!_currentDrag.started) {
+      // Test if drag has moved far enough to start drag.
+      if (_currentDrag.startPosition.distanceTo(_currentDrag.position) >=
+          drg.minDragStartDistance) {
+        // Drag starts now.
+        drg._handleDragStart(event);
+      }
+    } else {
+      // Drag already started.
       Element realTarget = _getRealTarget(clientPosition);
       drg._handleDrag(event, realTarget);
     }

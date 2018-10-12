@@ -53,8 +53,18 @@ class Draggable {
   /// See [Draggable] constructor.
   String draggingClassBody;
 
+  /// The minimum distance in pixels that is needed for a drag to start.
+  /// See [Draggable] constructor.
+  int minDragStartDistance;
+
   /// The minimum distance for a drag to prevent click events.
-  int clickSuppression = 0;
+  /// DEPRECATED: Please use [minDragStartDistance] instead.
+  @deprecated
+  get clickSuppression => minDragStartDistance;
+
+  /// DEPRECATED: Please use [minDragStartDistance] instead.
+  @deprecated
+  set clickSuppression(int distance) => minDragStartDistance = distance;
 
   // -------------------
   // Events
@@ -148,6 +158,10 @@ class Draggable {
   ///
   /// The [draggingClassBody] is the css class set to the html body tag
   /// during a drag. If set to null, no such css class is added.
+  ///
+  /// The [minDragStartDistance] is the minimum distance in pixels that is needed
+  /// for a drag to start. Default is `4`. This allows for clicks with tiny movement.
+  ///
   Draggable(elementOrElementList,
       {this.avatarHandler: null,
       this.horizontalOnly: false,
@@ -155,7 +169,8 @@ class Draggable {
       this.handle: null,
       this.cancel: 'input, textarea, button, select, option',
       this.draggingClass: 'dnd-dragging',
-      this.draggingClassBody: 'dnd-drag-occurring'}) {
+      this.draggingClassBody: 'dnd-drag-occurring',
+      this.minDragStartDistance: 4}) {
     // Wrap in a List if it is not a list but a single Element.
     _elements = elementOrElementList is List
         ? elementOrElementList
@@ -262,11 +277,8 @@ class Draggable {
         event.preventDefault();
       }
 
-      if (event is MouseEvent &&
-          (clickSuppression <= 0 ||
-              _currentDrag.startPosition.distanceTo(_currentDrag.position) >
-                  clickSuppression)) {
-        // Prevent MouseEvent from firing a click after mouseUp event if the move was significant.
+      // Prevent MouseEvent from firing a click after mouseUp event.
+      if (event is MouseEvent) {
         _suppressClickEvent(_currentDrag.element);
       }
 
