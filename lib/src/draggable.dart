@@ -60,9 +60,11 @@ class Draggable {
   /// The minimum distance for a drag to prevent click events.
   /// DEPRECATED: Please use [minDragStartDistance] instead.
   @deprecated
-  set clickSuppression(int distance) {
-    minDragStartDistance = distance;
-  }
+  get clickSuppression => minDragStartDistance;
+
+  /// DEPRECATED: Please use [minDragStartDistance] instead.
+  @deprecated
+  set clickSuppression(int distance) => minDragStartDistance = distance;
 
   // -------------------
   // Events
