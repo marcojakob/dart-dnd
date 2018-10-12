@@ -3,8 +3,8 @@
 ## Version 1.4.0 (2018-10-12)
 
 - BREAKING CHANGE: Add an option `minDragStartDistance` on `Draggable` to define the minimum distance in
-  pixels that is needed for a drag to start (#26). This allows for clicks with tiny movement.   
-  The option `clickSuppression` was removed as it had the same goal but a misleading name.
+  pixels that is needed for a drag to start (#26). Default is `4` pixels. This allows for clicks with tiny 
+  movement. The option `clickSuppression` was removed as it had the same goal but a misleading name.
 
 ## Version 1.3.0 (2018-08-15)
 
