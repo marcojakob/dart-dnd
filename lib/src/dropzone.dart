@@ -76,8 +76,8 @@ class Dropzone {
   // -------------------
   // Private Properties
   // -------------------
-  /// The [Element] or [ElementList] on which a drag is detected.
-  final _elementOrElementList;
+  /// The list of [Element]s for the dropzone.
+  List<Element> _elements;
 
   /// Tracks subscriptions.
   List<StreamSubscription> _subs = [];
@@ -100,14 +100,14 @@ class Dropzone {
   Dropzone(elementOrElementList,
       {this.acceptor: null,
       this.overClass: 'dnd-over',
-      this.invalidClass: 'dnd-invalid'})
-      : this._elementOrElementList = elementOrElementList {
-    // Install drag listener on Element or ElementList.
-    if (_elementOrElementList is ElementList) {
-      _elementOrElementList.forEach(_installCustomDragListener);
-    } else {
-      _installCustomDragListener(_elementOrElementList);
-    }
+      this.invalidClass: 'dnd-invalid'}) {
+    // Wrap in a List if it is not a list but a single Element.
+    _elements = elementOrElementList is List
+        ? elementOrElementList
+        : [elementOrElementList];
+
+    // Install drag listeners on Elements.
+    _elements.forEach(_installCustomDragListener);
   }
 
   /// Installs the custom drag listeners (dragEnter, dragOver, dragLeave, and
