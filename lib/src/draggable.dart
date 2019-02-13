@@ -252,7 +252,7 @@ class Draggable {
   ///
   /// Set [cancelled] to true to indicate that this drag ended through a
   /// cancel oparation like hitting the `esc` key.
-  void _handleDragEnd(Event event, EventTarget target, {cancelled: false}) {
+  void _handleDragEnd(Event event, EventTarget target, {cancelled = false}) {
     // Only handle drag end if the user actually did drag and not just clicked.
     if (_currentDrag.started) {
       // Pass event to AvatarHandler.
