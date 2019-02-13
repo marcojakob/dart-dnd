@@ -7,7 +7,7 @@ Drag and Drop for Dart web apps with mouse and touch support.
 
 [GitHub](https://github.com/marcojakob/dart-dnd) |
 [Pub](https://pub.dartlang.org/packages/dnd) |
-[Demos and Examples](http://code.makery.ch/library/dart-drag-and-drop/)
+[Demos and Examples](https://code.makery.ch/library/dart-drag-and-drop/)
 
 ![DnD Screenshot](https://raw.githubusercontent.com/marcojakob/dart-dnd/master/doc/dnd-screenshot.png)
 
@@ -27,7 +27,7 @@ Drag and Drop for Dart web apps with mouse and touch support.
 ## Usage
 
 Before you read the instructions below, you should take a look at the
-[examples](http://code.makery.ch/library/dart-drag-and-drop/).
+[examples](https://code.makery.ch/library/dart-drag-and-drop/).
 
 ### Basic Set Up
 
@@ -164,7 +164,7 @@ a `dnd-retarget` attribute to the host:
 The _Dart Drag and Drop_ library is inspired by
 
 - [jQuery UI Draggable](http://jqueryui.com/draggable/)
-- [Draggabilly](http://draggabilly.desandro.com/)
+- [Draggabilly](https://draggabilly.desandro.com/)
 
 Thank you for your work!
 
