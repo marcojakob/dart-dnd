@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.4.1 (2019-02-13)
+
+- Fix #30: Cannot initialize Dropzone with List<HtmlElement>
+- Follow more code style conventions
+
 ## Version 1.4.0 (2018-10-12)
 
 - Add an option `minDragStartDistance` on `Draggable` to define the minimum distance in

@@ -98,9 +98,9 @@ class Dropzone {
   /// not-accepted [Draggable] is dragged over it. If set to null, no such css
   /// class is added.
   Dropzone(elementOrElementList,
-      {this.acceptor: null,
-      this.overClass: 'dnd-over',
-      this.invalidClass: 'dnd-invalid'}) {
+      {this.acceptor,
+      this.overClass = 'dnd-over',
+      this.invalidClass = 'dnd-invalid'}) {
     // Wrap in a List if it is not a list but a single Element.
     _elements = elementOrElementList is List
         ? elementOrElementList

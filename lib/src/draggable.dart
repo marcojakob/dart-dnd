@@ -163,14 +163,14 @@ class Draggable {
   /// for a drag to start. Default is `4`. This allows for clicks with tiny movement.
   ///
   Draggable(elementOrElementList,
-      {this.avatarHandler: null,
-      this.horizontalOnly: false,
-      this.verticalOnly: false,
-      this.handle: null,
-      this.cancel: 'input, textarea, button, select, option',
-      this.draggingClass: 'dnd-dragging',
-      this.draggingClassBody: 'dnd-drag-occurring',
-      this.minDragStartDistance: 4}) {
+      {this.avatarHandler,
+      this.horizontalOnly = false,
+      this.verticalOnly = false,
+      this.handle,
+      this.cancel = 'input, textarea, button, select, option',
+      this.draggingClass = 'dnd-dragging',
+      this.draggingClassBody = 'dnd-drag-occurring',
+      this.minDragStartDistance = 4}) {
     // Wrap in a List if it is not a list but a single Element.
     _elements = elementOrElementList is List
         ? elementOrElementList
@@ -389,7 +389,7 @@ class DraggableEvent {
 
   /// Private constructor for [DraggableEvent].
   DraggableEvent._(this.originalEvent, _DragInfo dragInfo,
-      {this.cancelled: false})
+      {this.cancelled = false})
       : draggableElement = dragInfo.element,
         avatarHandler = dragInfo.avatarHandler,
         startPosition = dragInfo.startPosition,
@@ -421,9 +421,9 @@ class _DragInfo {
   final bool verticalOnly;
 
   _DragInfo(this.draggableId, this.element, this.startPosition,
-      {this.avatarHandler: null,
-      this.horizontalOnly: false,
-      this.verticalOnly: false}) {
+      {this.avatarHandler,
+      this.horizontalOnly = false,
+      this.verticalOnly = false}) {
     // Initially set current position to startPosition.
     _position = startPosition;
   }
