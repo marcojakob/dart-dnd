@@ -168,6 +168,11 @@ The _Dart Drag and Drop_ library is inspired by
 
 Thank you for your work!
 
+## Running / Building / Testing
+
+- Run from the terminal: `webdev serve`
+- Build from the terminal: `webdev build`
+
 ## License
 
 The MIT License (MIT)
