@@ -20,20 +20,20 @@ class _DragEventDispatcher {
   /// Stream provider for [CUSTOM_DRAG_ENTER] events. The relatedTarget contains
   /// the [Element] the user entered from (may be null).
   static EventStreamProvider<MouseEvent> enterEvent =
-      new EventStreamProvider(CUSTOM_DRAG_ENTER);
+      EventStreamProvider(CUSTOM_DRAG_ENTER);
 
   /// Stream provider for [CUSTOM_DRAG_OVER] events. The relatedTarget is empty.
   static EventStreamProvider<MouseEvent> overEvent =
-      new EventStreamProvider(CUSTOM_DRAG_OVER);
+      EventStreamProvider(CUSTOM_DRAG_OVER);
 
   /// Stream provider for [CUSTOM_DRAG_LEAVE] events. The relatedTarget contains
   /// the [Element] the user is leaving to (may be null).
   static EventStreamProvider<MouseEvent> leaveEvent =
-      new EventStreamProvider(CUSTOM_DRAG_LEAVE);
+      EventStreamProvider(CUSTOM_DRAG_LEAVE);
 
   /// Stream provider for [CUSTOM_DROP] events. The relatedTarget is empty.
   static EventStreamProvider<MouseEvent> dropEvent =
-      new EventStreamProvider(CUSTOM_DROP);
+      EventStreamProvider(CUSTOM_DROP);
 
   /// Keeps track of the previous target to be able to fire dragLeave events on it.
   static EventTarget previousTarget;
@@ -51,23 +51,23 @@ class _DragEventDispatcher {
 
     if (previousTarget == target) {
       // Moved on the same element --> dispatch dragOver.
-      MouseEvent dragOverEvent = new MouseEvent(CUSTOM_DRAG_OVER);
+      MouseEvent dragOverEvent = MouseEvent(CUSTOM_DRAG_OVER);
       target.dispatchEvent(dragOverEvent);
     } else {
       // Entered a new element --> fire dragEnter of new element.
       MouseEvent dragEnterEvent =
-          new MouseEvent(CUSTOM_DRAG_ENTER, relatedTarget: previousTarget);
+          MouseEvent(CUSTOM_DRAG_ENTER, relatedTarget: previousTarget);
       target.dispatchEvent(dragEnterEvent);
 
       // Fire dragLeave of old element (if there is one).
       if (previousTarget != null) {
         MouseEvent dragLeaveEvent =
-            new MouseEvent(CUSTOM_DRAG_LEAVE, relatedTarget: target);
+            MouseEvent(CUSTOM_DRAG_LEAVE, relatedTarget: target);
         previousTarget.dispatchEvent(dragLeaveEvent);
       }
 
       // Also fire the first dragOver event for the new element.
-      MouseEvent dragOverEvent = new MouseEvent(CUSTOM_DRAG_OVER);
+      MouseEvent dragOverEvent = MouseEvent(CUSTOM_DRAG_OVER);
       target.dispatchEvent(dragOverEvent);
 
       previousTarget = target;
@@ -85,7 +85,7 @@ class _DragEventDispatcher {
       return;
     }
 
-    MouseEvent dropEvent = new MouseEvent(CUSTOM_DROP);
+    MouseEvent dropEvent = MouseEvent(CUSTOM_DROP);
     target.dispatchEvent(dropEvent);
 
     reset();
@@ -95,7 +95,7 @@ class _DragEventDispatcher {
   static void reset() {
     // Fire a last dragLeave.
     if (previousTarget != null) {
-      MouseEvent dragLeaveEvent = new MouseEvent(CUSTOM_DRAG_LEAVE);
+      MouseEvent dragLeaveEvent = MouseEvent(CUSTOM_DRAG_LEAVE);
       previousTarget.dispatchEvent(dragLeaveEvent);
       previousTarget = null;
     }

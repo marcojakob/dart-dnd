@@ -5,10 +5,10 @@ import 'package:dnd/dnd.dart';
 /// and implement some basic sortable/rearranging behavior.
 main() {
   // Install same elements as draggable and dropzone.
-  new Draggable(querySelectorAll('.sortable'),
-      avatarHandler: new AvatarHandler.clone());
+  Draggable(querySelectorAll('.sortable'),
+      avatarHandler: AvatarHandler.clone());
 
-  Dropzone dropzone = new Dropzone(querySelectorAll('.sortable'));
+  Dropzone dropzone = Dropzone(querySelectorAll('.sortable'));
 
   // Swap elements when dropped.
   dropzone.onDrop.listen((DropzoneEvent event) {

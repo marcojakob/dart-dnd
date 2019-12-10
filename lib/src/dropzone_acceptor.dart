@@ -9,7 +9,7 @@ abstract class Acceptor {
   ///
   /// See [DraggablesAcceptor].
   factory Acceptor.draggables(List<Draggable> draggables) {
-    return new DraggablesAcceptor(draggables);
+    return DraggablesAcceptor(draggables);
   }
 
   /// Returns true if the [draggableElement] with [draggableId] should be
@@ -21,7 +21,7 @@ abstract class Acceptor {
 /// The [DraggablesAcceptor] accepts all drag elements that are part of the
 /// specified list of [Draggable]s.
 class DraggablesAcceptor extends Acceptor {
-  final Set<int> draggableIds = new Set();
+  final Set<int> draggableIds = Set();
 
   DraggablesAcceptor(List<Draggable> draggables) {
     draggables.forEach((d) => draggableIds.add(d.id));

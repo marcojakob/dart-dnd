@@ -1,5 +1,5 @@
 name: dnd
-version: 1.4.2
+version: 1.4.3
 author: Marco Jakob <majakob@gmx.ch>
 description: Drag and Drop for Dart web apps with mouse and touch support.
 repository: https://github.com/marcojakob/dart-dnd

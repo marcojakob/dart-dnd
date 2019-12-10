@@ -7,12 +7,12 @@ import 'package:dnd/dnd.dart';
 ///  receive the drop event.
 main() {
   // Install draggable.
-  Draggable draggable = new Draggable(querySelector('.draggable'),
-      avatarHandler: new AvatarHandler.original());
+  Draggable draggable = Draggable(querySelector('.draggable'),
+      avatarHandler: AvatarHandler.original());
 
   // Install dropzones.
-  Dropzone outerDropzone = new Dropzone(querySelector('.dropzone-outer'));
-  Dropzone innerDropzone = new Dropzone(querySelector('.dropzone-inner'));
+  Dropzone outerDropzone = Dropzone(querySelector('.dropzone-outer'));
+  Dropzone innerDropzone = Dropzone(querySelector('.dropzone-inner'));
 
   // The text elements.
   Element draggableText = querySelector('.draggable > p');
@@ -47,7 +47,6 @@ main() {
       innerText.text = 'Inner Dropzone: Leave';
     }
   });
-
 
   // Listen to drop.
   outerDropzone.onDrop.listen((DropzoneEvent event) {

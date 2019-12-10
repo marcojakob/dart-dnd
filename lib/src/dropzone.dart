@@ -39,7 +39,7 @@ class Dropzone {
   /// Fired when a [Draggable] enters this [Dropzone].
   Stream<DropzoneEvent> get onDragEnter {
     if (_onDragEnter == null) {
-      _onDragEnter = new StreamController<DropzoneEvent>.broadcast(
+      _onDragEnter = StreamController<DropzoneEvent>.broadcast(
           sync: true, onCancel: () => _onDragEnter = null);
     }
     return _onDragEnter.stream;
@@ -48,7 +48,7 @@ class Dropzone {
   /// Fired periodically while a [Draggable] is moved over a [Dropzone].
   Stream<DropzoneEvent> get onDragOver {
     if (_onDragOver == null) {
-      _onDragOver = new StreamController<DropzoneEvent>.broadcast(
+      _onDragOver = StreamController<DropzoneEvent>.broadcast(
           sync: true, onCancel: () => _onDragOver = null);
     }
     return _onDragOver.stream;
@@ -57,7 +57,7 @@ class Dropzone {
   /// Fired when a [Draggable] leaves this [Dropzone].
   Stream<DropzoneEvent> get onDragLeave {
     if (_onDragLeave == null) {
-      _onDragLeave = new StreamController<DropzoneEvent>.broadcast(
+      _onDragLeave = StreamController<DropzoneEvent>.broadcast(
           sync: true, onCancel: () => _onDragLeave = null);
     }
     return _onDragLeave.stream;
@@ -67,7 +67,7 @@ class Dropzone {
   /// inside this [Dropzone].
   Stream<DropzoneEvent> get onDrop {
     if (_onDrop == null) {
-      _onDrop = new StreamController<DropzoneEvent>.broadcast(
+      _onDrop = StreamController<DropzoneEvent>.broadcast(
           sync: true, onCancel: () => _onDrop = null);
     }
     return _onDrop.stream;
@@ -82,7 +82,7 @@ class Dropzone {
   /// Tracks subscriptions.
   List<StreamSubscription> _subs = [];
 
-  /// Creates a new [Dropzone] for [elementOrElementList]. The
+  /// Creates a [Dropzone] for [elementOrElementList]. The
   /// [elementOrElementList] must be of type [Element] or [ElementList].
   ///
   /// ## Options
@@ -142,8 +142,7 @@ class Dropzone {
             event.currentTarget)) {
       // Fire dragEnter event.
       if (_onDragEnter != null) {
-        _onDragEnter
-            .add(new DropzoneEvent._(event.currentTarget, _currentDrag));
+        _onDragEnter.add(DropzoneEvent._(event.currentTarget, _currentDrag));
       }
 
       // Add the css class to indicate drag over.
@@ -167,7 +166,7 @@ class Dropzone {
             event.currentTarget)) {
       // Fire dragOver event.
       if (_onDragOver != null) {
-        _onDragOver.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
+        _onDragOver.add(DropzoneEvent._(event.currentTarget, _currentDrag));
       }
     }
   }
@@ -188,8 +187,7 @@ class Dropzone {
             event.currentTarget)) {
       // Fire dragLeave event.
       if (_onDragLeave != null) {
-        _onDragLeave
-            .add(new DropzoneEvent._(event.currentTarget, _currentDrag));
+        _onDragLeave.add(DropzoneEvent._(event.currentTarget, _currentDrag));
       }
 
       // Remove the css class.
@@ -213,7 +211,7 @@ class Dropzone {
             event.currentTarget)) {
       // Fire drop event.
       if (_onDrop != null) {
-        _onDrop.add(new DropzoneEvent._(event.currentTarget, _currentDrag));
+        _onDrop.add(DropzoneEvent._(event.currentTarget, _currentDrag));
       }
     }
   }

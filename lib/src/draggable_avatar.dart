@@ -42,7 +42,7 @@ abstract class AvatarHandler {
   ///
   /// See [OriginalAvatarHandler].
   factory AvatarHandler.original() {
-    return new OriginalAvatarHandler();
+    return OriginalAvatarHandler();
   }
 
   /// Creates an [AvatarHelper] that creates a clone of the draggable element
@@ -50,7 +50,7 @@ abstract class AvatarHandler {
   ///
   /// See [CloneAvatarHandler].
   factory AvatarHandler.clone() {
-    return new CloneAvatarHandler();
+    return CloneAvatarHandler();
   }
 
   /// Handles the drag start.
@@ -188,7 +188,7 @@ class OriginalAvatarHandler extends AvatarHandler {
     // Set the new position as left/top. Prevent from moving past the top and
     // left borders as the user might not be able to grab the element any more.
     Point constrainedPosition =
-        new Point(math.max(1, position.x), math.max(1, position.y));
+        Point(math.max(1, position.x), math.max(1, position.y));
 
     setLeftTop(constrainedPosition - startPosition + _draggableStartOffset);
   }

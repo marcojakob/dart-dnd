@@ -7,7 +7,7 @@ import 'package:dnd/dnd.dart';
 /// Use this if you want to implement your own custom dragging behavior.
 main() {
   // Install draggable.
-  Draggable draggable = new Draggable(querySelector('.draggable'));
+  Draggable draggable = Draggable(querySelector('.draggable'));
 
   // Paragraph.
   Element p = querySelector('.draggable p');
@@ -29,5 +29,5 @@ main() {
 }
 
 Point round(Point point) {
-  return new Point(point.x.round(), point.y.round());
+  return Point(point.x.round(), point.y.round());
 }

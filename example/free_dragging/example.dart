@@ -6,5 +6,5 @@ import 'package:dnd/dnd.dart';
 main() {
   // Install draggable.
   Draggable(querySelector('.draggable'),
-      avatarHandler: new AvatarHandler.original());
+      avatarHandler: AvatarHandler.original());
 }

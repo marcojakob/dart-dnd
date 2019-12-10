@@ -80,7 +80,7 @@ class Draggable {
   /// will also be fired.
   Stream<DraggableEvent> get onDragStart {
     if (_onDragStart == null) {
-      _onDragStart = new StreamController<DraggableEvent>.broadcast(
+      _onDragStart = StreamController<DraggableEvent>.broadcast(
           sync: true, onCancel: () => _onDragStart = null);
     }
     return _onDragStart.stream;
@@ -89,7 +89,7 @@ class Draggable {
   /// Fired periodically throughout the drag operation.
   Stream<DraggableEvent> get onDrag {
     if (_onDrag == null) {
-      _onDrag = new StreamController<DraggableEvent>.broadcast(
+      _onDrag = StreamController<DraggableEvent>.broadcast(
           sync: true, onCancel: () => _onDrag = null);
     }
     return _onDrag.stream;
@@ -99,7 +99,7 @@ class Draggable {
   /// Is also fired when the user clicks the 'esc'-key or the window loses focus.
   Stream<DraggableEvent> get onDragEnd {
     if (_onDragEnd == null) {
-      _onDragEnd = new StreamController<DraggableEvent>.broadcast(
+      _onDragEnd = StreamController<DraggableEvent>.broadcast(
           sync: true, onCancel: () => _onDragEnd = null);
     }
     return _onDragEnd.stream;
@@ -133,9 +133,9 @@ class Draggable {
   /// drag operation. Here are possible options for the [avatarHandler] :
   ///
   /// * null (the default) - will not create a drag avatar
-  /// * new [AvatarHandler.original] - handler that uses the original
+  /// * [AvatarHandler.original] - handler that uses the original
   ///   draggable as avatar. See [OriginalAvatarHandler].
-  /// * new [AvatarHandler.clone] - handler that uses a clone of the draggable
+  /// * [AvatarHandler.clone] - handler that uses a clone of the draggable
   ///   element as avatar. See [CloneAvatarHandler].
   /// * A custom [AvatarHandler] - you can provide your own implementation of
   ///   [AvatarHandler].
@@ -177,18 +177,18 @@ class Draggable {
         : [elementOrElementList];
 
     // Detect Pointer Event Support.
-    JsObject jsWindow = new JsObject.fromBrowserObject(window);
+    JsObject jsWindow = JsObject.fromBrowserObject(window);
 
     if (jsWindow.hasProperty('PointerEvent')) {
       // Browser with support for Pointer Events.
-      _eventManagers.add(new _PointerManager(this));
+      _eventManagers.add(_PointerManager(this));
     } else {
       // We're on a browser with no support for Pointer Events.
       // Install touch and mouse listeners.
       if (TouchEvent.supported) {
-        _eventManagers.add(new _TouchManager(this));
+        _eventManagers.add(_TouchManager(this));
       }
-      _eventManagers.add(new _MouseManager(this));
+      _eventManagers.add(_MouseManager(this));
     }
   }
 
@@ -207,7 +207,7 @@ class Draggable {
     // Fire the drag start event with start position.
     if (_onDragStart != null) {
       // The dragStart has the same for startPosition and current position.
-      _onDragStart.add(new DraggableEvent._(moveEvent, _currentDrag));
+      _onDragStart.add(DraggableEvent._(moveEvent, _currentDrag));
     }
 
     // Add the css classes during the drag operation.
@@ -239,7 +239,7 @@ class Draggable {
 
     // Fire the drag event.
     if (_onDrag != null) {
-      _onDrag.add(new DraggableEvent._(moveEvent, _currentDrag));
+      _onDrag.add(DraggableEvent._(moveEvent, _currentDrag));
     }
   }
 
@@ -268,8 +268,8 @@ class Draggable {
 
       // Fire dragEnd event.
       if (_onDragEnd != null) {
-        _onDragEnd.add(
-            new DraggableEvent._(event, _currentDrag, cancelled: cancelled));
+        _onDragEnd
+            .add(DraggableEvent._(event, _currentDrag, cancelled: cancelled));
       }
 
       // Prevent TouchEvent from emulating a click after touchEnd event.
@@ -306,7 +306,7 @@ class Draggable {
 
     // Wait until the end of event loop to see if a click event is fired.
     // Then cancel the listener.
-    new Future(() {
+    Future(() {
       clickPreventer.cancel();
     });
   }
@@ -439,12 +439,12 @@ class _DragInfo {
   Point _constrainAxis(Point pos) {
     // Set y-value to startPosition if horizontalOnly.
     if (horizontalOnly) {
-      return new Point(pos.x, startPosition.y);
+      return Point(pos.x, startPosition.y);
     }
 
     // Set x-value to startPosition if verticalOnly.
     if (verticalOnly) {
-      return new Point(startPosition.x, pos.y);
+      return Point(startPosition.x, pos.y);
     }
 
     // Axis is not constrained.

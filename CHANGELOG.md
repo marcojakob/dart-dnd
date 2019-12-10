@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.4.3 (2019-12-10)
+
+- Remove unnecessary new keyword.
+
 ## Version 1.4.2 (2019-02-13)
 
 - Fix #30: Cannot initialize Dropzone with List<HtmlElement>.

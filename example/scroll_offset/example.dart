@@ -4,9 +4,8 @@ import 'package:dnd/dnd.dart';
 /// A test with a draggable that has a scrollable parent.
 main() {
   // Install draggable.
-  new Draggable(querySelector('.draggable'),
-      avatarHandler: new AvatarHandler.clone());
+  Draggable(querySelector('.draggable'), avatarHandler: AvatarHandler.clone());
 
   // Install dropzone.
-  new Dropzone(querySelector('.dropzone'));
+  Dropzone(querySelector('.dropzone'));
 }

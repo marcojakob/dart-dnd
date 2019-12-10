@@ -5,11 +5,11 @@ import 'package:dnd/dnd.dart';
 /// dragEnter and dragLeave events.
 main() {
   // Install draggable.
-  new Draggable(querySelector('.draggable'),
-      avatarHandler: new AvatarHandler.original());
+  Draggable(querySelector('.draggable'),
+      avatarHandler: AvatarHandler.original());
 
   // Install dropzone.
-  Dropzone dropzone = new Dropzone(querySelector('.dropzone'));
+  Dropzone dropzone = Dropzone(querySelector('.dropzone'));
 
   // Text element
   Element text = querySelector('.dropzone > span');

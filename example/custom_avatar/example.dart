@@ -9,12 +9,12 @@ import 'package:dnd/dnd.dart';
 /// See [MyAvatarHandler].
 main() {
   // Install draggables.
-  Draggable draggable = new Draggable(querySelectorAll('.document'),
-      avatarHandler: new MyAvatarHandler());
+  Draggable draggable = Draggable(querySelectorAll('.document'),
+      avatarHandler: MyAvatarHandler());
 
   // Install dropzone (trash).
   Element trash = querySelector('.trash');
-  Dropzone dropzone = new Dropzone(trash);
+  Dropzone dropzone = Dropzone(trash);
 
   // Keep track if we're over the trash.
   bool overTrash = false;
@@ -34,7 +34,8 @@ main() {
       handler.updateImage(4);
     } else {
       // Set image depending on distance to trash.
-      int imageNumber = calcImageNumber(trash, event.startPosition, event.position);
+      int imageNumber =
+          calcImageNumber(trash, event.startPosition, event.position);
       handler.updateImage(imageNumber);
     }
   });
@@ -50,14 +51,14 @@ main() {
 ///
 /// The [MyAvatarHandler] creates changing smiley images as drag avatar.
 class MyAvatarHandler extends AvatarHandler {
-
   /// List of smiley src urls.
   static final List<String> SMILEYS = [
     'images/smiley02.png',
     'images/smiley03.png',
     'images/smiley04.png',
     'images/smiley05.png',
-    'images/smiley06.png'];
+    'images/smiley06.png'
+  ];
 
   /// Define an offset for the avatar relative to the mouse cursor.
   static const Point OFFSET = const Point(-64, -130);
@@ -65,14 +66,14 @@ class MyAvatarHandler extends AvatarHandler {
   MyAvatarHandler() {
     // Preload avatar images.
     SMILEYS.forEach((s) {
-      new ImageElement(src: s);
+      ImageElement(src: s);
     });
   }
 
   @override
   void dragStart(Element draggable, Point startPosition) {
     // Use first image as avatar.
-    avatar = new ImageElement(src: SMILEYS[0]);
+    avatar = ImageElement(src: SMILEYS[0]);
 
     // Set the initial position of avatar.
     setLeftTop(startPosition + OFFSET);
@@ -103,8 +104,8 @@ class MyAvatarHandler extends AvatarHandler {
 /// Calculates the image number depending on the distance to [trash].
 int calcImageNumber(Element trash, Point startPosition, Point position) {
   var trashDim = trash.borderEdge;
-  Point trashCenter = new Point(trashDim.left + trashDim.width / 2,
-      trashDim.top + trashDim.height / 2);
+  Point trashCenter = Point(
+      trashDim.left + trashDim.width / 2, trashDim.top + trashDim.height / 2);
 
   // Set image depending on distance to trash.
   double remainingDistance = position.distanceTo(trashCenter) - 64;

@@ -5,11 +5,11 @@ import 'package:dnd/dnd.dart';
 /// A basic example of how to use [Draggable]s and [Dropzone]s together.
 main() {
   // Install draggables (documents).
-  new Draggable(querySelectorAll('.document'),
-      avatarHandler: new AvatarHandler.clone());
+  Draggable(querySelectorAll('.document'),
+      avatarHandler: AvatarHandler.clone());
 
   // Install dropzone (trash).
-  Dropzone dropzone = new Dropzone(querySelector('.trash'));
+  Dropzone dropzone = Dropzone(querySelector('.trash'));
 
   // Remove the documents when dropped.
   dropzone.onDrop.listen((DropzoneEvent event) {

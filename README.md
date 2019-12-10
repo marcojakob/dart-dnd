@@ -39,10 +39,10 @@ If you also want to drop somewhere, you'll need a `Dropzone`.
 
 ```dart
 // Install draggable (no avatar).
-Draggable draggable = new Draggable(querySelectorAll('.draggable'));
+Draggable draggable = Draggable(querySelectorAll('.draggable'));
 
 // Install dropzone.
-Dropzone dropzone = new Dropzone(querySelector('.dropzone'));
+Dropzone dropzone = Dropzone(querySelector('.dropzone'));
 ```
 
 You'll most likely want some **drag avatar** to show the user that a drag is
@@ -51,13 +51,13 @@ But you could also provide your own implementation of `AvatarHandler`.
 
 ```dart
 // Draggable with clone as avatar.
-Draggable draggable = new Draggable(querySelectorAll('.draggable'),
-    avatarHandler: new AvatarHandler.clone());
+Draggable draggable = Draggable(querySelectorAll('.draggable'),
+    avatarHandler: AvatarHandler.clone());
 
 
 // Draggable with original element as avatar.
-Draggable draggable = new Draggable(querySelectorAll('.draggable'),
-    avatarHandler: new AvatarHandler.original());
+Draggable draggable = Draggable(querySelectorAll('.draggable'),
+    avatarHandler: AvatarHandler.original());
 ```
 
 ### Draggable Options
@@ -70,9 +70,9 @@ The following options can be passed as _named parameters_ to the constructor of
   are possible options (see above for an example):
 
   - `null` (the default) - will not create a drag avatar
-  - `new AvatarHandler.original()` - handler that uses the original
+  - `AvatarHandler.original()` - handler that uses the original
     draggable as avatar. See `OriginalAvatarHandler`.
-  - `new AvatarHandler.clone()` - handler that uses a clone of the draggable
+  - `AvatarHandler.clone()` - handler that uses a clone of the draggable
     element as avatar. See `CloneAvatarHandler`.
   - A custom `AvatarHandler` - you can provide your own implementation of
     `AvatarHandler`.

@@ -69,7 +69,7 @@ abstract class _EventManager {
   void handleStart(Event event, Point position) {
     // Initialize the drag info.
     // Note: the drag is not started on touchStart but after a first valid move.
-    _currentDrag = new _DragInfo(drg.id, event.currentTarget, position,
+    _currentDrag = _DragInfo(drg.id, event.currentTarget, position,
         avatarHandler: drg.avatarHandler,
         horizontalOnly: drg.horizontalOnly,
         verticalOnly: drg.verticalOnly);
