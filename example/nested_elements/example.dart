@@ -12,7 +12,7 @@ main() {
   Dropzone dropzone = Dropzone(querySelector('.dropzone'));
 
   // Text element
-  Element text = querySelector('.dropzone > span');
+  Element text = querySelector('.dropzone > span') as Element;
 
   // Listen to dragEnter.
   dropzone.onDragEnter.listen((DropzoneEvent event) {

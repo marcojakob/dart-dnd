@@ -18,9 +18,9 @@ main() {
 
 /// Simple function to swap two elements.
 void swapElements(Element elm1, Element elm2) {
-  var parent1 = elm1.parent;
+  var parent1 = elm1.parent as Element;
   var next1 = elm1.nextElementSibling;
-  var parent2 = elm2.parent;
+  var parent2 = elm2.parent as Element;
   var next2 = elm2.nextElementSibling;
 
   parent1.insertBefore(elm2, next1);

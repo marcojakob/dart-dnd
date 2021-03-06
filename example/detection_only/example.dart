@@ -10,7 +10,7 @@ main() {
   Draggable draggable = Draggable(querySelector('.draggable'));
 
   // Paragraph.
-  Element p = querySelector('.draggable p');
+  Element p = querySelector('.draggable p') as Element;
 
   // Listen to drag start.
   draggable.onDragStart.listen((DraggableEvent event) {

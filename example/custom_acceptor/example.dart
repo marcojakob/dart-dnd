@@ -31,7 +31,8 @@ class MyAcceptor extends Acceptor {
   @override
   bool accepts(
       Element draggableElement, int draggableId, Element dropzoneElement) {
-    InputElement input = draggableElement.querySelector('input');
+    InputElement? input =
+        draggableElement.querySelector('input') as InputElement?;
     return input != null && input.value == 'acceptme';
   }
 }

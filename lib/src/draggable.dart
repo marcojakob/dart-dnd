@@ -4,7 +4,7 @@ part of dnd;
 /// all [Draggable]s know when a drag operation is already handled.
 /// Is also used by the [Dropzone] because we can't pass an [Element] through
 /// the [CustomEvent]s.
-_DragInfo _currentDrag;
+_DragInfo? _currentDrag;
 
 /// The [Draggable] detects drag operations for touch and mouse interactions and
 /// optionally creates a drag avatar for visual feedback of the drag. Event
@@ -27,7 +27,7 @@ class Draggable {
   // --------------
   /// [avatarHandler] is a function to create a [DragAvatar] for this [Draggable].
   /// See [Draggable] constructor.
-  AvatarHandler avatarHandler;
+  AvatarHandler? avatarHandler;
 
   /// When set to true, only horizontal dragging is tracked. This enables
   /// vertical touch dragging to be used for scrolling.
@@ -39,7 +39,7 @@ class Draggable {
 
   /// Restricts dragging from starting to the [handle].
   /// See [Draggable] constructor.
-  String handle;
+  String? handle;
 
   /// Prevents dragging from starting on specified elements.
   /// See [Draggable] constructor.
@@ -60,7 +60,7 @@ class Draggable {
   /// The minimum distance for a drag to prevent click events.
   /// DEPRECATED: Please use [minDragStartDistance] instead.
   @deprecated
-  get clickSuppression => minDragStartDistance;
+  int get clickSuppression => minDragStartDistance;
 
   /// DEPRECATED: Please use [minDragStartDistance] instead.
   @deprecated
@@ -69,9 +69,9 @@ class Draggable {
   // -------------------
   // Events
   // -------------------
-  StreamController<DraggableEvent> _onDragStart;
-  StreamController<DraggableEvent> _onDrag;
-  StreamController<DraggableEvent> _onDragEnd;
+  StreamController<DraggableEvent>? _onDragStart;
+  StreamController<DraggableEvent>? _onDrag;
+  StreamController<DraggableEvent>? _onDragEnd;
 
   /// Fired when the user starts dragging.
   ///
@@ -83,7 +83,7 @@ class Draggable {
       _onDragStart = StreamController<DraggableEvent>.broadcast(
           sync: true, onCancel: () => _onDragStart = null);
     }
-    return _onDragStart.stream;
+    return _onDragStart!.stream;
   }
 
   /// Fired periodically throughout the drag operation.
@@ -92,7 +92,7 @@ class Draggable {
       _onDrag = StreamController<DraggableEvent>.broadcast(
           sync: true, onCancel: () => _onDrag = null);
     }
-    return _onDrag.stream;
+    return _onDrag!.stream;
   }
 
   /// Fired when the user ends the dragging.
@@ -102,12 +102,12 @@ class Draggable {
       _onDragEnd = StreamController<DraggableEvent>.broadcast(
           sync: true, onCancel: () => _onDragEnd = null);
     }
-    return _onDragEnd.stream;
+    return _onDragEnd!.stream;
   }
 
   /// Abort the current drag
   void abort() {
-    if (_currentDrag != null && _currentDrag.draggableId == this.id) {
+    if (_currentDrag != null && _currentDrag!.draggableId == this.id) {
       _handleDragEnd(null, null, cancelled: true);
     }
   }
@@ -116,7 +116,7 @@ class Draggable {
   // Private Properties
   // -------------------
   /// The list of [Element]s on which a drag is detected.
-  List<Element> _elements;
+  late List<Element> _elements;
 
   /// Managers for browser events.
   final List<_EventManager> _eventManagers = [];
@@ -172,7 +172,7 @@ class Draggable {
       this.draggingClassBody = 'dnd-drag-occurring',
       this.minDragStartDistance = 4}) {
     // Wrap in a List if it is not a list but a single Element.
-    _elements = elementOrElementList is List
+    _elements = elementOrElementList is List<Element>
         ? elementOrElementList
         : [elementOrElementList];
 
@@ -194,29 +194,25 @@ class Draggable {
 
   /// Handles the drag start. The [moveEvent] might either be a
   /// [TouchEvent] or a [MouseEvent].
-  void _handleDragStart(UIEvent moveEvent) {
+  void _handleDragStart(Event moveEvent) {
     // Set the drag started flag.
-    _currentDrag.started = true;
+    _currentDrag!.started = true;
 
     // Pass event to AvatarHandler.
     if (avatarHandler != null) {
-      avatarHandler._handleDragStart(
-          _currentDrag.element, _currentDrag.position);
+      avatarHandler!
+          ._handleDragStart(_currentDrag!.element, _currentDrag!.position);
     }
 
     // Fire the drag start event with start position.
     if (_onDragStart != null) {
       // The dragStart has the same for startPosition and current position.
-      _onDragStart.add(DraggableEvent._(moveEvent, _currentDrag));
+      _onDragStart!.add(DraggableEvent._(moveEvent, _currentDrag!));
     }
 
     // Add the css classes during the drag operation.
-    if (draggingClass != null) {
-      _currentDrag.element.classes.add(draggingClass);
-    }
-    if (draggingClassBody != null) {
-      document.body.classes.add(draggingClassBody);
-    }
+    _currentDrag!.element.classes.add(draggingClass);
+    document.body!.classes.add(draggingClassBody);
 
     // Text selections should not be a problem, but it seems better usability
     // to remove text selection when dragging something.
@@ -227,11 +223,11 @@ class Draggable {
   /// [MouseEvent].
   ///
   /// The [target] is the actual target receiving the event.
-  void _handleDrag(UIEvent moveEvent, EventTarget target) {
+  void _handleDrag(Event moveEvent, EventTarget? target) {
     // Pass event to AvatarHandler.
     if (avatarHandler != null) {
-      avatarHandler._handleDrag(
-          _currentDrag.startPosition, _currentDrag.position);
+      avatarHandler!
+          ._handleDrag(_currentDrag!.startPosition, _currentDrag!.position);
     }
 
     // Dispatch internal drag enter, over, or leave event.
@@ -239,7 +235,7 @@ class Draggable {
 
     // Fire the drag event.
     if (_onDrag != null) {
-      _onDrag.add(DraggableEvent._(moveEvent, _currentDrag));
+      _onDrag!.add(DraggableEvent._(moveEvent, _currentDrag!));
     }
   }
 
@@ -252,13 +248,13 @@ class Draggable {
   ///
   /// Set [cancelled] to true to indicate that this drag ended through a
   /// cancel oparation like hitting the `esc` key.
-  void _handleDragEnd(Event event, EventTarget target, {cancelled = false}) {
+  void _handleDragEnd(Event? event, EventTarget? target, {cancelled = false}) {
     // Only handle drag end if the user actually did drag and not just clicked.
-    if (_currentDrag.started) {
+    if (_currentDrag != null && _currentDrag!.started) {
       // Pass event to AvatarHandler.
       if (avatarHandler != null) {
-        avatarHandler._handleDragEnd(
-            _currentDrag.startPosition, _currentDrag.position);
+        avatarHandler!._handleDragEnd(
+            _currentDrag!.startPosition, _currentDrag!.position);
       }
 
       // Dispatch internal drop event if drag was not cancelled.
@@ -268,8 +264,8 @@ class Draggable {
 
       // Fire dragEnd event.
       if (_onDragEnd != null) {
-        _onDragEnd
-            .add(DraggableEvent._(event, _currentDrag, cancelled: cancelled));
+        _onDragEnd!
+            .add(DraggableEvent._(event, _currentDrag!, cancelled: cancelled));
       }
 
       // Prevent TouchEvent from emulating a click after touchEnd event.
@@ -279,16 +275,12 @@ class Draggable {
 
       // Prevent MouseEvent from firing a click after mouseUp event.
       if (event is MouseEvent) {
-        _suppressClickEvent(_currentDrag.element);
+        _suppressClickEvent(_currentDrag!.element);
       }
 
       // Remove the css classes.
-      if (draggingClass != null) {
-        _currentDrag.element.classes.remove(draggingClass);
-      }
-      if (draggingClassBody != null) {
-        document.body.classes.remove(draggingClassBody);
-      }
+      _currentDrag!.element.classes.remove(draggingClass);
+      document.body!.classes.remove(draggingClassBody);
     }
 
     // Reset.
@@ -320,8 +312,8 @@ class Draggable {
     // Destroy all managers with their listeners.
     _eventManagers.forEach((m) => m.destroy());
     _eventManagers.clear();
-    if (avatarHandler != null && avatarHandler.avatar != null) {
-      avatarHandler.avatar.remove();
+    if (avatarHandler != null && avatarHandler!.avatar != null) {
+      avatarHandler!.avatar!.remove();
     }
   }
 
@@ -341,7 +333,7 @@ class Draggable {
   /// in active textarea or active input element.
   void _clearTextSelections() {
     // Remove selection.
-    window.getSelection().removeAllRanges();
+    window.getSelection()?.removeAllRanges();
 
     // Try to remove selection from textarea or input.
     try {
@@ -364,7 +356,7 @@ class DraggableEvent {
   final Element draggableElement;
 
   /// The [AvatarHandler] or null if there is none.
-  final AvatarHandler avatarHandler;
+  final AvatarHandler? avatarHandler;
 
   /// The original event which is either ...
   /// * a [MouseEvent],
@@ -372,7 +364,7 @@ class DraggableEvent {
   /// * a [KeyboardEvent] when the user clicks the esc-key,
   /// * a normal [Event] when the window loses focus (blur event), or
   /// * null if the drag was programmatically aborted.
-  final Event originalEvent;
+  final Event? originalEvent;
 
   /// Position where the drag started, relative to the whole document (page
   /// position).
@@ -408,11 +400,11 @@ class _DragInfo {
   final Point startPosition;
 
   /// The [AvatarHandler] or null if there is none.
-  final AvatarHandler avatarHandler;
+  final AvatarHandler? avatarHandler;
 
   /// The current position of the mouse or touch. This position is constrained
   /// by the horizontal/vertical axis.
-  Point _position;
+  late Point _position;
 
   /// Flag indicating if the drag started.
   bool started = false;

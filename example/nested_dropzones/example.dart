@@ -15,9 +15,9 @@ main() {
   Dropzone innerDropzone = Dropzone(querySelector('.dropzone-inner'));
 
   // The text elements.
-  Element draggableText = querySelector('.draggable > p');
-  Element outerText = querySelector('.dropzone-outer > span');
-  Element innerText = querySelector('.dropzone-inner > span');
+  Element draggableText = querySelector('.draggable > p') as Element;
+  Element outerText = querySelector('.dropzone-outer > span') as Element;
+  Element innerText = querySelector('.dropzone-inner > span') as Element;
 
   // Dropped flags to help for displaying the correct text in dragLeave
   // (dragLeave is fired after a drop).

@@ -36,13 +36,13 @@ class _DragEventDispatcher {
       EventStreamProvider(CUSTOM_DROP);
 
   /// Keeps track of the previous target to be able to fire dragLeave events on it.
-  static EventTarget previousTarget;
+  static EventTarget? previousTarget;
 
   /// Dispatches dragEnter, dragOver, and dragLeave events.
   ///
   /// The [draggable] is the [Draggable] that is dispatching the event.
   /// The [target] is the element that the event will be dispatched on.
-  static void dispatchEnterOverLeave(Draggable draggable, EventTarget target) {
+  static void dispatchEnterOverLeave(Draggable draggable, EventTarget? target) {
     // Sometimes the target is null (e.g. when user drags over buttons on
     // android). Ignore it.
     if (target == null) {
@@ -63,7 +63,7 @@ class _DragEventDispatcher {
       if (previousTarget != null) {
         MouseEvent dragLeaveEvent =
             MouseEvent(CUSTOM_DRAG_LEAVE, relatedTarget: target);
-        previousTarget.dispatchEvent(dragLeaveEvent);
+        previousTarget!.dispatchEvent(dragLeaveEvent);
       }
 
       // Also fire the first dragOver event for the new element.
@@ -78,7 +78,7 @@ class _DragEventDispatcher {
   ///
   /// The [draggable] is the [Draggable] that is dispatching the event.
   /// The [target] is the element that the event will be dispatched on.
-  static void dispatchDrop(Draggable draggable, EventTarget target) {
+  static void dispatchDrop(Draggable draggable, EventTarget? target) {
     // Sometimes the target is null (e.g. when user drags over buttons on
     // android). Ignore it.
     if (target == null) {
@@ -96,7 +96,7 @@ class _DragEventDispatcher {
     // Fire a last dragLeave.
     if (previousTarget != null) {
       MouseEvent dragLeaveEvent = MouseEvent(CUSTOM_DRAG_LEAVE);
-      previousTarget.dispatchEvent(dragLeaveEvent);
+      previousTarget!.dispatchEvent(dragLeaveEvent);
       previousTarget = null;
     }
   }

@@ -69,7 +69,7 @@ abstract class _EventManager {
   void handleStart(Event event, Point position) {
     // Initialize the drag info.
     // Note: the drag is not started on touchStart but after a first valid move.
-    _currentDrag = _DragInfo(drg.id, event.currentTarget, position,
+    _currentDrag = _DragInfo(drg.id, event.currentTarget as Element, position,
         avatarHandler: drg.avatarHandler,
         horizontalOnly: drg.horizontalOnly,
         verticalOnly: drg.verticalOnly);
@@ -84,11 +84,11 @@ abstract class _EventManager {
   /// Handles a move event (touchMove, mouseMove, etc.).
   void handleMove(Event event, Point position, Point clientPosition) {
     // Set the current position.
-    _currentDrag.position = position;
+    _currentDrag!.position = position;
 
-    if (!_currentDrag.started) {
+    if (!_currentDrag!.started) {
       // Test if drag has moved far enough to start drag.
-      if (_currentDrag.startPosition.distanceTo(_currentDrag.position) >=
+      if (_currentDrag!.startPosition.distanceTo(_currentDrag!.position) >=
           drg.minDragStartDistance) {
         // Drag starts now.
         drg._handleDragStart(event);
@@ -101,13 +101,17 @@ abstract class _EventManager {
   }
 
   /// Handles all end events (touchEnd, mouseUp, and pointerUp).
-  void handleEnd(
-      Event event, EventTarget target, Point position, Point clientPosition) {
+  void handleEnd(Event event, EventTarget? target, Point? position,
+      Point? clientPosition) {
     // Set the current position.
-    _currentDrag.position = position;
+    if (position != null) {
+      _currentDrag!.position = position;
+    }
 
-    EventTarget realTarget = _getRealTarget(clientPosition, target: target);
-    drg._handleDragEnd(event, realTarget);
+    if (clientPosition != null) {
+      EventTarget realTarget = _getRealTarget(clientPosition, target: target);
+      drg._handleDragEnd(event, realTarget);
+    }
   }
 
   /// Handles all cancel events (touchCancel and pointerCancel).
@@ -133,16 +137,16 @@ abstract class _EventManager {
     startSubs.clear();
 
     // Reset the touch action property.
-    drg._elements.forEach((el) => el.style.touchAction = null);
+    drg._elements.forEach((el) => el.style.touchAction = '');
   }
 
   /// Determine a target using `document.elementFromPoint` via the provided [clientPosition].
   ///
   /// Falls back to `document.body` if no element is found at the provided [clientPosition].
-  EventTarget _getRealTargetFromPoint(Point clientPosition) {
+  Element _getRealTargetFromPoint(Point clientPosition) {
     return document.elementFromPoint(
             clientPosition.x.round(), clientPosition.y.round()) ??
-        document.body;
+        document.body!;
   }
 
   /// Determine the actual target that should receive the event because
@@ -151,20 +155,20 @@ abstract class _EventManager {
   /// If a [target] is provided it is tested to see if is already the correct
   /// target or if it is the drag avatar and thus must be replaced by the
   /// element underneath.
-  EventTarget _getRealTarget(Point clientPosition, {EventTarget target}) {
+  Element _getRealTarget(Point clientPosition, {EventTarget? target}) {
     // If no target was provided get it.
-    if (target == null) {
+    if (target == null || target is! Element) {
       target = _getRealTargetFromPoint(clientPosition);
     }
 
     // Test if target is the drag avatar.
     if (drg.avatarHandler != null &&
-        drg.avatarHandler.avatar != null &&
-        drg.avatarHandler.avatar.contains(target)) {
+        drg.avatarHandler!.avatar != null &&
+        drg.avatarHandler!.avatar!.contains(target)) {
       // Target is the drag avatar, get element underneath.
-      drg.avatarHandler.avatar.style.visibility = 'hidden';
+      drg.avatarHandler!.avatar!.style.visibility = 'hidden';
       target = _getRealTargetFromPoint(clientPosition);
-      drg.avatarHandler.avatar.style.visibility = 'visible';
+      drg.avatarHandler!.avatar!.style.visibility = 'visible';
     }
 
     target = _recursiveShadowDomTarget(clientPosition, target);
@@ -174,18 +178,18 @@ abstract class _EventManager {
 
   /// Recursively searches for the real target inside the Shadow DOM for all
   /// Shadow hosts with the attribute [SHADOW_DOM_RETARGET_ATTRIBUTE].
-  EventTarget _recursiveShadowDomTarget(
-      Point clientPosition, EventTarget target) {
+  Element _recursiveShadowDomTarget(Point clientPosition, Element target) {
     // Retarget if target is a shadow host and has the specific attribute.
     if (target is Element &&
         target.shadowRoot != null &&
         target.attributes.containsKey(SHADOW_DOM_RETARGET_ATTRIBUTE)) {
-      Element newTarget = (target as Element)
-          .shadowRoot
+      Element? newTarget = target.shadowRoot!
           .elementFromPoint(clientPosition.x.round(), clientPosition.y.round());
 
       // Recursive call for nested shadow DOM trees.
-      target = _recursiveShadowDomTarget(clientPosition, newTarget);
+      if (newTarget != null) {
+        target = _recursiveShadowDomTarget(clientPosition, newTarget);
+      }
     }
 
     return target;
@@ -196,9 +200,7 @@ abstract class _EventManager {
   /// provided, drag cannot be started on those elements.
   bool _isValidDragStartTarget(EventTarget target) {
     // Test if a drag was started on a cancel element.
-    if (drg.cancel != null &&
-        target is Element &&
-        target.matchesWithAncestors(drg.cancel)) {
+    if (target is Element && target.matchesWithAncestors(drg.cancel)) {
       return false;
     }
 
@@ -206,12 +208,12 @@ abstract class _EventManager {
     if (drg.handle != null) {
       if (target is Element) {
         // 1. The target must match the handle query String.
-        if (!target.matchesWithAncestors(drg.handle)) {
+        if (!target.matchesWithAncestors(drg.handle!)) {
           return false;
         }
 
         // 2. The target must be a child of the drag element(s).
-        if (drg._elements.firstWhere((el) => el.contains(target)) != null) {
+        if (drg._elements.any((el) => el.contains(target))) {
           return true;
         }
       }
@@ -238,16 +240,19 @@ class _TouchManager extends _EventManager {
         }
 
         // Ignore multi-touch events.
-        if (event.touches.length > 1) {
+        if (event.touches != null && event.touches!.length > 1) {
           return;
         }
 
         // Ensure the drag started on a valid target.
-        if (!_isValidDragStartTarget(event.touches[0].target)) {
+        if (event.touches != null &&
+            !_isValidDragStartTarget(event.touches![0].target!)) {
           return;
         }
 
-        handleStart(event, event.touches[0].page);
+        if (event.touches != null) {
+          handleStart(event, event.touches![0].page);
+        }
       }));
     });
   }
@@ -256,20 +261,23 @@ class _TouchManager extends _EventManager {
   void installMove() {
     dragSubs.add(document.onTouchMove.listen((TouchEvent event) {
       // Stop and cancel subscriptions on multi-touch.
-      if (event.touches.length > 1) {
+      if (event.touches != null && event.touches!.length > 1) {
         handleCancel(event);
         return;
       }
 
       // Do a scrolling test if this is the first drag.
-      if (!_currentDrag.started && isScrolling(event.changedTouches[0].page)) {
-        // The user is scrolling --> Stop tracking current drag.
-        handleCancel(event);
-        return;
-      }
+      if (event.changedTouches != null) {
+        if (!_currentDrag!.started &&
+            isScrolling(event.changedTouches![0].page)) {
+          // The user is scrolling --> Stop tracking current drag.
+          handleCancel(event);
+          return;
+        }
 
-      handleMove(
-          event, event.changedTouches[0].page, event.changedTouches[0].client);
+        handleMove(event, event.changedTouches![0].page,
+            event.changedTouches![0].client);
+      }
 
       // Prevent touch scrolling.
       event.preventDefault();
@@ -279,8 +287,8 @@ class _TouchManager extends _EventManager {
   @override
   void installEnd() {
     dragSubs.add(document.onTouchEnd.listen((TouchEvent event) {
-      handleEnd(event, null, event.changedTouches[0].page,
-          event.changedTouches[0].client);
+      handleEnd(event, null, event.changedTouches?[0].page,
+          event.changedTouches?[0].client);
     }));
   }
 
@@ -293,7 +301,7 @@ class _TouchManager extends _EventManager {
 
   /// Returns true if there was scrolling activity instead of dragging.
   bool isScrolling(Point currentPosition) {
-    Point delta = currentPosition - _currentDrag.startPosition;
+    Point delta = currentPosition - _currentDrag!.startPosition;
 
     // If horizontalOnly test for vertical movement.
     if (drg.horizontalOnly && delta.y.abs() > delta.x.abs()) {
@@ -331,7 +339,7 @@ class _MouseManager extends _EventManager {
         }
 
         // Ensure the drag started on a valid target.
-        if (!_isValidDragStartTarget(event.target)) {
+        if (event.target != null && !_isValidDragStartTarget(event.target!)) {
           return;
         }
 
@@ -343,7 +351,7 @@ class _MouseManager extends _EventManager {
         // * SelectElement would not show a dropdown.
         // * InputElement and TextAreaElement would not get focus.
         // * ButtonElement and OptionElement - don't know if this is needed??
-        Element target = event.target;
+        EventTarget? target = event.target;
         if (!(target is SelectElement ||
             target is InputElement ||
             target is TextAreaElement ||
@@ -398,7 +406,7 @@ class _PointerManager extends _EventManager {
         }
 
         // Ensure the drag started on a valid target.
-        if (!_isValidDragStartTarget(event.target)) {
+        if (event.target != null && !_isValidDragStartTarget(event.target!)) {
           return;
         }
 
@@ -410,7 +418,7 @@ class _PointerManager extends _EventManager {
         // * SelectElement would not show a dropdown.
         // * InputElement and TextAreaElement would not get focus.
         // * ButtonElement and OptionElement - don't know if this is needed??
-        Element target = event.target;
+        EventTarget? target = event.target;
         if (!(target is SelectElement ||
             target is InputElement ||
             target is TextAreaElement ||

@@ -7,13 +7,13 @@ abstract class AvatarHandler {
   /// Returns the [avatar] element during a drag operation.
   ///
   /// If there is no drag operation going on, [avatar] will be null.
-  Element avatar;
+  Element? avatar;
 
   /// The cached top margin of [avatar].
-  num _marginTop;
+  num? _marginTop;
 
   /// Returns the (cached) top margin of [avatar].
-  num get marginTop {
+  num? get marginTop {
     if (_marginTop == null) {
       cacheMargins();
     }
@@ -21,10 +21,10 @@ abstract class AvatarHandler {
   }
 
   /// The cached left margin of [avatar].
-  num _marginLeft;
+  num? _marginLeft;
 
   /// Returns the (cached) left margin of [avatar].
-  num get marginLeft {
+  num? get marginLeft {
     if (_marginLeft == null) {
       cacheMargins();
     }
@@ -32,7 +32,7 @@ abstract class AvatarHandler {
   }
 
   /// Saved pointer events style before the drag operation.
-  String _pointerEventsBeforeDrag;
+  String? _pointerEventsBeforeDrag;
 
   /// Default constructor.
   AvatarHandler();
@@ -59,8 +59,10 @@ abstract class AvatarHandler {
 
     // Sets the pointer-events CSS property of avatar to 'none' which enables
     // mouse and touch events to go trough to the element under the avatar.
-    _pointerEventsBeforeDrag = avatar.style.pointerEvents;
-    avatar.style.pointerEvents = 'none';
+    if (avatar != null) {
+      _pointerEventsBeforeDrag = avatar!.style.pointerEvents;
+      avatar!.style.pointerEvents = 'none';
+    }
   }
 
   /// Handles the drag.
@@ -73,7 +75,9 @@ abstract class AvatarHandler {
     dragEnd(startPosition, position);
 
     // Reset the pointer-events CSS property to its original value.
-    avatar.style.pointerEvents = _pointerEventsBeforeDrag;
+    if (avatar != null) {
+      avatar!.style.pointerEvents = _pointerEventsBeforeDrag ?? '';
+    }
     _pointerEventsBeforeDrag = null;
 
     // Reset avatar.
@@ -117,7 +121,7 @@ abstract class AvatarHandler {
     AnimationHelper.requestUpdate(() {
       // Unsing `translate3d` to activate GPU hardware-acceleration (a bit of a hack).
       if (avatar != null) {
-        avatar.style.transform =
+        avatar!.style.transform =
             'translate3d(${position.x}px, ${position.y}px, 0)';
       }
     });
@@ -127,7 +131,9 @@ abstract class AvatarHandler {
   /// from [setTranslate].
   void removeTranslate() {
     AnimationHelper.stop();
-    avatar.style.transform = null;
+    if (avatar != null) {
+      avatar!.style.transform = '';
+    }
   }
 
   /// Sets the CSS left/top values of [avatar]. Takes care of any left/top
@@ -136,8 +142,10 @@ abstract class AvatarHandler {
   /// Note: The [avatar] must already be in the DOM for the margins to be
   /// calculated correctly.
   void setLeftTop(Point position) {
-    avatar.style.left = '${position.x - marginLeft}px';
-    avatar.style.top = '${position.y - marginTop}px';
+    if (avatar != null) {
+      avatar!.style.left = '${position.x - (marginLeft ?? 0)}px';
+      avatar!.style.top = '${position.y - (marginTop ?? 0)}px';
+    }
   }
 
   /// Caches the [marginLeft] and [marginTop] of [avatar].
@@ -146,33 +154,37 @@ abstract class AvatarHandler {
   /// operation.
   void cacheMargins() {
     // Calculate margins.
-    var computedStyles = avatar.getComputedStyle();
-    _marginLeft =
-        num.tryParse(computedStyles.marginLeft.replaceFirst('px', '')) ?? 0;
-    _marginTop =
-        num.tryParse(computedStyles.marginTop.replaceFirst('px', '')) ?? 0;
+    if (avatar != null) {
+      var computedStyles = avatar!.getComputedStyle();
+      _marginLeft =
+          num.tryParse(computedStyles.marginLeft.replaceFirst('px', '')) ?? 0;
+      _marginTop =
+          num.tryParse(computedStyles.marginTop.replaceFirst('px', '')) ?? 0;
+    }
   }
 }
 
 /// The [OriginalAvatarHandler] uses the draggable element itself as drag
 /// avatar. It uses absolute positioning of the avatar.
 class OriginalAvatarHandler extends AvatarHandler {
-  Point _draggableStartOffset;
+  Point? _draggableStartOffset;
 
   @override
   void dragStart(Element draggable, Point startPosition) {
     // Use the draggable itself as avatar.
     avatar = draggable;
 
+    // Ensure avatar has an absolute position.
+    if (avatar != null) {
+      avatar!.style.position = 'absolute';
+    }
+
     // Get the start offset of the draggable (relative to the closest positioned
     // ancestor).
     _draggableStartOffset = draggable.offset.topLeft;
 
-    // Ensure avatar has an absolute position.
-    avatar.style.position = 'absolute';
-
     // Set the initial position of the original.
-    setLeftTop(_draggableStartOffset);
+    setLeftTop(_draggableStartOffset!);
   }
 
   @override
@@ -190,7 +202,7 @@ class OriginalAvatarHandler extends AvatarHandler {
     Point constrainedPosition =
         Point(math.max(1, position.x), math.max(1, position.y));
 
-    setLeftTop(constrainedPosition - startPosition + _draggableStartOffset);
+    setLeftTop(constrainedPosition - startPosition + _draggableStartOffset!);
   }
 }
 
@@ -205,11 +217,11 @@ class CloneAvatarHandler extends AvatarHandler {
       ..style.cursor = 'inherit';
 
     // Ensure avatar has an absolute position.
-    avatar.style.position = 'absolute';
-    avatar.style.zIndex = '100';
+    avatar!.style.position = 'absolute';
+    avatar!.style.zIndex = '100';
 
     // Add the drag avatar to the parent element.
-    draggable.parentNode.append(avatar);
+    draggable.parentNode!.append(avatar!);
 
     // Set the initial position of avatar (relative to the closest positioned
     // ancestor).
@@ -223,13 +235,15 @@ class CloneAvatarHandler extends AvatarHandler {
 
   @override
   void dragEnd(Point startPosition, Point position) {
-    avatar.remove();
+    if (avatar != null) {
+      avatar!.remove();
+    }
   }
 }
 
 /// Simple helper class to speed up animation with requestAnimationFrame.
 class AnimationHelper {
-  static Function _lastUpdateFunction;
+  static Function? _lastUpdateFunction;
   static bool _updating = false;
 
   /// Requests that the [updateFunction] be called. When the animation frame is
@@ -252,7 +266,9 @@ class AnimationHelper {
   static void _update() {
     // Test if it wasn't stopped.
     if (_updating) {
-      _lastUpdateFunction();
+      if (_lastUpdateFunction != null) {
+        _lastUpdateFunction!();
+      }
       _updating = false;
     }
   }

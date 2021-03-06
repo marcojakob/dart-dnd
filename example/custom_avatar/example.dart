@@ -13,7 +13,7 @@ main() {
       avatarHandler: MyAvatarHandler());
 
   // Install dropzone (trash).
-  Element trash = querySelector('.trash');
+  Element trash = querySelector('.trash') as Element;
   Dropzone dropzone = Dropzone(trash);
 
   // Keep track if we're over the trash.
@@ -27,7 +27,7 @@ main() {
 
   // Change the drag avatar during the drag.
   draggable.onDrag.listen((DraggableEvent event) {
-    MyAvatarHandler handler = event.avatarHandler;
+    MyAvatarHandler handler = event.avatarHandler as MyAvatarHandler;
 
     if (overTrash) {
       // Set to last image if over trash.
@@ -79,10 +79,10 @@ class MyAvatarHandler extends AvatarHandler {
     setLeftTop(startPosition + OFFSET);
 
     // Ensure avatar has an absolute position.
-    avatar.style.position = 'absolute';
+    avatar!.style.position = 'absolute';
 
     // Add the drag avatar to the body element.
-    document.body.append(avatar);
+    document.body!.append(avatar!);
   }
 
   @override
@@ -92,7 +92,9 @@ class MyAvatarHandler extends AvatarHandler {
 
   @override
   void dragEnd(Point startPosition, Point position) {
-    avatar.remove();
+    if (avatar != null) {
+      avatar!.remove();
+    }
   }
 
   /// Updates the image to [imageNumber].

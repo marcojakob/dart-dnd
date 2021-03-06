@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.0.0 (2021-03-06)
+
+- Migrate to null safety.
+
 ## Version 1.4.3 (2019-12-10)
 
 - Remove unnecessary new keyword.

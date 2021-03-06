@@ -163,7 +163,7 @@ a `dnd-retarget` attribute to the host:
 
 The _Dart Drag and Drop_ library is inspired by
 
-- [jQuery UI Draggable](http://jqueryui.com/draggable/)
+- [jQuery UI Draggable](https://jqueryui.com/draggable/)
 - [Draggabilly](https://draggabilly.desandro.com/)
 
 Thank you for your work!
