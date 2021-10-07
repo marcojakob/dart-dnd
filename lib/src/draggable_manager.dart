@@ -104,7 +104,7 @@ abstract class _EventManager {
   void handleEnd(Event event, EventTarget? target, Point? position,
       Point? clientPosition) {
     // Set the current position.
-    if (position != null) {
+    if (position != null && _currentDrag != null) {
       _currentDrag!.position = position;
     }
 
