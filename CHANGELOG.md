@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.0.1 (2021-10-07)
+
+- Fix #36: Add null checks on `_currentDrag`.
+
 ## Version 2.0.0 (2021-03-06)
 
 - Migrate to null safety.
